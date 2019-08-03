@@ -34,8 +34,9 @@ class ResponseEmitter
      */
     public function emit(ResponseInterface $response): void
     {
+        $isEmpty = $this->isResponseEmpty($response);
         if (headers_sent() === false) {
-            if ($this->isResponseEmpty($response)) {
+            if ($isEmpty) {
                 $response = $response
                     ->withoutHeader('Content-Type')
                     ->withoutHeader('Content-Length');
@@ -44,7 +45,7 @@ class ResponseEmitter
             $this->emitStatusLine($response);
         }
 
-        if (!$this->isResponseEmpty($response)) {
+        if (!$isEmpty) {
             $this->emitBody($response);
         }
     }
@@ -129,8 +130,10 @@ class ResponseEmitter
      */
     public function isResponseEmpty(ResponseInterface $response): bool
     {
+        if (in_array($response->getStatusCode(), [204, 205, 304], true)) {
+            return true;
+        }
         $contents = (string) $response->getBody();
-
-        return !strlen($contents) || in_array($response->getStatusCode(), [204, 205, 304], true);
+        return !strlen($contents);
     }
 }
