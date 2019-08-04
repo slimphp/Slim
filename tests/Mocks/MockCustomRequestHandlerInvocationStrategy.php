@@ -17,10 +17,13 @@ class MockCustomRequestHandlerInvocationStrategy implements RequestHandlerInvoca
 {
     public static $CalledCount = 0;
 
-    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response, array $routeArguments): ResponseInterface
-    {
+    public function __invoke(
+        callable $callable,
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $routeArguments
+    ): ResponseInterface {
         self::$CalledCount += 1;
-
         return $callable($request);
     }
 }
