@@ -11,13 +11,26 @@ namespace Slim\Handlers\Strategies;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Interfaces\InvocationStrategyInterface;
+use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 
 /**
- * Default route callback strategy with route parameters as an array of arguments.
+ * PSR-15 RequestHandler invocation strategy
  */
-class RequestHandler implements InvocationStrategyInterface
+class RequestHandler implements RequestHandlerInvocationStrategyInterface
 {
+    /**
+     * @var bool
+     */
+    protected $appendRouteArgumentsToRequestAttributes;
+
+    /**
+     * @param bool $appendRouteArgumentsToRequestAttributes
+     */
+    public function __construct(bool $appendRouteArgumentsToRequestAttributes = false)
+    {
+        $this->appendRouteArgumentsToRequestAttributes = $appendRouteArgumentsToRequestAttributes;
+    }
+
     /**
      * Invoke a route callable that implements RequestHandlerInterface
      *
@@ -34,6 +47,12 @@ class RequestHandler implements InvocationStrategyInterface
         ResponseInterface $response,
         array $routeArguments
     ): ResponseInterface {
+        if ($this->appendRouteArgumentsToRequestAttributes) {
+            foreach ($routeArguments as $k => $v) {
+                $request = $request->withAttribute($k, $v);
+            }
+        }
+
         return $callable($request);
     }
 }

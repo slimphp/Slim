@@ -19,6 +19,7 @@ use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
+use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\MiddlewareDispatcher;
@@ -360,9 +361,12 @@ class Route implements RouteInterface, RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $callable = $this->callableResolver->resolve($this->callable);
-
         $strategy = $this->invocationStrategy;
-        if (is_array($callable) && $callable[0] instanceof RequestHandlerInterface) {
+
+        if (is_array($callable)
+            && $callable[0] instanceof RequestHandlerInterface
+            && !in_array(RequestHandlerInvocationStrategyInterface::class, class_implements($strategy))
+        ) {
             $strategy = new RequestHandler();
         }
 
