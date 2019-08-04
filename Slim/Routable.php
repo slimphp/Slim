@@ -42,6 +42,16 @@ abstract class Routable
     protected $pattern;
 
     /**
+     * @param string   $pattern
+     * @param callable $callable
+     */
+    public function __construct($pattern, $callable)
+    {
+        $this->pattern = $pattern;
+        $this->callable = $callable;
+    }
+
+    /**
      * Get the middleware registered for the group
      *
      * @return callable[]
