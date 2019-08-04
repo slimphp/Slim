@@ -17,6 +17,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
@@ -29,6 +30,7 @@ use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
+use Slim\Tests\Mocks\MockCustomRequestHandlerInvocationStrategy;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 use Slim\Tests\Mocks\RequestHandlerTest;
@@ -630,6 +632,87 @@ class RouteTest extends TestCase
             ->get(RequestHandlerTest::class)::$strategy;
 
         $this->assertEquals(RequestHandler::class, $strategy);
+    }
+
+    public function testInvokeUsesUserSetStrategyForRequestHandlers()
+    {
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has(RequestHandlerTest::class)->willReturn(true);
+        $containerProphecy->get(RequestHandlerTest::class)->willReturn(new RequestHandlerTest());
+
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
+
+        $deferred = RequestHandlerTest::class;
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver,
+            $containerProphecy->reveal()
+        );
+
+        $strategy = new MockCustomRequestHandlerInvocationStrategy();
+        $route->setInvocationStrategy($strategy);
+
+        $request = $this->createServerRequest('/', 'GET');
+        $route->run($request);
+
+        $this->assertEquals(1, $strategy::$CalledCount);
+    }
+
+    public function testRequestHandlerStrategyAppendsRouteArgumentsAsAttributesToRequest()
+    {
+        $self = $this;
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has(RequestHandlerTest::class)->willReturn(true);
+        $containerProphecy->get(RequestHandlerTest::class)->willReturn(new RequestHandlerTest());
+
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
+
+        $deferred = RequestHandlerTest::class;
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver,
+            $containerProphecy->reveal()
+        );
+
+        $strategy = new RequestHandler(true);
+        $route->setInvocationStrategy($strategy);
+        $route->setArguments(['id' => 1]);
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) use ($self) {
+            $name = $args[0];
+            $value = $args[1];
+
+            $self->assertEquals('id', $name);
+            $self->assertEquals(1, $value);
+
+            return $this;
+        })->shouldBeCalledOnce();
+
+        $route->run($requestProphecy->reveal());
     }
 
     /**
