@@ -92,7 +92,13 @@ class MiddlewareDispatcherTest extends TestCase
         $containerProphecy = $this->prophesize(ContainerInterface::class);
 
         $self = $this;
-        $callable = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($self, $containerProphecy) {
+        $callable = function (
+            ServerRequestInterface $request,
+            RequestHandlerInterface $handler
+        ) use (
+            $self,
+            $containerProphecy
+        ) {
             $self->assertSame($containerProphecy->reveal(), $this);
             return $handler->handle($request);
         };
@@ -113,7 +119,13 @@ class MiddlewareDispatcherTest extends TestCase
         $containerProphecy = $this->prophesize(ContainerInterface::class);
 
         $self = $this;
-        $callable = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($self, $containerProphecy) {
+        $callable = function (
+            ServerRequestInterface $request,
+            RequestHandlerInterface $handler
+        ) use (
+            $self,
+            $containerProphecy
+        ) {
             $self->assertSame($containerProphecy->reveal(), $this);
             return $handler->handle($request);
         };

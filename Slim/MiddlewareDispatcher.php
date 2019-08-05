@@ -174,7 +174,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
                     if ($instance instanceof MiddlewareInterface) {
                         return $instance->process($request, $this->next);
                     }
-                } else if (!function_exists($resolved)) {
+                } elseif (!function_exists($resolved)) {
                     if (!class_exists($resolved)) {
                         throw new RuntimeException(sprintf('Middleware %s does not exist', $resolved));
                     }
