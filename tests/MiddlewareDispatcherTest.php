@@ -16,6 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\MiddlewareDispatcher;
+use Slim\Tests\Mocks\MockMiddlewareSlimCallable;
 use Slim\Tests\Mocks\MockMiddlewareWithConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockRequestHandler;
@@ -74,6 +75,57 @@ class MiddlewareDispatcherTest extends TestCase
         $this->assertEquals(1, $handler->getCalledCount());
     }
 
+    public function testDeferredResolvedSlimCallable()
+    {
+        $handler = new MockRequestHandler();
+        $middlewareDispatcher = new MiddlewareDispatcher($handler, null);
+        $middlewareDispatcher->addDeferred(MockMiddlewareSlimCallable::class . ':custom');
+
+        $request = $this->createServerRequest('/');
+        $middlewareDispatcher->handle($request);
+
+        $this->assertEquals(1, $handler->getCalledCount());
+    }
+
+    public function testDeferredResolvedClosureIsBoundToContainer()
+    {
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+
+        $self = $this;
+        $callable = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($self, $containerProphecy) {
+            $self->assertSame($containerProphecy->reveal(), $this);
+            return $handler->handle($request);
+        };
+
+        $containerProphecy->has('callable')->willReturn(true);
+        $containerProphecy->get('callable')->willReturn($callable);
+
+        $handler = new MockRequestHandler();
+        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
+        $middlewareDispatcher->addDeferred('callable');
+
+        $request = $this->createServerRequest('/');
+        $middlewareDispatcher->handle($request);
+    }
+
+    public function testAddCallableBindsClosureToContainer()
+    {
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+
+        $self = $this;
+        $callable = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($self, $containerProphecy) {
+            $self->assertSame($containerProphecy->reveal(), $this);
+            return $handler->handle($request);
+        };
+
+        $handler = new MockRequestHandler();
+        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
+        $middlewareDispatcher->addCallable($callable);
+
+        $request = $this->createServerRequest('/');
+        $middlewareDispatcher->handle($request);
+    }
+
     public function testResolvableReturnsInstantiatedObject()
     {
         MockMiddlewareWithoutConstructor::$CalledCount = 0;
@@ -91,7 +143,7 @@ class MiddlewareDispatcherTest extends TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage MiddlewareInterfaceNotImplemented is not resolvable
+     * @expectedExceptionMessage Middleware MiddlewareInterfaceNotImplemented is not resolvable
      */
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface()
     {
@@ -109,7 +161,7 @@ class MiddlewareDispatcherTest extends TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Unresolvable::class is not resolvable
+     * @expectedExceptionMessage Middleware Unresolvable::class does not exist
      */
     public function testResolveThrowsExceptionWithoutContainerAndUnresolvableClass()
     {
