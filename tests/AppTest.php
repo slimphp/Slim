@@ -960,6 +960,13 @@ class AppTest extends TestCase
             $middlewareProphecy3,
             &$output
         ) {
+            // ensure that more than one nested group at the same level doesn't break middleware
+            $group->group('/fizz', function (RouteCollectorProxyInterface $group) {
+                $group->get('/buzz', function (ServerRequestInterface $request, ResponseInterface $response) {
+                    return $response;
+                });
+            });
+
             $group->group('/bar', function (RouteCollectorProxyInterface $group) use (
                 $middlewareProphecy3,
                 &$output
