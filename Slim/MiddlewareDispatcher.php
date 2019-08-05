@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -159,24 +160,48 @@ class MiddlewareDispatcher implements RequestHandlerInterface
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 $resolved = $this->middleware;
-                if ($this->container && $this->container->has($this->middleware)) {
-                    $resolved = $this->container->get($this->middleware);
-                    if ($resolved instanceof MiddlewareInterface) {
-                        return $resolved->process($request, $this->next);
+                $instance = null;
+                $method = null;
+
+                // Check for Slim callable as `class:method`
+                if (preg_match(CallableResolver::$callablePattern, $resolved, $matches)) {
+                    $resolved = $matches[1];
+                    $method = $matches[2];
+                }
+
+                if ($this->container && $this->container->has($resolved)) {
+                    $instance = $this->container->get($resolved);
+                    if ($instance instanceof MiddlewareInterface) {
+                        return $instance->process($request, $this->next);
                     }
+                } else if (!function_exists($resolved)) {
+                    if (!class_exists($resolved)) {
+                        throw new RuntimeException(sprintf('Middleware %s does not exist', $resolved));
+                    }
+                    $instance = new $resolved($this->container);
                 }
-                if (is_subclass_of($resolved, MiddlewareInterface::class)) {
-                    /** @var MiddlewareInterface $resolved */
-                    $resolved = new $resolved($this->container);
-                    return $resolved->process($request, $this->next);
+
+                if ($instance && $instance instanceof MiddlewareInterface) {
+                    return $instance->process($request, $this->next);
                 }
-                if (is_callable($resolved)) {
-                    return $resolved($request, $this->next);
+
+                $callable = $instance ?? $resolved;
+                if ($instance && $method) {
+                    $callable = [$instance, $method];
                 }
-                throw new RuntimeException(sprintf(
-                    '%s is not resolvable',
-                    $this->middleware
-                ));
+
+                if (!is_callable($callable)) {
+                    throw new RuntimeException(sprintf(
+                        'Middleware %s is not resolvable',
+                        $this->middleware
+                    ));
+                }
+
+                if ($this->container && $callable instanceof Closure) {
+                    $callable = $callable->bindTo($this->container);
+                }
+
+                return $callable($request, $this->next);
             }
         };
 
@@ -196,6 +221,11 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     public function addCallable(callable $middleware): self
     {
         $next = $this->tip;
+
+        if ($this->container && $middleware instanceof Closure) {
+            $middleware = $middleware->bindTo($this->container);
+        }
+
         $this->tip = new class($middleware, $next) implements RequestHandlerInterface
         {
             private $middleware;
