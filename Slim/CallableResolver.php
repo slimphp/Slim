@@ -22,6 +22,11 @@ use Slim\Interfaces\CallableResolverInterface;
 final class CallableResolver implements CallableResolverInterface
 {
     /**
+     * @var string
+     */
+    public static $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
+
+    /**
      * @var ContainerInterface|null
      */
     private $container;
@@ -55,14 +60,13 @@ final class CallableResolver implements CallableResolverInterface
             $instance = null;
             $method = null;
 
-            // check for slim callable as "class:method"
-            $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
-            if (preg_match($callablePattern, $toResolve, $matches)) {
+            // Check for Slim callable as `class:method`
+            if (preg_match(self::$callablePattern, $toResolve, $matches)) {
                 $class = $matches[1];
                 $method = $matches[2];
             }
 
-            if ($this->container instanceof ContainerInterface && $this->container->has($class)) {
+            if ($this->container && $this->container->has($class)) {
                 $instance = $this->container->get($class);
             } else {
                 if (!class_exists($class)) {
@@ -91,7 +95,7 @@ final class CallableResolver implements CallableResolverInterface
             ));
         }
 
-        if ($this->container instanceof ContainerInterface && $resolved instanceof Closure) {
+        if ($this->container && $resolved instanceof Closure) {
             $resolved = $resolved->bindTo($this->container);
         }
 
