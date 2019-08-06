@@ -32,7 +32,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
      *
      * @var string
      */
-    public const VERSION = '4.0.0';
+    public const VERSION = '4.1.0';
 
     /**
      * @var MiddlewareDispatcher
