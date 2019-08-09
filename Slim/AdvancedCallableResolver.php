@@ -104,11 +104,11 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
      * Resolves the given param and if successful returns an instance as well
      * as a method name.
      *
-     * @param string|callable $toResolve
+     * @param string $toResolve
      *
      * @return array [Instance, Method Name]
      */
-    private function resolveInstanceAndMethod($toResolve): array
+    private function resolveInstanceAndMethod(string $toResolve): array
     {
         $class = $toResolve;
         $instance = null;
@@ -143,7 +143,9 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
         if (!is_callable($resolved)) {
             throw new RuntimeException(sprintf(
                 '%s is not resolvable',
-                is_array($toResolve) || is_object($toResolve) ? json_encode($toResolve) : $toResolve
+                is_callable($toResolve) || is_array($toResolve) || is_object($toResolve) ?
+                    json_encode($toResolve) :
+                    $toResolve
             ));
         }
 
