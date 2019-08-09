@@ -151,7 +151,12 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     public function addDeferred(string $middleware): self
     {
         $next = $this->tip;
-        $this->tip = new class($middleware, $next, $this->container, $this->callableResolver) implements RequestHandlerInterface
+        $this->tip = new class(
+            $middleware,
+            $next,
+            $this->container,
+            $this->callableResolver
+        ) implements RequestHandlerInterface
         {
             private $middleware;
             private $next;
