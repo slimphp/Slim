@@ -60,7 +60,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     ) {
         parent::__construct(
             $responseFactory,
-            $callableResolver ?? new CallableResolver($container),
+            $callableResolver ?? new AdvancedCallableResolver($container),
             $container,
             $routeCollector
         );
@@ -68,7 +68,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
         $this->routeResolver = $routeResolver ?? new RouteResolver($this->routeCollector);
         $routeRunner = new RouteRunner($this->routeResolver, $this->routeCollector->getRouteParser());
 
-        $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $container);
+        $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $container, $this->callableResolver);
     }
 
     /**
