@@ -133,8 +133,8 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
     }
 
     /**
-     * @param mixed                  $resolved
-     * @param string|object|callable $toResolve
+     * @param mixed                        $resolved
+     * @param string|object|array|callable $toResolve
      *
      * @return callable
      */
@@ -143,7 +143,8 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
         if (!is_callable($resolved)) {
             throw new RuntimeException(sprintf(
                 '%s is not resolvable',
-                is_callable($toResolve) || is_object($toResolve) ? json_encode($toResolve) : $toResolve
+                is_callable($toResolve) || is_object($toResolve) || is_array($toResolve) ?
+                    json_encode($toResolve) : $toResolve
             ));
         }
 
