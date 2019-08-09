@@ -104,7 +104,7 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
      * Resolves the given param and if successful returns an instance as well
      * as a method name.
      *
-     * @param $toResolve
+     * @param string|callable $toResolve
      *
      * @return array [Instance, Method Name]
      */
@@ -133,8 +133,8 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
     }
 
     /**
-     * @param $resolved
-     * @param $toResolve
+     * @param mixed           $resolved
+     * @param string|callable $toResolve
      *
      * @return callable
      */
