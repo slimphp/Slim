@@ -11,12 +11,27 @@ namespace Slim\Tests\Middleware;
 
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Middleware\ContentLengthMiddleware;
-use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
 class ContentLengthMiddlewareTest extends TestCase
 {
-    public function testAddsContentLength()
+    /**
+     * Provide a boolean flag to indicate whether the test case should use the
+     * advanced callable resolver or the non-advanced callable resolver
+     *
+     * @return array
+     */
+    public function useAdvancedCallableResolverDataProvider(): array
+    {
+        return [[true], [false]];
+    }
+
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testAddsContentLength(bool $useAdvancedCallableResolver)
     {
         $request = $this->createServerRequest('/');
         $responseFactory = $this->getResponseFactory();
@@ -28,7 +43,11 @@ class ContentLengthMiddlewareTest extends TestCase
         };
         $mw2 = new ContentLengthMiddleware();
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandlerInterface::class),
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $response = $middlewareDispatcher->handle($request);

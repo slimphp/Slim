@@ -13,12 +13,27 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
 class MethodOverrideMiddlewareTest extends TestCase
 {
-    public function testHeader()
+    /**
+     * Provide a boolean flag to indicate whether the test case should use the
+     * advanced callable resolver or the non-advanced callable resolver
+     *
+     * @return array
+     */
+    public function useAdvancedCallableResolverDataProvider(): array
+    {
+        return [[true], [false]];
+    }
+
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testHeader(bool $useAdvancedCallableResolver)
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -31,13 +46,22 @@ class MethodOverrideMiddlewareTest extends TestCase
             ->createServerRequest('/', 'POST')
             ->withHeader('X-Http-Method-Override', 'PUT');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    public function testBodyParam()
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testBodyParam(bool $useAdvancedCallableResolver)
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -51,13 +75,22 @@ class MethodOverrideMiddlewareTest extends TestCase
             ->createServerRequest('/', 'POST')
             ->withParsedBody(['_METHOD' => 'PUT']);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    public function testHeaderPreferred()
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testHeaderPreferred(bool $useAdvancedCallableResolver)
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -72,13 +105,22 @@ class MethodOverrideMiddlewareTest extends TestCase
             ->withHeader('X-Http-Method-Override', 'DELETE')
             ->withParsedBody((object) ['_METHOD' => 'PUT']);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    public function testNoOverride()
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testNoOverride(bool $useAdvancedCallableResolver)
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -90,13 +132,22 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('/', 'POST');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    public function testNoOverrideRewindEofBodyStream()
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testNoOverrideRewindEofBodyStream(bool $useAdvancedCallableResolver)
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -122,7 +173,11 @@ class MethodOverrideMiddlewareTest extends TestCase
         $body = $bodyProphecy->reveal();
         $request = $request->withBody($body);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);

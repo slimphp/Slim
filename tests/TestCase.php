@@ -17,8 +17,12 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\AdvancedCallableResolver;
 use Slim\CallableResolver;
+use Slim\Interfaces\AdvancedCallableResolverInterface;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\MiddlewareDispatcher;
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
 abstract class TestCase extends PhpUnitTestCase
@@ -58,6 +62,40 @@ abstract class TestCase extends PhpUnitTestCase
     protected function getCallableResolver(?ContainerInterface $container = null): CallableResolverInterface
     {
         return new CallableResolver($container);
+    }
+
+    /**
+     * Get a default advanced callable resolver with or without a container
+     *
+     * @param ContainerInterface|null $container
+     *
+     * @return AdvancedCallableResolverInterface
+     */
+    protected function getAdvancedCallableResolver(
+        ?ContainerInterface $container = null
+    ): AdvancedCallableResolverInterface {
+        return new AdvancedCallableResolver($container);
+    }
+
+    /**
+     * @param RequestHandlerInterface $requestHandler
+     * @param ContainerInterface|null $container
+     * @param bool                    $useAdvancedCallableResolver
+     *
+     * @return MiddlewareDispatcher
+     */
+    protected function createMiddlewareDispatcher(
+        RequestHandlerInterface $requestHandler,
+        ?ContainerInterface $container = null,
+        bool $useAdvancedCallableResolver = true
+    ): MiddlewareDispatcher {
+        return new MiddlewareDispatcher(
+            $requestHandler,
+            $useAdvancedCallableResolver ?
+                $this->getAdvancedCallableResolver($container) :
+                $this->getCallableResolver($container),
+            $container
+        );
     }
 
     /**

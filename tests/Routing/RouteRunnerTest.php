@@ -22,7 +22,23 @@ use Slim\Tests\TestCase;
 
 class RouteRunnerTest extends TestCase
 {
-    public function testRoutingIsPerformedIfRoutingResultsAreUnavailable()
+    /**
+     * Provide a boolean flag to indicate whether the test case should use the
+     * advanced callable resolver or the non-advanced callable resolver
+     *
+     * @return array
+     */
+    public function useAdvancedCallableResolverDataProvider(): array
+    {
+        return [[true], [false]];
+    }
+
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testRoutingIsPerformedIfRoutingResultsAreUnavailable(bool $useAdvancedCallableResolver)
     {
         $handler = (function (ServerRequestInterface $request, ResponseInterface $response) {
             $routingResults = $request->getAttribute('routingResults');
@@ -30,7 +46,8 @@ class RouteRunnerTest extends TestCase
             return $response;
         })->bindTo($this);
 
-        $callableResolver = new CallableResolver();
+        $callableResolver = $useAdvancedCallableResolver ?
+            $this->getAdvancedCallableResolver() : $this->getCallableResolver();
         $responseFactory = $this->getResponseFactory();
 
         $routeCollector = new RouteCollector($responseFactory, $callableResolver);
@@ -42,7 +59,7 @@ class RouteRunnerTest extends TestCase
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
         $dispatcher = new RouteRunner($routeResolver, $routeParser);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($dispatcher);
+        $middlewareDispatcher = new MiddlewareDispatcher($dispatcher, $callableResolver);
         $middlewareDispatcher->handle($request);
     }
 }

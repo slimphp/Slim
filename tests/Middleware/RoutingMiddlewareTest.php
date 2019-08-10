@@ -20,7 +20,6 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Middleware\RoutingMiddleware;
-use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteParser;
 use Slim\Routing\RouteResolver;
@@ -29,6 +28,17 @@ use Slim\Tests\TestCase;
 
 class RoutingMiddlewareTest extends TestCase
 {
+    /**
+     * Provide a boolean flag to indicate whether the test case should use the
+     * advanced callable resolver or the non-advanced callable resolver
+     *
+     * @return array
+     */
+    public function useAdvancedCallableResolverDataProvider(): array
+    {
+        return [[true], [false]];
+    }
+
     protected function getRouteCollector()
     {
         $callableResolver = new CallableResolver();
@@ -38,7 +48,12 @@ class RoutingMiddlewareTest extends TestCase
         return $routeCollector;
     }
 
-    public function testRouteIsStoredOnSuccessfulMatch()
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testRouteIsStoredOnSuccessfulMatch(bool $useAdvancedCallableResolver)
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (ServerRequestInterface $request) use ($responseFactory) {
@@ -65,13 +80,22 @@ class RoutingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandlerInterface::class),
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    public function testRouteIsNotStoredOnMethodNotAllowed()
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testRouteIsNotStoredOnMethodNotAllowed(bool $useAdvancedCallableResolver)
     {
         $routeCollector = $this->getRouteCollector();
         $routeParser = new RouteParser($routeCollector);
@@ -80,8 +104,14 @@ class RoutingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'POST');
         $requestHandlerProphecy = $this->prophesize(RequestHandlerInterface::class);
+        /** @var RequestHandlerInterface $requestHandler */
+        $requestHandler = $requestHandlerProphecy->reveal();
 
-        $middlewareDispatcher = new MiddlewareDispatcher($requestHandlerProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $requestHandler,
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addMiddleware($routingMiddleware);
 
         try {
@@ -106,7 +136,12 @@ class RoutingMiddlewareTest extends TestCase
         }
     }
 
-    public function testRouteIsNotStoredOnNotFound()
+    /**
+     * @dataProvider useAdvancedCallableResolverDataProvider
+     *
+     * @param bool $useAdvancedCallableResolver
+     */
+    public function testRouteIsNotStoredOnNotFound(bool $useAdvancedCallableResolver)
     {
         $routeCollector = $this->getRouteCollector();
         $routeParser = new RouteParser($routeCollector);
@@ -115,8 +150,14 @@ class RoutingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('https://example.com:443/goodbye', 'GET');
         $requestHandlerProphecy = $this->prophesize(RequestHandlerInterface::class);
+        /** @var RequestHandlerInterface $requestHandler */
+        $requestHandler = $requestHandlerProphecy->reveal();
 
-        $middlewareDispatcher = new MiddlewareDispatcher($requestHandlerProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $requestHandler,
+            null,
+            $useAdvancedCallableResolver
+        );
         $middlewareDispatcher->addMiddleware($routingMiddleware);
 
         try {

@@ -146,7 +146,7 @@ class Route implements RouteInterface, RequestHandlerInterface
         $this->invocationStrategy = $invocationStrategy ?? new RequestResponse();
         $this->groups = $groups;
         $this->identifier = 'route' . $identifier;
-        $this->middlewareDispatcher = new MiddlewareDispatcher($this, $container);
+        $this->middlewareDispatcher = new MiddlewareDispatcher($this, $callableResolver, $container);
     }
 
     /**
@@ -346,7 +346,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     protected function appendGroupMiddlewareToRoute(): void
     {
         $inner = $this->middlewareDispatcher;
-        $this->middlewareDispatcher = new MiddlewareDispatcher($inner, $this->container);
+        $this->middlewareDispatcher = new MiddlewareDispatcher($inner, $this->callableResolver, $this->container);
 
         /** @var RouteGroupInterface $group */
         foreach (array_reverse($this->groups) as $group) {

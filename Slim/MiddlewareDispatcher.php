@@ -29,28 +29,28 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     protected $tip;
 
     /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
+
+    /**
      * @var ContainerInterface|null
      */
     protected $container;
 
     /**
-     * @var CallableResolverInterface|null
-     */
-    protected $callableResolver;
-
-    /**
-     * @param RequestHandlerInterface        $kernel
-     * @param ContainerInterface|null        $container
-     * @param CallableResolverInterface|null $callableResolver
+     * @param RequestHandlerInterface   $kernel
+     * @param CallableResolverInterface $callableResolver
+     * @param ContainerInterface|null   $container
      */
     public function __construct(
         RequestHandlerInterface $kernel,
-        ?ContainerInterface $container = null,
-        ?CallableResolverInterface $callableResolver = null
+        CallableResolverInterface $callableResolver,
+        ?ContainerInterface $container = null
     ) {
         $this->seedMiddlewareStack($kernel);
-        $this->container = $container;
         $this->callableResolver = $callableResolver;
+        $this->container = $container;
     }
 
     /**
@@ -180,36 +180,45 @@ class MiddlewareDispatcher implements RequestHandlerInterface
                 $callable = null;
                 if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
                     $callable = $this->callableResolver->resolveMiddleware($this->middleware);
-                } elseif ($this->callableResolver === null) {
-                    $resolved = $this->middleware;
-                    $instance = null;
-                    $method = null;
-
-                    // Check for Slim callable as `class:method`
-                    if (preg_match(CallableResolver::$callablePattern, $resolved, $matches)) {
-                        $resolved = $matches[1];
-                        $method = $matches[2];
+                } else {
+                    if ($this->callableResolver instanceof CallableResolverInterface) {
+                        try {
+                            $callable = $this->callableResolver->resolve($this->middleware);
+                        } catch (RuntimeException $ignore) {
+                        }
                     }
 
-                    if ($this->container && $this->container->has($resolved)) {
-                        $instance = $this->container->get($resolved);
-                        if ($instance instanceof MiddlewareInterface) {
+                    if (!is_callable($callable)) {
+                        $resolved = $this->middleware;
+                        $instance = null;
+                        $method = null;
+
+                        // Check for Slim callable as `class:method`
+                        if (preg_match(CallableResolver::$callablePattern, $resolved, $matches)) {
+                            $resolved = $matches[1];
+                            $method = $matches[2];
+                        }
+
+                        if ($this->container && $this->container->has($resolved)) {
+                            $instance = $this->container->get($resolved);
+                            if ($instance instanceof MiddlewareInterface) {
+                                return $instance->process($request, $this->next);
+                            }
+                        } elseif (!function_exists($resolved)) {
+                            if (!class_exists($resolved)) {
+                                throw new RuntimeException(sprintf('Middleware %s does not exist', $resolved));
+                            }
+                            $instance = new $resolved($this->container);
+                        }
+
+                        if ($instance && $instance instanceof MiddlewareInterface) {
                             return $instance->process($request, $this->next);
                         }
-                    } elseif (!function_exists($resolved)) {
-                        if (!class_exists($resolved)) {
-                            throw new RuntimeException(sprintf('Middleware %s does not exist', $resolved));
+
+                        $callable = $instance ?? $resolved;
+                        if ($instance && $method) {
+                            $callable = [$instance, $method];
                         }
-                        $instance = new $resolved($this->container);
-                    }
-
-                    if ($instance && $instance instanceof MiddlewareInterface) {
-                        return $instance->process($request, $this->next);
-                    }
-
-                    $callable = $instance ?? $resolved;
-                    if ($instance && $method) {
-                        $callable = [$instance, $method];
                     }
                 }
 

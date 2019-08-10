@@ -148,6 +148,10 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
             ));
         }
 
+        if (is_array($resolved) && $resolved[0] instanceof Closure) {
+            $resolved = $resolved[0];
+        }
+
         if ($this->container && $resolved instanceof Closure) {
             $resolved = $resolved->bindTo($this->container);
         }
