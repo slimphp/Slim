@@ -31,7 +31,6 @@ use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Psr7\Factory\ResponseFactory as SlimResponseFactory;
 use Slim\Routing\RouteCollector;
-use Slim\Tests\Mocks\MockContainer;
 use Slim\Tests\Mocks\MockPsr17FactoryWithoutStreamFactory;
 use Slim\Tests\TestCase;
 use Zend\Diactoros\ResponseFactory as ZendDiactorosResponseFactory;
@@ -230,40 +229,118 @@ class AppFactoryTest extends TestCase
         $this->assertSame($streamFactoryProphecy->reveal(), $streamFactoryProperty->getValue($response));
     }
 
-    public function testCreateAppWithEmptyContainer()
+    public function testCreateAppWithContainerUsesContainerDependenciesWhenPresent()
     {
-        $container = new MockContainer([]);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+        $routeParserProphecy = $this->prophesize(RouteParserInterface::class);
 
-        $app = AppFactory::createFromContainer($container);
+        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeCollectorProphecy
+            ->getRouteParser()
+            ->willReturn($routeParserProphecy->reveal())
+            ->shouldBeCalledOnce();
 
-        $this->assertSame($container, $app->getContainer());
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+
+        $containerProphecy
+            ->has(ResponseFactoryInterface::class)
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get(ResponseFactoryInterface::class)
+            ->willReturn($responseFactoryProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(CallableResolverInterface::class)
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get(CallableResolverInterface::class)
+            ->willReturn($callableResolverProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(RouteCollectorInterface::class)
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get(RouteCollectorInterface::class)
+            ->willReturn($routeCollectorProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(RouteResolverInterface::class)
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get(RouteResolverInterface::class)
+            ->willReturn($routeResolverProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+        $app = AppFactory::createFromContainer($containerProphecy->reveal());
+
+        $this->assertSame($app->getResponseFactory(), $responseFactoryProphecy->reveal());
+        $this->assertSame($app->getContainer(), $containerProphecy->reveal());
+        $this->assertSame($app->getCallableResolver(), $callableResolverProphecy->reveal());
+        $this->assertSame($app->getRouteCollector(), $routeCollectorProphecy->reveal());
+        $this->assertSame($app->getRouteResolver(), $routeResolverProphecy->reveal());
     }
 
-    public function testCreateAppWithContainerThatProvidesAllImplementations()
+    public function testCreateAppWithContainerFallsBackOntoInternalLogic()
     {
-        $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
-        $callableResolver = $this->prophesize(CallableResolverInterface::class)->reveal();
-        $routeParser = $this->prophesize(RouteParserInterface::class)->reveal();
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+        $routeParserProphecy = $this->prophesize(RouteParserInterface::class);
+
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
-        $routeCollectorProphecy->getRouteParser()
-            ->willReturn($routeParser);
-        $routeCollector = $routeCollectorProphecy->reveal();
-        $routeResolver = $this->prophesize(RouteResolverInterface::class)->reveal();
+        $routeCollectorProphecy
+            ->getRouteParser()
+            ->willReturn($routeParserProphecy->reveal())
+            ->shouldBeCalledOnce();
 
-        $container = new MockContainer([
-            ResponseFactoryInterface::class => $responseFactory,
-            CallableResolverInterface::class => $callableResolver,
-            RouteCollectorInterface::class => $routeCollector,
-            RouteParserInterface::class => $routeParser,
-            RouteResolverInterface::class => $routeResolver,
-        ]);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
 
-        $app = AppFactory::createFromContainer($container);
+        $containerProphecy
+            ->has(ResponseFactoryInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
 
-        $this->assertSame($responseFactory, $app->getResponseFactory());
-        $this->assertSame($container, $app->getContainer());
-        $this->assertSame($callableResolver, $app->getCallableResolver());
-        $this->assertSame($routeCollector, $app->getRouteCollector());
-        $this->assertSame($routeResolver, $app->getRouteResolver());
+        $containerProphecy
+            ->has(CallableResolverInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(RouteCollectorInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(RouteResolverInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+        AppFactory::setResponseFactory($responseFactoryProphecy->reveal());
+        AppFactory::setCallableResolver($callableResolverProphecy->reveal());
+        AppFactory::setRouteCollector($routeCollectorProphecy->reveal());
+        AppFactory::setRouteResolver($routeResolverProphecy->reveal());
+
+        $app = AppFactory::createFromContainer($containerProphecy->reveal());
+
+        $this->assertSame($app->getResponseFactory(), $responseFactoryProphecy->reveal());
+        $this->assertSame($app->getContainer(), $containerProphecy->reveal());
+        $this->assertSame($app->getCallableResolver(), $callableResolverProphecy->reveal());
+        $this->assertSame($app->getRouteCollector(), $routeCollectorProphecy->reveal());
+        $this->assertSame($app->getRouteResolver(), $routeResolverProphecy->reveal());
     }
 }
