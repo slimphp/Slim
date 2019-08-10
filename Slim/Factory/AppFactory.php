@@ -90,6 +90,28 @@ class AppFactory
     }
 
     /**
+     * @param ContainerInterface $container
+     * @return App
+     */
+    public static function createFromContainer(ContainerInterface $container): App
+    {
+        $responseFactory = $container->has(ResponseFactoryInterface::class)
+            ? $container->get(ResponseFactoryInterface::class)
+            : self::determineResponseFactory();
+        $callableResolver = $container->has(CallableResolverInterface::class)
+            ? $container->get(CallableResolverInterface::class)
+            : null;
+        $routeCollector = $container->has(RouteCollectorInterface::class)
+            ? $container->get(RouteCollectorInterface::class)
+            : null;
+        $routeResolver = $container->has(RouteResolverInterface::class)
+            ? $container->get(RouteResolverInterface::class)
+            : null;
+
+        return new App($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver);
+    }
+
+    /**
      * @return ResponseFactoryInterface
      * @throws RuntimeException
      */

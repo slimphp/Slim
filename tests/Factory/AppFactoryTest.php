@@ -31,6 +31,7 @@ use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Psr7\Factory\ResponseFactory as SlimResponseFactory;
 use Slim\Routing\RouteCollector;
+use Slim\Tests\Mocks\MockContainer;
 use Slim\Tests\Mocks\MockPsr17FactoryWithoutStreamFactory;
 use Slim\Tests\TestCase;
 use Zend\Diactoros\ResponseFactory as ZendDiactorosResponseFactory;
@@ -227,5 +228,41 @@ class AppFactoryTest extends TestCase
         $streamFactoryProperty->setAccessible(true);
 
         $this->assertSame($streamFactoryProphecy->reveal(), $streamFactoryProperty->getValue($response));
+    }
+
+    public function testCreateAppWithEmptyContainer()
+    {
+        $container = new MockContainer([]);
+
+        $app = AppFactory::createFromContainer($container);
+
+        $this->assertSame($container, $app->getContainer());
+    }
+
+    public function testCreateAppWithContainerThatProvidesAllImplementations()
+    {
+        $responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $callableResolver = $this->createMock(CallableResolverInterface::class);
+        $routeParser = $this->createMock(RouteParserInterface::class);
+        $routeCollector = $this->createConfiguredMock(RouteCollectorInterface::class, [
+            'getRouteParser' => $routeParser
+        ]);
+        $routeResolver = $this->createMock(RouteResolverInterface::class);
+
+        $container = new MockContainer([
+            ResponseFactoryInterface::class => $responseFactory,
+            CallableResolverInterface::class => $callableResolver,
+            RouteCollectorInterface::class => $routeCollector,
+            RouteParserInterface::class => $routeParser,
+            RouteResolverInterface::class => $routeResolver,
+        ]);
+
+        $app = AppFactory::createFromContainer($container);
+
+        $this->assertSame($responseFactory, $app->getResponseFactory());
+        $this->assertSame($container, $app->getContainer());
+        $this->assertSame($callableResolver, $app->getCallableResolver());
+        $this->assertSame($routeCollector, $app->getRouteCollector());
+        $this->assertSame($routeResolver, $app->getRouteResolver());
     }
 }
