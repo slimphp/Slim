@@ -148,14 +148,14 @@ class ResponseEmitterTest extends TestCase
     {
         $response = $this
             ->createResponse(200, 'OK')
-            ->withHeader('Set-Cookie', 'foo=bar')
+            ->withHeader('set-cOOkie', 'foo=bar')
             ->withAddedHeader('Set-Cookie', 'bar=baz');
         $responseEmitter = new ResponseEmitter();
         $responseEmitter->emit($response);
 
         $expectedStack = [
-            ['header' => 'Set-Cookie: foo=bar', 'replace' => false, 'status_code' => null],
-            ['header' => 'Set-Cookie: bar=baz', 'replace' => false, 'status_code' => null],
+            ['header' => 'set-cOOkie: foo=bar', 'replace' => false, 'status_code' => null],
+            ['header' => 'set-cOOkie: bar=baz', 'replace' => false, 'status_code' => null],
             ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
         ];
 
@@ -179,7 +179,7 @@ class ResponseEmitterTest extends TestCase
         $response = $this
             ->createResponse(204, 'No content')
             ->withBody($body);
-        
+
         $responseEmitter = new ResponseEmitter();
         $responseEmitter->emit($response);
 
