@@ -241,13 +241,14 @@ class AppFactoryTest extends TestCase
 
     public function testCreateAppWithContainerThatProvidesAllImplementations()
     {
-        $responseFactory = $this->createMock(ResponseFactoryInterface::class);
-        $callableResolver = $this->createMock(CallableResolverInterface::class);
-        $routeParser = $this->createMock(RouteParserInterface::class);
-        $routeCollector = $this->createConfiguredMock(RouteCollectorInterface::class, [
-            'getRouteParser' => $routeParser
-        ]);
-        $routeResolver = $this->createMock(RouteResolverInterface::class);
+        $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
+        $callableResolver = $this->prophesize(CallableResolverInterface::class)->reveal();
+        $routeParser = $this->prophesize(RouteParserInterface::class)->reveal();
+        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeCollectorProphecy->getRouteParser()
+            ->willReturn($routeParser);
+        $routeCollector = $routeCollectorProphecy->reveal();
+        $routeResolver = $this->prophesize(RouteResolverInterface::class)->reveal();
 
         $container = new MockContainer([
             ResponseFactoryInterface::class => $responseFactory,
