@@ -45,7 +45,7 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
             }
         }
 
-        return $this->checkResolvedAndBindContainerIfClosure($resolved, $toResolve);
+        return $this->assertCallableAndBindClosureToContainer($resolved, $toResolve);
     }
 
     /**
@@ -71,7 +71,7 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
             $resolved = [$resolved, 'handle'];
         }
 
-        return $this->checkResolvedAndBindContainerIfClosure($resolved, $toResolve);
+        return $this->assertCallableAndBindClosureToContainer($resolved, $toResolve);
     }
 
     /**
@@ -97,7 +97,7 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
             $resolved = [$resolved, 'process'];
         }
 
-        return $this->checkResolvedAndBindContainerIfClosure($resolved, $toResolve);
+        return $this->assertCallableAndBindClosureToContainer($resolved, $toResolve);
     }
 
     /**
@@ -138,7 +138,7 @@ final class AdvancedCallableResolver implements AdvancedCallableResolverInterfac
      *
      * @return callable
      */
-    private function checkResolvedAndBindContainerIfClosure($resolved, $toResolve): callable
+    private function assertCallableAndBindClosureToContainer($resolved, $toResolve): callable
     {
         if (!is_callable($resolved)) {
             throw new RuntimeException(sprintf(
