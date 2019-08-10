@@ -1,2 +1,3 @@
 parameters:
   level: max
+  inferPrivatePropertyTypeFromConstructor: true
