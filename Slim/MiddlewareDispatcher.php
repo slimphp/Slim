@@ -178,7 +178,9 @@ class MiddlewareDispatcher implements RequestHandlerInterface
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 $callable = null;
-                if ($this->callableResolver === null) {
+                if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
+                    $callable = $this->callableResolver->resolveMiddleware($this->middleware);
+                } elseif ($this->callableResolver === null) {
                     $resolved = $this->middleware;
                     $instance = null;
                     $method = null;
@@ -209,8 +211,6 @@ class MiddlewareDispatcher implements RequestHandlerInterface
                     if ($instance && $method) {
                         $callable = [$instance, $method];
                     }
-                } elseif ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
-                    $callable = $this->callableResolver->resolveMiddleware($this->middleware);
                 }
 
                 if (!is_callable($callable)) {
