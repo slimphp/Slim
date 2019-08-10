@@ -134,11 +134,6 @@ class MiddlewareDispatcherTest extends TestCase
      */
     public function testDeferredResolvedClosureIsBoundToContainer(bool $useAdvancedCallableResolver)
     {
-        if (!$useAdvancedCallableResolver) {
-            // TODO We need to handle this case. Something fails.
-            $this->markTestSkipped();
-            return;
-        }
         $containerProphecy = $this->prophesize(ContainerInterface::class);
 
         $self = $this;
@@ -520,11 +515,6 @@ class MiddlewareDispatcherTest extends TestCase
      */
     public function testFetchesMiddlewareFromContainer(bool $useAdvancedCallableResolver)
     {
-        if (!$useAdvancedCallableResolver) {
-            // TODO This should be analyzed: "Method `Double\MiddlewareInterface\P461::__invoke()` not found."
-            $this->markTestSkipped();
-            return;
-        }
         $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
         $requestProphecy = $this->prophesize(ServerRequestInterface::class);
         $responseProphecy = $this->prophesize(ResponseInterface::class);
