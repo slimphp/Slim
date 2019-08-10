@@ -97,18 +97,21 @@ class AppFactory
     {
         $responseFactory = $container->has(ResponseFactoryInterface::class)
             ? $container->get(ResponseFactoryInterface::class)
-            : self::determineResponseFactory();
+            : null;
+
         $callableResolver = $container->has(CallableResolverInterface::class)
             ? $container->get(CallableResolverInterface::class)
             : null;
+
         $routeCollector = $container->has(RouteCollectorInterface::class)
             ? $container->get(RouteCollectorInterface::class)
             : null;
+
         $routeResolver = $container->has(RouteResolverInterface::class)
             ? $container->get(RouteResolverInterface::class)
             : null;
 
-        return new App($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver);
+        return self::create($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver);
     }
 
     /**
