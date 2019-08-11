@@ -60,7 +60,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     ) {
         parent::__construct(
             $responseFactory,
-            $callableResolver ?? new AdvancedCallableResolver($container),
+            $callableResolver ?? new CallableResolver($container),
             $container,
             $routeCollector
         );

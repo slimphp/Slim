@@ -22,23 +22,7 @@ use Slim\Tests\TestCase;
 
 class RouteRunnerTest extends TestCase
 {
-    /**
-     * Provide a boolean flag to indicate whether the test case should use the
-     * advanced callable resolver or the non-advanced callable resolver
-     *
-     * @return array
-     */
-    public function useAdvancedCallableResolverDataProvider(): array
-    {
-        return [[true], [false]];
-    }
-
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testRoutingIsPerformedIfRoutingResultsAreUnavailable(bool $useAdvancedCallableResolver)
+    public function testRoutingIsPerformedIfRoutingResultsAreUnavailable()
     {
         $handler = (function (ServerRequestInterface $request, ResponseInterface $response) {
             $routingResults = $request->getAttribute('routingResults');
@@ -46,8 +30,7 @@ class RouteRunnerTest extends TestCase
             return $response;
         })->bindTo($this);
 
-        $callableResolver = $useAdvancedCallableResolver ?
-            $this->getAdvancedCallableResolver() : $this->getCallableResolver();
+        $callableResolver = $this->getCallableResolver();
         $responseFactory = $this->getResponseFactory();
 
         $routeCollector = new RouteCollector($responseFactory, $callableResolver);

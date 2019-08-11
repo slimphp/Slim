@@ -15,23 +15,8 @@ use Slim\Tests\TestCase;
 
 class ContentLengthMiddlewareTest extends TestCase
 {
-    /**
-     * Provide a boolean flag to indicate whether the test case should use the
-     * advanced callable resolver or the non-advanced callable resolver
-     *
-     * @return array
-     */
-    public function useAdvancedCallableResolverDataProvider(): array
-    {
-        return [[true], [false]];
-    }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testAddsContentLength(bool $useAdvancedCallableResolver)
+    public function testAddsContentLength()
     {
         $request = $this->createServerRequest('/');
         $responseFactory = $this->getResponseFactory();
@@ -45,8 +30,7 @@ class ContentLengthMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandlerInterface::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);

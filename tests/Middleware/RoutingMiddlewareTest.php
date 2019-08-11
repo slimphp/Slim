@@ -28,17 +28,6 @@ use Slim\Tests\TestCase;
 
 class RoutingMiddlewareTest extends TestCase
 {
-    /**
-     * Provide a boolean flag to indicate whether the test case should use the
-     * advanced callable resolver or the non-advanced callable resolver
-     *
-     * @return array
-     */
-    public function useAdvancedCallableResolverDataProvider(): array
-    {
-        return [[true], [false]];
-    }
-
     protected function getRouteCollector()
     {
         $callableResolver = new CallableResolver();
@@ -48,12 +37,7 @@ class RoutingMiddlewareTest extends TestCase
         return $routeCollector;
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testRouteIsStoredOnSuccessfulMatch(bool $useAdvancedCallableResolver)
+    public function testRouteIsStoredOnSuccessfulMatch()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (ServerRequestInterface $request) use ($responseFactory) {
@@ -82,20 +66,14 @@ class RoutingMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandlerInterface::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testRouteIsNotStoredOnMethodNotAllowed(bool $useAdvancedCallableResolver)
+    public function testRouteIsNotStoredOnMethodNotAllowed()
     {
         $routeCollector = $this->getRouteCollector();
         $routeParser = new RouteParser($routeCollector);
@@ -107,11 +85,7 @@ class RoutingMiddlewareTest extends TestCase
         /** @var RequestHandlerInterface $requestHandler */
         $requestHandler = $requestHandlerProphecy->reveal();
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher(
-            $requestHandler,
-            null,
-            $useAdvancedCallableResolver
-        );
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($requestHandler, null);
         $middlewareDispatcher->addMiddleware($routingMiddleware);
 
         try {
@@ -136,12 +110,7 @@ class RoutingMiddlewareTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testRouteIsNotStoredOnNotFound(bool $useAdvancedCallableResolver)
+    public function testRouteIsNotStoredOnNotFound()
     {
         $routeCollector = $this->getRouteCollector();
         $routeParser = new RouteParser($routeCollector);
@@ -153,11 +122,7 @@ class RoutingMiddlewareTest extends TestCase
         /** @var RequestHandlerInterface $requestHandler */
         $requestHandler = $requestHandlerProphecy->reveal();
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher(
-            $requestHandler,
-            null,
-            $useAdvancedCallableResolver
-        );
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($requestHandler, null);
         $middlewareDispatcher->addMiddleware($routingMiddleware);
 
         try {

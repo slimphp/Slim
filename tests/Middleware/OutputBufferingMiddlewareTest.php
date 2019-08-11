@@ -11,32 +11,32 @@ namespace Slim\Tests\Middleware;
 
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionProperty;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\Tests\TestCase;
 
 class OutputBufferingMiddlewareTest extends TestCase
 {
-    /**
-     * Provide a boolean flag to indicate whether the test case should use the
-     * advanced callable resolver or the non-advanced callable resolver
-     *
-     * @return array
-     */
-    public function useAdvancedCallableResolverDataProvider(): array
-    {
-        return [[true], [false]];
-    }
-
     public function testStyleDefaultValid()
     {
         $mw = new OutputBufferingMiddleware($this->getStreamFactory());
-        $this->assertAttributeEquals('append', 'style', $mw);
+
+        $reflectionProperty = new ReflectionProperty($mw, 'style');
+        $reflectionProperty->setAccessible(true);
+        $value = $reflectionProperty->getValue($mw);
+
+        $this->assertEquals('append', $value);
     }
 
     public function testStyleCustomValid()
     {
         $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
-        $this->assertAttributeEquals('prepend', 'style', $mw);
+
+        $reflectionProperty = new ReflectionProperty($mw, 'style');
+        $reflectionProperty->setAccessible(true);
+        $value = $reflectionProperty->getValue($mw);
+
+        $this->assertEquals('prepend', $value);
     }
 
     /**
@@ -47,12 +47,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testAppend(bool $useAdvancedCallableResolver)
+    public function testAppend()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = function ($request, $handler) use ($responseFactory) {
@@ -68,8 +63,7 @@ class OutputBufferingMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandlerInterface::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
@@ -78,12 +72,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $this->assertEquals('BodyTest', $response->getBody());
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testPrepend(bool $useAdvancedCallableResolver)
+    public function testPrepend()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = function ($request, $handler) use ($responseFactory) {
@@ -99,8 +88,7 @@ class OutputBufferingMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandlerInterface::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
@@ -109,12 +97,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $this->assertEquals('TestBody', $response->getBody());
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testOutputBufferIsCleanedWhenThrowableIsCaught(bool $useAdvancedCallableResolver)
+    public function testOutputBufferIsCleanedWhenThrowableIsCaught()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function ($request, $handler) use ($responseFactory) {
@@ -128,8 +111,7 @@ class OutputBufferingMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandlerInterface::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
