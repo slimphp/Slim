@@ -136,8 +136,10 @@ class MiddlewareDispatcherTest extends TestCase
      * @param string $callable
      * @param callable|MiddlewareInterface
      */
-    public function testDeferredResolvedCallableWithContainerAndNonAdvancedCallableResolverUnableToResolveCallable($callable, $result)
-    {
+    public function testDeferredResolvedCallableWithContainerAndNonAdvancedCallableResolverUnableToResolveCallable(
+        $callable,
+        $result
+    ) {
         if ($callable === 'MiddlewareInterfaceNotImplemented') {
             $this->expectException(RuntimeException::class);
             $this->expectExceptionMessage('Middleware MiddlewareInterfaceNotImplemented is not resolvable');
@@ -164,7 +166,11 @@ class MiddlewareDispatcherTest extends TestCase
 
         $handler = new MockRequestHandler();
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, $containerProphecy->reveal(), $callableResolverProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $handler,
+            $containerProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
         $middlewareDispatcher->addDeferred($callable);
 
         $request = $this->createServerRequest('/');
