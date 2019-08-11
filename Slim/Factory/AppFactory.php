@@ -98,12 +98,15 @@ class AppFactory
         $responseFactory = $container->has(ResponseFactoryInterface::class)
             ? $container->get(ResponseFactoryInterface::class)
             : self::determineResponseFactory();
+
         $callableResolver = $container->has(CallableResolverInterface::class)
             ? $container->get(CallableResolverInterface::class)
             : null;
+
         $routeCollector = $container->has(RouteCollectorInterface::class)
             ? $container->get(RouteCollectorInterface::class)
             : null;
+
         $routeResolver = $container->has(RouteResolverInterface::class)
             ? $container->get(RouteResolverInterface::class)
             : null;
