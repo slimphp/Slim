@@ -17,23 +17,7 @@ use Slim\Tests\TestCase;
 
 class MethodOverrideMiddlewareTest extends TestCase
 {
-    /**
-     * Provide a boolean flag to indicate whether the test case should use the
-     * advanced callable resolver or the non-advanced callable resolver
-     *
-     * @return array
-     */
-    public function useAdvancedCallableResolverDataProvider(): array
-    {
-        return [[true], [false]];
-    }
-
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testHeader(bool $useAdvancedCallableResolver)
+    public function testHeader()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -48,20 +32,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandler::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testBodyParam(bool $useAdvancedCallableResolver)
+    public function testBodyParam()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -77,20 +55,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandler::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testHeaderPreferred(bool $useAdvancedCallableResolver)
+    public function testHeaderPreferred()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -107,20 +79,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandler::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testNoOverride(bool $useAdvancedCallableResolver)
+    public function testNoOverride()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -134,20 +100,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandler::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
     }
 
-    /**
-     * @dataProvider useAdvancedCallableResolverDataProvider
-     *
-     * @param bool $useAdvancedCallableResolver
-     */
-    public function testNoOverrideRewindEofBodyStream(bool $useAdvancedCallableResolver)
+    public function testNoOverrideRewindEofBodyStream()
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
@@ -175,8 +135,7 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $middlewareDispatcher = $this->createMiddlewareDispatcher(
             $this->createMock(RequestHandler::class),
-            null,
-            $useAdvancedCallableResolver
+            null
         );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);

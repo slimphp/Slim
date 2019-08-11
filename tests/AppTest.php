@@ -19,7 +19,6 @@ use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Slim\AdvancedCallableResolver;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Exception\HttpMethodNotAllowedException;
@@ -80,7 +79,7 @@ class AppTest extends TestCase
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $callableResolver = new AdvancedCallableResolver($containerProphecy->reveal());
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
         $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal(), null);
 
         $this->assertEquals($callableResolver, $app->getCallableResolver());
