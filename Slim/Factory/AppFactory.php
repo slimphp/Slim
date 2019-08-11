@@ -97,7 +97,7 @@ class AppFactory
     {
         $responseFactory = $container->has(ResponseFactoryInterface::class)
             ? $container->get(ResponseFactoryInterface::class)
-            : null;
+            : self::determineResponseFactory();
 
         $callableResolver = $container->has(CallableResolverInterface::class)
             ? $container->get(CallableResolverInterface::class)
@@ -111,7 +111,7 @@ class AppFactory
             ? $container->get(RouteResolverInterface::class)
             : null;
 
-        return self::create($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver);
+        return new App($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver);
     }
 
     /**
