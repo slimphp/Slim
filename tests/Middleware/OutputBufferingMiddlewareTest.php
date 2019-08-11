@@ -11,8 +11,8 @@ namespace Slim\Tests\Middleware;
 
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionProperty;
 use Slim\Middleware\OutputBufferingMiddleware;
-use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
 class OutputBufferingMiddlewareTest extends TestCase
@@ -20,13 +20,23 @@ class OutputBufferingMiddlewareTest extends TestCase
     public function testStyleDefaultValid()
     {
         $mw = new OutputBufferingMiddleware($this->getStreamFactory());
-        $this->assertAttributeEquals('append', 'style', $mw);
+
+        $reflectionProperty = new ReflectionProperty($mw, 'style');
+        $reflectionProperty->setAccessible(true);
+        $value = $reflectionProperty->getValue($mw);
+
+        $this->assertEquals('append', $value);
     }
 
     public function testStyleCustomValid()
     {
         $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
-        $this->assertAttributeEquals('prepend', 'style', $mw);
+
+        $reflectionProperty = new ReflectionProperty($mw, 'style');
+        $reflectionProperty->setAccessible(true);
+        $value = $reflectionProperty->getValue($mw);
+
+        $this->assertEquals('prepend', $value);
     }
 
     /**
@@ -51,7 +61,10 @@ class OutputBufferingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('/', 'GET');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandlerInterface::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $response = $middlewareDispatcher->handle($request);
@@ -73,7 +86,10 @@ class OutputBufferingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('/', 'GET');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandlerInterface::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $response = $middlewareDispatcher->handle($request);
@@ -93,7 +109,10 @@ class OutputBufferingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('/', 'GET');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandlerInterface::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
 

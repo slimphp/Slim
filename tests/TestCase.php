@@ -17,8 +17,10 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\CallableResolver;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\MiddlewareDispatcher;
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
 abstract class TestCase extends PhpUnitTestCase
@@ -58,6 +60,25 @@ abstract class TestCase extends PhpUnitTestCase
     protected function getCallableResolver(?ContainerInterface $container = null): CallableResolverInterface
     {
         return new CallableResolver($container);
+    }
+
+    /**
+     * @param RequestHandlerInterface $requestHandler
+     * @param ContainerInterface|null $container
+     * @param CallableResolverInterface|null $callableResolver
+     *
+     * @return MiddlewareDispatcher
+     */
+    protected function createMiddlewareDispatcher(
+        RequestHandlerInterface $requestHandler,
+        ?ContainerInterface $container = null,
+        ?CallableResolverInterface $callableResolver = null
+    ): MiddlewareDispatcher {
+        return new MiddlewareDispatcher(
+            $requestHandler,
+            $callableResolver ?? $this->getCallableResolver($container),
+            $container
+        );
     }
 
     /**

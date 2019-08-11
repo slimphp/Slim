@@ -15,7 +15,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\MiddlewareDispatcher;
+use RuntimeException;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Tests\Mocks\MockMiddlewareSlimCallable;
 use Slim\Tests\Mocks\MockMiddlewareWithConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
@@ -25,6 +26,14 @@ use stdClass;
 
 class MiddlewareDispatcherTest extends TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        function testProcessRequest(ServerRequestInterface $request, RequestHandlerInterface $handler)
+        {
+            return $handler->handle($request);
+        }
+    }
+
     public function testAddMiddleware()
     {
         $responseFactory = $this->getResponseFactory();
@@ -32,22 +41,21 @@ class MiddlewareDispatcherTest extends TestCase
             return $responseFactory->createResponse();
         };
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestHandlerProphecy = $this->prophesize(RequestHandlerInterface::class);
+
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($requestHandlerProphecy->reveal());
         $middlewareDispatcher->add($callable);
 
-        $response = $middlewareDispatcher->handle($this->createMock(ServerRequestInterface::class));
+        $response = $middlewareDispatcher->handle($requestProphecy->reveal());
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testNamedFunctionIsResolved()
     {
-        function testProcessRequest(ServerRequestInterface $request, RequestHandlerInterface $handler)
-        {
-            return $handler->handle($request);
-        }
-
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler);
+
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null);
         $middlewareDispatcher->addDeferred(__NAMESPACE__ . '\testProcessRequest');
 
         $request = $this->createServerRequest('/');
@@ -61,13 +69,109 @@ class MiddlewareDispatcherTest extends TestCase
         $callable = function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
             return $handler->handle($request);
         };
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has('callable')->willReturn(true);
-        $containerProphecy->get('callable')->willReturn($callable);
+
+        $containerProphecy
+            ->has('callable')
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get('callable')
+            ->willReturn($callable)
+            ->shouldBeCalledOnce();
 
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
+
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, $containerProphecy->reveal());
         $middlewareDispatcher->addDeferred('callable');
+
+        $request = $this->createServerRequest('/');
+        $middlewareDispatcher->handle($request);
+
+        $this->assertEquals(1, $handler->getCalledCount());
+    }
+
+    public function testDeferredResolvedCallableWithoutContainerAndNonAdvancedCallableResolver()
+    {
+        $callable = function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+            return $handler->handle($request);
+        };
+
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $callableResolverProphecy
+            ->resolve('callable')
+            ->willReturn($callable)
+            ->shouldBeCalledOnce();
+
+        $handler = new MockRequestHandler();
+
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null, $callableResolverProphecy->reveal());
+        $middlewareDispatcher->addDeferred('callable');
+
+        $request = $this->createServerRequest('/');
+        $middlewareDispatcher->handle($request);
+
+        $this->assertEquals(1, $handler->getCalledCount());
+    }
+
+    public function deferredCallableProvider()
+    {
+        return [
+            [MockMiddlewareSlimCallable::class . ':custom', new MockMiddlewareSlimCallable()],
+            ['MiddlewareInstance', new MockMiddlewareWithoutConstructor()],
+            ['NamedFunction', __NAMESPACE__ . '\testProcessRequest'],
+            ['Callable', function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+                return $handler->handle($request);
+            }],
+            ['MiddlewareInterfaceNotImplemented', 'MiddlewareInterfaceNotImplemented']
+        ];
+    }
+
+    /**
+     * @dataProvider deferredCallableProvider
+     *
+     * @param string $callable
+     * @param callable|MiddlewareInterface
+     */
+    public function testDeferredResolvedCallableWithContainerAndNonAdvancedCallableResolverUnableToResolveCallable(
+        $callable,
+        $result
+    ) {
+        if ($callable === 'MiddlewareInterfaceNotImplemented') {
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('Middleware MiddlewareInterfaceNotImplemented is not resolvable');
+        }
+
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $callableResolverProphecy
+            ->resolve($callable)
+            ->willThrow(RuntimeException::class)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+
+        $containerProphecy
+            ->has(Argument::any())
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get(Argument::any())
+            ->willReturn($result)
+            ->shouldBeCalledOnce();
+
+        $handler = new MockRequestHandler();
+
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $handler,
+            $containerProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
+        $middlewareDispatcher->addDeferred($callable);
 
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
@@ -78,7 +182,7 @@ class MiddlewareDispatcherTest extends TestCase
     public function testDeferredResolvedSlimCallable()
     {
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler, null);
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null);
         $middlewareDispatcher->addDeferred(MockMiddlewareSlimCallable::class . ':custom');
 
         $request = $this->createServerRequest('/');
@@ -95,11 +199,8 @@ class MiddlewareDispatcherTest extends TestCase
         $callable = function (
             ServerRequestInterface $request,
             RequestHandlerInterface $handler
-        ) use (
-            $self,
-            $containerProphecy
-        ) {
-            $self->assertSame($containerProphecy->reveal(), $this);
+        ) use ($self) {
+            $self->assertInstanceOf(ContainerInterface::class, $this);
             return $handler->handle($request);
         };
 
@@ -107,7 +208,7 @@ class MiddlewareDispatcherTest extends TestCase
         $containerProphecy->get('callable')->willReturn($callable);
 
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, $containerProphecy->reveal());
         $middlewareDispatcher->addDeferred('callable');
 
         $request = $this->createServerRequest('/');
@@ -131,7 +232,7 @@ class MiddlewareDispatcherTest extends TestCase
         };
 
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, $containerProphecy->reveal());
         $middlewareDispatcher->addCallable($callable);
 
         $request = $this->createServerRequest('/');
@@ -143,7 +244,7 @@ class MiddlewareDispatcherTest extends TestCase
         MockMiddlewareWithoutConstructor::$CalledCount = 0;
 
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler);
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null);
         $middlewareDispatcher->addDeferred(MockMiddlewareWithoutConstructor::class);
 
         $request = $this->createServerRequest('/');
@@ -154,17 +255,25 @@ class MiddlewareDispatcherTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Middleware MiddlewareInterfaceNotImplemented is not resolvable
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage MiddlewareInterfaceNotImplemented is not resolvable
      */
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface()
     {
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has('MiddlewareInterfaceNotImplemented')->willReturn(true);
-        $containerProphecy->get('MiddlewareInterfaceNotImplemented')->willReturn(new stdClass());
+
+        $containerProphecy
+            ->has('MiddlewareInterfaceNotImplemented')
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get('MiddlewareInterfaceNotImplemented')
+            ->willReturn(new stdClass())
+            ->shouldBeCalledOnce();
 
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, $containerProphecy->reveal());
         $middlewareDispatcher->addDeferred('MiddlewareInterfaceNotImplemented');
 
         $request = $this->createServerRequest('/');
@@ -172,14 +281,37 @@ class MiddlewareDispatcherTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Middleware Unresolvable::class does not exist
+     * @expectedException RuntimeException
+     * @expectedExceptionMessageRegExp /(Middleware|Callable) Unresolvable::class does not exist/
      */
     public function testResolveThrowsExceptionWithoutContainerAndUnresolvableClass()
     {
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler);
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null);
         $middlewareDispatcher->addDeferred('Unresolvable::class');
+
+        $request = $this->createServerRequest('/');
+        $middlewareDispatcher->handle($request);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessageRegExp /(Middleware|Callable) Unresolvable::class does not exist/
+     */
+    public function testResolveThrowsExceptionWithoutContainerNonAdvancedCallableResolverAndUnresolvableClass()
+    {
+        $unresolvable = 'Unresolvable::class';
+
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $callableResolverProphecy
+            ->resolve($unresolvable)
+            ->willThrow(RuntimeException::class)
+            ->shouldBeCalledOnce();
+
+        $handler = new MockRequestHandler();
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null, $callableResolverProphecy->reveal());
+        $middlewareDispatcher->addDeferred($unresolvable);
 
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
@@ -191,8 +323,10 @@ class MiddlewareDispatcherTest extends TestCase
         $responseProphecy = $this->prophesize(ResponseInterface::class);
         $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->willReturn($responseProphecy->reveal());
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
 
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, null);
 
         $response = $dispatcher->handle($requestProphecy->reveal());
 
@@ -281,7 +415,9 @@ class MiddlewareDispatcherTest extends TestCase
                     ->withAddedHeader('X-SEQ-POST-REQ-HANDLER', '3');
             });
 
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, null);
         $dispatcher->add($middleware0Prophecy->reveal());
         $dispatcher->addMiddleware($middleware1Prophecy->reveal());
         $dispatcher->addDeferred(MockSequenceMiddleware::class);
@@ -304,7 +440,9 @@ class MiddlewareDispatcherTest extends TestCase
         $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
 
         MockSequenceMiddleware::$hasBeenInstantiated = false;
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, null);
         $dispatcher->addDeferred(MockSequenceMiddleware::class);
         $dispatcher->addMiddleware($middlewareProphecy->reveal());
         $response = $dispatcher->handle($requestProphecy->reveal());
@@ -316,12 +454,14 @@ class MiddlewareDispatcherTest extends TestCase
 
     public function testThrowsExceptionForDeferredNonMiddlewareInterfaceClasses()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $requestProphecy = $this->prophesize(ServerRequestInterface::class);
         $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
 
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, null);
         $dispatcher->addDeferred(\stdClass::class);
         $dispatcher->handle($requestProphecy->reveal());
 
@@ -336,7 +476,9 @@ class MiddlewareDispatcherTest extends TestCase
         $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
         $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
 
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, null);
         $dispatcher->add($middlewareProphecy->reveal());
 
         $response1 = $dispatcher->handle($requestProphecy->reveal());
@@ -371,7 +513,9 @@ class MiddlewareDispatcherTest extends TestCase
             return $clone;
         });
 
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, null);
 
         $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
         $middlewareProphecy
@@ -408,8 +552,11 @@ class MiddlewareDispatcherTest extends TestCase
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has('somemiddlewarename')->willReturn(true);
         $containerProphecy->get('somemiddlewarename')->willReturn($middlewareProphecy->reveal());
-
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal(), $containerProphecy->reveal());
+        /** @var ContainerInterface $container */
+        $container = $containerProphecy->reveal();
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, $container);
         $dispatcher->addDeferred('somemiddlewarename');
         $response = $dispatcher->handle($requestProphecy->reveal());
 
@@ -424,8 +571,11 @@ class MiddlewareDispatcherTest extends TestCase
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(MockMiddlewareWithConstructor::class)->willReturn(false);
-
-        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal(), $containerProphecy->reveal());
+        /** @var ContainerInterface $container */
+        $container = $containerProphecy->reveal();
+        /** @var RequestHandlerInterface $kernel */
+        $kernel = $kernelProphecy->reveal();
+        $dispatcher = $this->createMiddlewareDispatcher($kernel, $container);
         $dispatcher->addDeferred(MockMiddlewareWithConstructor::class);
         $dispatcher->handle($requestProphecy->reveal());
 

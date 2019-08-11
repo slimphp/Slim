@@ -13,7 +13,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
 class MethodOverrideMiddlewareTest extends TestCase
@@ -31,7 +30,10 @@ class MethodOverrideMiddlewareTest extends TestCase
             ->createServerRequest('/', 'POST')
             ->withHeader('X-Http-Method-Override', 'PUT');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
@@ -51,7 +53,10 @@ class MethodOverrideMiddlewareTest extends TestCase
             ->createServerRequest('/', 'POST')
             ->withParsedBody(['_METHOD' => 'PUT']);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
@@ -72,7 +77,10 @@ class MethodOverrideMiddlewareTest extends TestCase
             ->withHeader('X-Http-Method-Override', 'DELETE')
             ->withParsedBody((object) ['_METHOD' => 'PUT']);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
@@ -90,7 +98,10 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('/', 'POST');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
@@ -122,7 +133,10 @@ class MethodOverrideMiddlewareTest extends TestCase
         $body = $bodyProphecy->reveal();
         $request = $request->withBody($body);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandler::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);

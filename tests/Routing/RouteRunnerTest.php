@@ -30,7 +30,7 @@ class RouteRunnerTest extends TestCase
             return $response;
         })->bindTo($this);
 
-        $callableResolver = new CallableResolver();
+        $callableResolver = $this->getCallableResolver();
         $responseFactory = $this->getResponseFactory();
 
         $routeCollector = new RouteCollector($responseFactory, $callableResolver);
@@ -42,7 +42,7 @@ class RouteRunnerTest extends TestCase
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
         $dispatcher = new RouteRunner($routeResolver, $routeParser);
 
-        $middlewareDispatcher = new MiddlewareDispatcher($dispatcher);
+        $middlewareDispatcher = new MiddlewareDispatcher($dispatcher, $callableResolver);
         $middlewareDispatcher->handle($request);
     }
 }

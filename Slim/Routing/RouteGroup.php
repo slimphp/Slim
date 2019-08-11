@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Routing;
 
 use Psr\Http\Server\MiddlewareInterface;
+use Slim\Interfaces\AdvancedCallableResolverInterface;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteGroupInterface;
@@ -65,7 +66,11 @@ class RouteGroup implements RouteGroupInterface
      */
     public function collectRoutes(): RouteGroupInterface
     {
-        $callable = $this->callableResolver->resolve($this->callable);
+        if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
+            $callable = $this->callableResolver->resolveRoute($this->callable);
+        } else {
+            $callable = $this->callableResolver->resolve($this->callable);
+        }
         $callable($this->routeCollectorProxy);
         return $this;
     }

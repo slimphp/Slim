@@ -20,7 +20,6 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Middleware\RoutingMiddleware;
-use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteParser;
 use Slim\Routing\RouteResolver;
@@ -65,7 +64,10 @@ class RoutingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
 
-        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher = $this->createMiddlewareDispatcher(
+            $this->createMock(RequestHandlerInterface::class),
+            null
+        );
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
@@ -80,8 +82,10 @@ class RoutingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'POST');
         $requestHandlerProphecy = $this->prophesize(RequestHandlerInterface::class);
+        /** @var RequestHandlerInterface $requestHandler */
+        $requestHandler = $requestHandlerProphecy->reveal();
 
-        $middlewareDispatcher = new MiddlewareDispatcher($requestHandlerProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($requestHandler, null);
         $middlewareDispatcher->addMiddleware($routingMiddleware);
 
         try {
@@ -115,8 +119,10 @@ class RoutingMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('https://example.com:443/goodbye', 'GET');
         $requestHandlerProphecy = $this->prophesize(RequestHandlerInterface::class);
+        /** @var RequestHandlerInterface $requestHandler */
+        $requestHandler = $requestHandlerProphecy->reveal();
 
-        $middlewareDispatcher = new MiddlewareDispatcher($requestHandlerProphecy->reveal());
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($requestHandler, null);
         $middlewareDispatcher->addMiddleware($routingMiddleware);
 
         try {
