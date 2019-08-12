@@ -41,8 +41,8 @@ class ResponseEmitter
                     ->withoutHeader('Content-Type')
                     ->withoutHeader('Content-Length');
             }
-            $this->emitHeaders($response);
             $this->emitStatusLine($response);
+            $this->emitHeaders($response);
         }
 
         if (!$isEmpty) {
