@@ -42,8 +42,6 @@ class BodyParsingMiddlewareTest extends TestCase
     }
 
     /**
-     * Helper function to create a ServerRequest with a body and a content-type header
-     *
      * @param string $contentType
      * @param string $body
      * @return ServerRequestInterface

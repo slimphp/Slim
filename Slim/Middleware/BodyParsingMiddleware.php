@@ -23,8 +23,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     protected $bodyParsers;
 
     /**
-     * Constructor.
-     *
      * @param callable[] $bodyParsers list of body parsers as an associative array of mediaType => callable
      */
     public function __construct(array $bodyParsers = [])
@@ -53,8 +51,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Register media type parser.
-     *
      * @param string   $mediaType A HTTP media type (excluding content-type params).
      * @param callable $callable  A callable that returns parsed contents for media type.
      * @return self
@@ -66,8 +62,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Is a body parser registered for this media type?
-     *
      * @param string   $mediaType A HTTP media type (excluding content-type params).
      * @return boolean
      */
@@ -77,10 +71,9 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Retrieve media type parser.
-     *
      * @param string    $mediaType A HTTP media type (excluding content-type params).
      * @return callable
+     * @throws RuntimeException
      */
     public function getBodyParser(string $mediaType): callable
     {
@@ -91,9 +84,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
 
-    /**
-     * Register the default body parsers
-     */
     protected function registerDefaultBodyParsers(): void
     {
         $this->registerBodyParser('application/json', function ($input) {
@@ -168,8 +158,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Get the request's media type, if known.
-     *
      * @param ServerRequestInterface $request
      * @return string|null The serverRequest media type, minus content-type params
      */
