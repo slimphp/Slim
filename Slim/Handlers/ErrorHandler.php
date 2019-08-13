@@ -138,7 +138,7 @@ class ErrorHandler implements ErrorHandlerInterface
         $this->exception = $exception;
         $this->method = $request->getMethod();
         $this->statusCode = $this->determineStatusCode();
-        if (is_null($this->contentType)) {
+        if ($this->contentType === null) {
             $this->contentType = $this->determineContentType($request);
         }
 
@@ -227,7 +227,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function determineRenderer(): callable
     {
-        if (!is_null($this->contentType) && array_key_exists($this->contentType, $this->errorRenderers)) {
+        if ($this->contentType !== null && array_key_exists($this->contentType, $this->errorRenderers)) {
             $renderer = $this->errorRenderers[$this->contentType];
         } else {
             $renderer = $this->defaultErrorRenderer;
@@ -289,7 +289,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function respond(): ResponseInterface
     {
         $response = $this->responseFactory->createResponse($this->statusCode);
-        if (!is_null($this->contentType) && array_key_exists($this->contentType, $this->errorRenderers)) {
+        if ($this->contentType !== null && array_key_exists($this->contentType, $this->errorRenderers)) {
             $response = $response->withHeader('Content-type', $this->contentType);
         } else {
             $response = $response->withHeader('Content-type', $this->defaultErrorRendererContentType);
