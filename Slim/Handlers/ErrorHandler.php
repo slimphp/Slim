@@ -281,7 +281,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function writeToErrorLog(): void
     {
-        $renderer = $this->logErrorRenderer;
+        $renderer = $this->callableResolver->resolve($this->logErrorRenderer);
         $error = $renderer($this->exception, $this->logErrorDetails);
         $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
         $this->logError($error);
