@@ -18,14 +18,14 @@ use RuntimeException;
 class BodyParsingMiddleware implements MiddlewareInterface
 {
     /**
-     * @var array
+     * @var callable[]
      */
     protected $bodyParsers;
 
     /**
      * Constructor.
      *
-     * @param array $bodyParsers list of body parsers as an associative array of mediaType => callable
+     * @param callable[] $bodyParsers list of body parsers as an associative array of mediaType => callable
      */
     public function __construct(array $bodyParsers = [])
     {
@@ -94,7 +94,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
     /**
      * Register the default body parsers
      */
-    protected function registerDefaultBodyParsers()
+    protected function registerDefaultBodyParsers(): void
     {
         $this->registerBodyParser('application/json', function ($input) {
             $result = json_decode($input, true);
