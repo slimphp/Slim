@@ -54,6 +54,11 @@ class ErrorHandler implements ErrorHandlerInterface
     ];
 
     /**
+     * @var ErrorRendererInterface|string|callable
+     */
+    protected $logErrorRenderer = PlainTextErrorRenderer::class;
+
+    /**
      * @var bool
      */
     protected $displayErrorDetails;
@@ -260,13 +265,24 @@ class ErrorHandler implements ErrorHandlerInterface
     }
 
     /**
+     * Set the renderer for the error logger
+     *
+     * @param ErrorRendererInterface|string|callable $logErrorRenderer
+     */
+    public function setLogErrorRenderer($logErrorRenderer): void
+    {
+        $this->logErrorRenderer = $logErrorRenderer;
+    }
+
+    /**
      * Write to the error log if $logErrors has been set to true
      *
      * @return void
      */
     protected function writeToErrorLog(): void
     {
-        $renderer = new PlainTextErrorRenderer();
+        /** @var ErrorRendererInterface $renderer */
+        $renderer = $this->callableResolver->resolve($this->logErrorRenderer);
         $error = $renderer->__invoke($this->exception, $this->logErrorDetails);
         $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
         $this->logError($error);
