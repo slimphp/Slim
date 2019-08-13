@@ -77,7 +77,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Retreive media type parser.
+     * Retrieve media type parser.
      *
      * @param string    $mediaType A HTTP media type (excluding content-type params).
      * @return callable
