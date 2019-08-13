@@ -170,8 +170,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     /**
      * Get the request's media type, if known.
      *
-     * Note: This method is not part of the PSR-7 standard.
-     *
      * @param ServerRequestInterface $request
      * @return string|null The serverRequest media type, minus content-type params
      */
