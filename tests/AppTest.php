@@ -1564,6 +1564,7 @@ class AppTest extends TestCase
             $body .= $args[0];
             $this->__toString()->willReturn($body);
         });
+        $streamProphecy->read(1)->willReturn('_');
         $streamProphecy->read('11')->will(function () {
             $this->eof()->willReturn(true);
             return $this->reveal()->__toString();
@@ -1616,6 +1617,7 @@ class AppTest extends TestCase
             $body .= $args[0];
             $this->__toString()->willReturn($body);
         });
+        $streamProphecy->read(1)->willReturn('_');
         $streamProphecy->read('11')->will(function () {
             $this->eof()->willReturn(true);
             return $this->reveal()->__toString();
