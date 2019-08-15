@@ -28,6 +28,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteParserInterface;
+use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\MiddlewareDispatcher;
@@ -712,6 +713,36 @@ class AppTest extends TestCase
 
         $this->assertSame($errorMiddleware, $middlewareProperty->getValue($tip));
         $this->assertInstanceOf(ErrorMiddleware::class, $errorMiddleware);
+    }
+
+    public function testAddBodyParsingMiddleware()
+    {
+        /** @var ResponseFactoryInterface $responseFactory */
+        $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
+
+        // Create the app.
+        $app = new App($responseFactory);
+
+        // Add the error middleware.
+        $bodyParsingMiddleware = $app->addBodyParsingMiddleware();
+
+        // Check that the body parsing middleware really has been added to the tip of the app middleware stack.
+        $middlewareDispatcherProperty = new \ReflectionProperty(App::class, 'middlewareDispatcher');
+        $middlewareDispatcherProperty->setAccessible(true);
+        /** @var MiddlewareDispatcher $middlewareDispatcher */
+        $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
+
+        $tipProperty = new \ReflectionProperty(MiddlewareDispatcher::class, 'tip');
+        $tipProperty->setAccessible(true);
+        /** @var RequestHandlerInterface $tip */
+        $tip = $tipProperty->getValue($middlewareDispatcher);
+
+        $reflection = new \ReflectionClass($tip);
+        $middlewareProperty = $reflection->getProperty('middleware');
+        $middlewareProperty->setAccessible(true);
+
+        $this->assertSame($bodyParsingMiddleware, $middlewareProperty->getValue($tip));
+        $this->assertInstanceOf(BodyParsingMiddleware::class, $bodyParsingMiddleware);
     }
 
     public function testAddMiddlewareOnRoute()

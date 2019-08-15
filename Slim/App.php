@@ -19,6 +19,7 @@ use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
+use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\RouteCollectorProxy;
@@ -100,7 +101,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     }
 
     /**
-     * Add the slim built-in routing middleware to the app middleware stack
+     * Add the Slim built-in routing middleware to the app middleware stack
      *
      * @return RoutingMiddleware
      */
@@ -115,7 +116,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     }
 
     /**
-     * Add the slim built-in error middleware to the app middleware stack
+     * Add the Slim built-in error middleware to the app middleware stack
      *
      * @param bool $displayErrorDetails
      * @param bool $logErrors
@@ -137,6 +138,20 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
         );
         $this->add($errorMiddleware);
         return $errorMiddleware;
+    }
+
+    /**
+     * Add the Slim body parsing middleware to the app middleware stack
+     *
+     * @param callable[] $bodyParsers
+     *
+     * @return BodyParsingMiddleware
+     */
+    public function addBodyParsingMiddleware(array $bodyParsers = []): BodyParsingMiddleware
+    {
+        $bodyParsingMiddleware = new BodyParsingMiddleware($bodyParsers);
+        $this->add($bodyParsingMiddleware);
+        return $bodyParsingMiddleware;
     }
 
     /**
