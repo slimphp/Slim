@@ -33,13 +33,19 @@ class RoutingMiddleware implements MiddlewareInterface
     protected $routeParser;
 
     /**
+     * @var BasePath
+     */
+    private $basePath;
+
+    /**
      * @param RouteResolverInterface $routeResolver
      * @param RouteParserInterface   $routeParser
      */
-    public function __construct(RouteResolverInterface $routeResolver, RouteParserInterface $routeParser)
+    public function __construct(RouteResolverInterface $routeResolver, RouteParserInterface $routeParser, ?string $basePath = null)
     {
         $this->routeResolver = $routeResolver;
         $this->routeParser = $routeParser;
+        $this->basePath = $basePath;
     }
 
     /**
@@ -70,6 +76,13 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function performRouting(ServerRequestInterface $request): ServerRequestInterface
     {
+				if($this->basePath) {
+						$uri = $request->getUri();
+						$path = $uri->getPath();
+						$path = '/'.ltrim($path, $this->basePath);
+						$request = $request->withUri($uri->withPath($path));
+				}
+
         $routingResults = $this->routeResolver->computeRoutingResults(
             $request->getUri()->getPath(),
             $request->getMethod()
