@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Tests;
 
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
@@ -67,5 +68,42 @@ class DeferredCallableTest extends TestCase
 
         $response = $deferred($foo);
         $this->assertEquals($bar, $response);
+    }
+
+    public function testFunctionNameIfNoResolver()
+    {
+        $deferredTrim = new DeferredCallable('trim');
+        $this->assertSame('foo', $deferredTrim(' foo '));
+    }
+
+    public function testClosureIfNoResolver()
+    {
+        $closure = function ($a, $b) {
+            return $a + $b;
+        };
+
+        $deferredClosure = new DeferredCallable($closure);
+        $this->assertSame(42, $deferredClosure(31, 11));
+    }
+
+    public static function getFoo(): string
+    {
+        return 'foo';
+    }
+
+    public function testClassNameMethodNameNotation()
+    {
+        // Test `ClassName::methodName` notation for a static method.
+        $deferredGetFoo = new DeferredCallable(get_class($this) . '::getFoo');
+        $this->assertSame('foo', $deferredGetFoo());
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Slim callable notation CallableTest:toCall is not allowed without callable resolver.
+     */
+    public function testSlimCallableNotationThrowsExceptionIfNoResolver()
+    {
+        new DeferredCallable('CallableTest:toCall');
     }
 }

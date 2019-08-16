@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 
 class DeferredCallable
@@ -29,6 +30,13 @@ class DeferredCallable
      */
     public function __construct($callable, ?CallableResolverInterface $resolver = null)
     {
+        if ($resolver === null && is_string($callable) && preg_match(CallableResolver::$callablePattern, $callable)) {
+            throw new RuntimeException(sprintf(
+                'Slim callable notation %s is not allowed without callable resolver.',
+                $callable
+            ));
+        }
+
         $this->callable = $callable;
         $this->callableResolver = $resolver;
     }
