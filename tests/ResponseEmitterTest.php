@@ -38,7 +38,7 @@ class ResponseEmitterTest extends TestCase
         $this->expectOutputString('Hello');
     }
 
-    public function testRespondNoContent()
+    public function testResposeWithNoContentSkipsContentTypeAndContentLength()
     {
         $response = $this
             ->createResponse()
@@ -55,7 +55,7 @@ class ResponseEmitterTest extends TestCase
         $this->expectOutputString('');
     }
 
-    public function testNonEmptyResponse()
+    public function testNonEmptyResponseDoesNotSkipContentTypeAndContentLength()
     {
         $response = $this
             ->createResponse()
@@ -197,7 +197,34 @@ class ResponseEmitterTest extends TestCase
         $this->assertTrue($responseEmitter->isResponseEmpty($response));
     }
 
-    public function testAvoidReadFromSlowStreamAccordingStatus()
+    public function testIsResponseEmptyDoesNotReadAllDataFromNonEmptySeekableResponse()
+    {
+        $body = $this->createStream('Hello');
+        $response = $this
+            ->createResponse(200)
+            ->withBody($body);
+        $responseEmitter = new ResponseEmitter();
+
+        $responseEmitter->isResponseEmpty($response);
+
+        $this->assertTrue($body->isSeekable());
+        $this->assertFalse($body->eof());
+    }
+
+    public function testIsResponseEmptyDoesNotDrainNonSeekableResponseWithContent()
+    {
+        $resource = popen('echo 12', 'r');
+        $body = $this->getStreamFactory()->createStreamFromResource($resource);
+        $response = $this->createResponse(200)->withBody($body);
+        $responseEmitter = new ResponseEmitter();
+
+        $responseEmitter->isResponseEmpty($response);
+
+        $this->assertFalse($body->isSeekable());
+        $this->assertSame('12', trim((string) $body));
+    }
+
+    public function testAvoidReadFromSlowStreamAccordingToStatus()
     {
         $body = new SlowPokeStream();
         $response = $this

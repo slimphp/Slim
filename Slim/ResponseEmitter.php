@@ -133,7 +133,11 @@ class ResponseEmitter
         if (in_array($response->getStatusCode(), [204, 205, 304], true)) {
             return true;
         }
-        $contents = (string) $response->getBody();
-        return !strlen($contents);
+        $stream = $response->getBody();
+        $seekable = $stream->isSeekable();
+        if ($seekable) {
+            $stream->rewind();
+        }
+        return $seekable ? $stream->read(1) === '' : $stream->eof();
     }
 }
