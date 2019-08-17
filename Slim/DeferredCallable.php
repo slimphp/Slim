@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim;
 
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\AdvancedCallableResolverInterface;
 
 class DeferredCallable
 {
@@ -35,12 +36,18 @@ class DeferredCallable
 
     public function __invoke(...$args)
     {
-        /** @var callable $callable */
         $callable = $this->callable;
-        if ($this->callableResolver) {
-            $callable = $this->callableResolver->resolve($callable);
+        if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
+            $callable = $this->callableResolver->resolveMiddleware($callable);
+            return $callable(...$args);
         }
-
-        return $callable(...$args);
+        if ($this->callableResolver instanceof CallableResolverInterface) {
+            $callable = $this->callableResolver->resolve($callable);
+            return $callable(...$args);
+        }
+        if (is_callable($callable)) {
+            return $callable(...$args);
+        }
+        throw new \RuntimeException('Need to come up with a name');
     }
 }
