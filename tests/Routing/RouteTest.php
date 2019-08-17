@@ -345,21 +345,6 @@ class RouteTest extends TestCase
         $this->assertSame($called, 1);
     }
 
-    public function testAddMiddlewareUsingDeferredResolution()
-    {
-        $route = $this->createRoute();
-        $route->add(MockMiddlewareWithoutConstructor::class);
-
-        $output = '';
-        $appendToOutput = function (string $value) use (&$output) {
-            $output .= $value;
-        };
-        $request = $this->createServerRequest('/')->withAttribute('appendToOutput', $appendToOutput);
-        $route->run($request);
-
-        $this->assertSame('Hello World', $output);
-    }
-
     public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
     {
         $this->expectException(\RuntimeException::class);
