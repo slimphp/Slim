@@ -4,7 +4,6 @@
  *
  * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
-
 declare(strict_types=1);
 
 namespace Slim;
@@ -41,16 +40,16 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolve($toResolve): callable
     {
-        $resolved = $toResolve;
-
-        if (!is_callable($toResolve) && is_string($toResolve)) {
-            $resolved = $this->resolveInstanceAndMethod($toResolve);
-            if ($resolved[1] === null) {
-                $resolved[1] = '__invoke';
-            }
+        if (is_callable($toResolve)) {
+            return $this->bindToContainer($toResolve);
         }
-
-        return $this->assertCallableAndBindClosureToContainer($resolved, $toResolve);
+        $resolved = $toResolve;
+        if (is_string($toResolve)) {
+            $resolved = $this->resolveSlimNotation($toResolve);
+            $resolved[1] = $resolved[1] ?? '__invoke';
+        }
+        $callable = $this->assertCallable($resolved, $toResolve);
+        return $this->bindToContainer($callable);
     }
 
     /**
@@ -58,25 +57,10 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolveRoute($toResolve): callable
     {
-        $resolved = $toResolve;
-
-        if (!is_callable($toResolve) && is_string($toResolve)) {
-            [$instance, $method] = $this->resolveInstanceAndMethod($toResolve);
-
-            // For a class that implements RequestHandlerInterface, we will call handle()
-            // if no method has been specified explicitly
-            if ($instance instanceof RequestHandlerInterface && $method === null) {
-                $method = 'handle';
-            }
-
-            $resolved = [$instance, $method ?? '__invoke'];
-        }
-
-        if ($resolved instanceof RequestHandlerInterface) {
-            $resolved = [$resolved, 'handle'];
-        }
-
-        return $this->assertCallableAndBindClosureToContainer($resolved, $toResolve);
+        $predicate = function ($it) {
+            return $it instanceof RequestHandlerInterface;
+        };
+        return $this->resolveByPredicate($toResolve, $predicate, 'handle');
     }
 
     /**
@@ -84,46 +68,50 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolveMiddleware($toResolve): callable
     {
-        $resolved = $toResolve;
-
-        if (!is_callable($toResolve) && is_string($toResolve)) {
-            [$instance, $method] = $this->resolveInstanceAndMethod($toResolve);
-
-            // For a class that implements MiddlewareInterface, we will call process()
-            // if no method has been specified explicitly
-            if ($instance instanceof MiddlewareInterface && $method === null) {
-                $method = 'process';
-            }
-
-            $resolved = [$instance, $method ?? '__invoke'];
-        }
-
-        if ($resolved instanceof MiddlewareInterface) {
-            $resolved = [$resolved, 'process'];
-        }
-
-        return $this->assertCallableAndBindClosureToContainer($resolved, $toResolve);
+        $predicate = function ($it) {
+            return $it instanceof MiddlewareInterface;
+        };
+        return $this->resolveByPredicate($toResolve, $predicate, 'process');
     }
 
     /**
-     * Resolves the given param and if successful returns an instance as well
-     * as a method name.
+     * @param string|callable $toResolve
+     * @param Closure         $predicate
+     * @param string          $defaultMethod
      *
+     * @throws RuntimeException
+     *
+     * @return callable
+     */
+    private function resolveByPredicate($toResolve, Closure $predicate, string $defaultMethod): callable
+    {
+        if (is_callable($toResolve)) {
+            return $this->bindToContainer($toResolve);
+        }
+        $resolved = $toResolve;
+        if ($predicate($toResolve)) {
+            $resolved = [$toResolve, $defaultMethod];
+        }
+        if (is_string($toResolve)) {
+            [$instance, $method] = $this->resolveSlimNotation($toResolve);
+            if ($predicate($instance) && $method === null) {
+                $method = $defaultMethod;
+            }
+            $resolved = [$instance, $method ?? '__invoke'];
+        }
+        $callable = $this->assertCallable($resolved, $toResolve);
+        return $this->bindToContainer($callable);
+    }
+
+    /**
      * @param string $toResolve
      *
      * @return array [Instance, Method Name]
      */
-    private function resolveInstanceAndMethod(string $toResolve): array
+    private function resolveSlimNotation(string $toResolve): array
     {
-        $class = $toResolve;
-        $instance = null;
-        $method = null;
-
-        // Check for Slim callable as `class:method`
-        if (preg_match(CallableResolver::$callablePattern, $toResolve, $matches)) {
-            $class = $matches[1];
-            $method = $matches[2];
-        }
+        preg_match(CallableResolver::$callablePattern, $toResolve, $matches);
+        [$class, $method] = $matches ? [$matches[1], $matches[2]] : [$toResolve, null];
 
         if ($this->container && $this->container->has($class)) {
             $instance = $this->container->get($class);
@@ -133,17 +121,18 @@ final class CallableResolver implements AdvancedCallableResolverInterface
             }
             $instance = new $class($this->container);
         }
-
         return [$instance, $method];
     }
 
     /**
-     * @param mixed                        $resolved
-     * @param string|object|array|callable $toResolve
+     * @param mixed $resolved
+     * @param mixed $toResolve
      *
-     * @return callable
+     * @throws RuntimeException
+     *
+     * @returns callable
      */
-    private function assertCallableAndBindClosureToContainer($resolved, $toResolve): callable
+    private function assertCallable($resolved, $toResolve): callable
     {
         if (!is_callable($resolved)) {
             throw new RuntimeException(sprintf(
@@ -152,15 +141,22 @@ final class CallableResolver implements AdvancedCallableResolverInterface
                     json_encode($toResolve) : $toResolve
             ));
         }
-
-        if (is_array($resolved) && $resolved[0] instanceof Closure) {
-            $resolved = $resolved[0];
-        }
-
-        if ($this->container && $resolved instanceof Closure) {
-            $resolved = $resolved->bindTo($this->container);
-        }
-
         return $resolved;
+    }
+
+    /**
+     * @param callable $callable
+     *
+     * @return callable
+     */
+    private function bindToContainer(callable $callable): callable
+    {
+        if (is_array($callable) && $callable[0] instanceof Closure) {
+            $callable = $callable[0];
+        }
+        if ($this->container && $callable instanceof Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
+        return $callable;
     }
 }
