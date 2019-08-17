@@ -151,92 +151,25 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     public function addDeferred(string $middleware): self
     {
         $next = $this->tip;
-        $this->tip = new class(
-            $middleware,
-            $next,
-            $this->container,
-            $this->callableResolver
-        ) implements RequestHandlerInterface
+        $this->tip = new class($middleware, $next, $this->callableResolver) implements RequestHandlerInterface
         {
             private $middleware;
             private $next;
-            private $container;
             private $callableResolver;
 
             public function __construct(
-                string $middleware,
+                $middleware,
                 RequestHandlerInterface $next,
-                ?ContainerInterface $container = null,
-                ?CallableResolverInterface $callableResolver = null
+                CallableResolverInterface $callableResolver
             ) {
-                $this->middleware = $middleware;
+                $this->middleware = new DeferredCallable($middleware, $callableResolver);
                 $this->next = $next;
-                $this->container = $container;
                 $this->callableResolver = $callableResolver;
             }
 
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
-                if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
-                    $callable = $this->callableResolver->resolveMiddleware($this->middleware);
-                    return $callable($request, $this->next);
-                }
-
-                $callable = null;
-
-                if ($this->callableResolver instanceof CallableResolverInterface) {
-                    try {
-                        $callable = $this->callableResolver->resolve($this->middleware);
-                    } catch (RuntimeException $e) {
-                        // Do Nothing
-                    }
-                }
-
-                if (!$callable) {
-                    $resolved = $this->middleware;
-                    $instance = null;
-                    $method = null;
-
-                    // Check for Slim callable as `class:method`
-                    if (preg_match(CallableResolver::$callablePattern, $resolved, $matches)) {
-                        $resolved = $matches[1];
-                        $method = $matches[2];
-                    }
-
-                    if ($this->container && $this->container->has($resolved)) {
-                        $instance = $this->container->get($resolved);
-                        if ($instance instanceof MiddlewareInterface) {
-                            return $instance->process($request, $this->next);
-                        }
-                    } elseif (!function_exists($resolved)) {
-                        if (!class_exists($resolved)) {
-                            throw new RuntimeException(sprintf('Middleware %s does not exist', $resolved));
-                        }
-                        $instance = new $resolved($this->container);
-                    }
-
-                    if ($instance && $instance instanceof MiddlewareInterface) {
-                        return $instance->process($request, $this->next);
-                    }
-
-                    $callable = $instance ?? $resolved;
-                    if ($instance && $method) {
-                        $callable = [$instance, $method];
-                    }
-
-                    if ($this->container && $callable instanceof Closure) {
-                        $callable = $callable->bindTo($this->container);
-                    }
-                }
-
-                if (!is_callable($callable)) {
-                    throw new RuntimeException(sprintf(
-                        'Middleware %s is not resolvable',
-                        $this->middleware
-                    ));
-                }
-
-                return $callable($request, $this->next);
+                return ($this->middleware)($request, $this->next);
             }
         };
 
