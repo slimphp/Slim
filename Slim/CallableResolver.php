@@ -57,10 +57,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolveRoute($toResolve): callable
     {
-        $predicate = function ($it) {
-            return $it instanceof RequestHandlerInterface;
-        };
-        return $this->resolveByPredicate($toResolve, $predicate, 'handle');
+        return $this->resolveByPredicate($toResolve, [$this, 'isRoute'], 'handle');
     }
 
     /**
@@ -68,22 +65,19 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolveMiddleware($toResolve): callable
     {
-        $predicate = function ($it) {
-            return $it instanceof MiddlewareInterface;
-        };
-        return $this->resolveByPredicate($toResolve, $predicate, 'process');
+        return $this->resolveByPredicate($toResolve, [$this, 'isMiddleware'], 'process');
     }
 
     /**
      * @param string|callable $toResolve
-     * @param Closure         $predicate
+     * @param callable        $predicate
      * @param string          $defaultMethod
      *
      * @throws RuntimeException
      *
      * @return callable
      */
-    private function resolveByPredicate($toResolve, Closure $predicate, string $defaultMethod): callable
+    private function resolveByPredicate($toResolve, callable $predicate, string $defaultMethod): callable
     {
         if (is_callable($toResolve)) {
             return $this->bindToContainer($toResolve);
@@ -104,7 +98,29 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     }
 
     /**
+     * @param mixed $toResolve
+     *
+     * @return bool
+     */
+    private function isRoute($toResolve): bool
+    {
+        return $toResolve instanceof RequestHandlerInterface;
+    }
+
+    /**
+     * @param mixed $toResolve
+     *
+     * @return bool
+     */
+    private function isMiddleware($toResolve): bool
+    {
+        return $toResolve instanceof MiddlewareInterface;
+    }
+
+    /**
      * @param string $toResolve
+     *
+     * @throws RuntimeException
      *
      * @return array [Instance, Method Name]
      */
