@@ -17,10 +17,8 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\CallableResolver;
-use Slim\DeferredCallable;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\CallableResolverInterface;
@@ -390,7 +388,7 @@ class RouteTest extends TestCase
         $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
 
-        $deferred = new DeferredCallable('\Slim\Tests\Mocks\CallableTest:toCall', $callableResolver);
+        $deferred = $callableResolver->resolve('\Slim\Tests\Mocks\CallableTest:toCall');
         $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver);
 
         CallableTest::$CalledCount = 0;
@@ -410,7 +408,6 @@ class RouteTest extends TestCase
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
         $callable = 'CallableTest:toCall';
-        $deferred = new DeferredCallable($callable, $callableResolverProphecy->reveal());
 
         $callableResolverProphecy
             ->resolve($callable)
@@ -426,6 +423,7 @@ class RouteTest extends TestCase
             })
             ->shouldBeCalledOnce();
 
+        $deferred = $callableResolverProphecy->reveal()->resolve($callable);
         $callableResolverProphecy
             ->resolve($deferred)
             ->willReturn($deferred)
