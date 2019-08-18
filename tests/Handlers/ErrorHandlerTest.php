@@ -337,9 +337,9 @@ class ErrorHandlerTest extends TestCase
 
     public function testLogErrorRenderer()
     {
-       $renderer = function () {
-            return 'error';
-       };
+        $renderer = function () {
+            return '';
+        };
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $callableResolverProphecy
