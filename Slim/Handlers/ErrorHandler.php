@@ -43,6 +43,11 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $defaultErrorRenderer = HtmlErrorRenderer::class;
 
     /**
+     * @var ErrorRendererInterface|string|callable
+     */
+    protected $logErrorRenderer = PlainTextErrorRenderer::class;
+
+    /**
      * @var array
      */
     protected $errorRenderers = [
@@ -52,11 +57,6 @@ class ErrorHandler implements ErrorHandlerInterface
         'text/html' => HtmlErrorRenderer::class,
         'text/plain' => PlainTextErrorRenderer::class,
     ];
-
-    /**
-     * @var ErrorRendererInterface|string|callable
-     */
-    protected $logErrorRenderer = PlainTextErrorRenderer::class;
 
     /**
      * @var bool
