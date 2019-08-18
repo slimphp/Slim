@@ -11,6 +11,9 @@ namespace Slim\Tests\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use ReflectionClass;
+use ReflectionMethod;
+use ReflectionProperty;
+use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
@@ -18,6 +21,7 @@ use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\ErrorHandler;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\TestCase;
 
@@ -322,12 +326,37 @@ class ErrorHandlerTest extends TestCase
             ->withHeader('Accept', 'application/unknown');
 
         $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
-        $exception = new \RuntimeException();
+        $exception = new RuntimeException();
 
         /** @var ResponseInterface $res */
         $res = $handler->__invoke($request, $exception, true, true, true);
 
         $this->assertTrue($res->hasHeader('Content-Type'));
         $this->assertEquals('text/html', $res->getHeaderLine('Content-Type'));
+    }
+
+    public function testLogErrorRenderer()
+    {
+       $renderer = function () {
+            return 'error';
+       };
+
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $callableResolverProphecy
+            ->resolve('logErrorRenderer')
+            ->willReturn($renderer)
+            ->shouldBeCalledOnce();
+
+        $handler = new ErrorHandler($callableResolverProphecy->reveal(), $this->getResponseFactory());
+        $handler->setLogErrorRenderer('logErrorRenderer');
+
+        $exception = new RuntimeException();
+        $exceptionProperty = new ReflectionProperty($handler, 'exception');
+        $exceptionProperty->setAccessible(true);
+        $exceptionProperty->setValue($handler, $exception);
+
+        $writeToErrorLogMethod = new ReflectionMethod($handler, 'writeToErrorLog');
+        $writeToErrorLogMethod->setAccessible(true);
+        $writeToErrorLogMethod->invoke($handler);
     }
 }
