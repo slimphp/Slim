@@ -14,7 +14,7 @@ matrix:
   - php: nightly
 
 before_script:
-- composer require php-coveralls/php-coveralls:^2.1.0
+- if [[ "$ANALYSIS" == 'true' ]]; then composer require php-coveralls/php-coveralls:^2.1.0 ; fi
 - composer install -n
 
 script:
