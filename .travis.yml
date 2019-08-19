@@ -5,9 +5,9 @@ dist: trusty
 matrix:
   include:
   - php: 7.1
-    env: ANALYSIS='true'
   - php: 7.2
   - php: 7.3
+    env: ANALYSIS='true'
   - php: nightly
 
   allow_failures:
@@ -18,10 +18,10 @@ before_script:
 - composer install -n
 
 script:
-- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
 - if [[ "$ANALYSIS" != 'true' ]]; then vendor/bin/phpunit ; fi
-- vendor/bin/phpcs
-- vendor/bin/phpstan analyse Slim
+- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
+- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpcs ; fi
+- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpstan analyse Slim ; fi
 
 after_success:
 - if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/php-coveralls --coverage_clover=clover.xml -v ; fi
