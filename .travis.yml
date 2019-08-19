@@ -19,7 +19,7 @@ before_script:
 
 script:
 - if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
-- vendor/bin/phpunit
+- if [[ "$ANALYSIS" != 'true' ]]; then vendor/bin/phpunit ; fi
 - vendor/bin/phpcs
 - vendor/bin/phpstan analyse Slim
 
