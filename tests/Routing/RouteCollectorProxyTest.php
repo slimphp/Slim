@@ -12,6 +12,7 @@ namespace Slim\Tests\Routing;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Slim\CallableResolver;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteGroupInterface;
@@ -384,9 +385,8 @@ class RouteCollectorProxyTest extends TestCase
 
     public function testRedirect()
     {
-
-        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
 
         $from = '/from';
         $to = '/to';
@@ -399,27 +399,33 @@ class RouteCollectorProxyTest extends TestCase
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy
-            ->createResponse(302)
-            ->willReturn($responseProphecy->reveal())
+            ->createResponse()
+            ->will(function () use ($responseProphecy) {
+                $this
+                    ->createResponse(302)
+                    ->willReturn($responseProphecy)
+                    ->shouldBeCalledOnce();
+                return $responseProphecy->reveal();
+            })
             ->shouldBeCalledOnce();
 
         $routeCollector = new RouteCollector(
             $responseFactoryProphecy->reveal(),
-            $callableResolverProphecy->reveal()
+            $callableResolver
         );
 
         $routeCollectorProxy = new RouteCollectorProxy(
             $responseFactoryProphecy->reveal(),
-            $callableResolverProphecy->reveal(),
-            null,
+            $callableResolver,
+            $containerProphecy->reveal(),
             $routeCollector
         );
 
         $route = $routeCollectorProxy->redirect($from, $to);
-        $routeCallable = $route->getCallable();
-        $routeCallable();
+        $request = $this->createServerRequest('/');
+        $response = $route->run($request);
 
-        $this->assertEquals($from, $route->getPattern());
+        $this->assertSame($responseProphecy->reveal(), $response);
     }
 
     public function testGroup()
