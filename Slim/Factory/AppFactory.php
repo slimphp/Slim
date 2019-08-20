@@ -18,6 +18,7 @@ use Slim\Factory\Psr17\Psr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimHttpPsr17Factory;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\MiddlewareDispatcherInterface;
 use Slim\Interfaces\Psr17FactoryProviderInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
@@ -60,16 +61,22 @@ class AppFactory
     protected static $routeResolver;
 
     /**
+     * @var MiddlewareDispatcherInterface|null
+     */
+    protected static $middlewareDispatcher;
+
+    /**
      * @var bool
      */
     protected static $slimHttpDecoratorsAutomaticDetectionEnabled = true;
 
     /**
-     * @param ResponseFactoryInterface|null  $responseFactory
-     * @param ContainerInterface|null        $container
-     * @param CallableResolverInterface|null $callableResolver
-     * @param RouteCollectorInterface|null   $routeCollector
-     * @param RouteResolverInterface|null    $routeResolver
+     * @param ResponseFactoryInterface|null         $responseFactory
+     * @param ContainerInterface|null               $container
+     * @param CallableResolverInterface|null        $callableResolver
+     * @param RouteCollectorInterface|null          $routeCollector
+     * @param RouteResolverInterface|null           $routeResolver
+     * @param MiddlewareDispatcherInterface|null    $middlewareDispatcher
      * @return App
      */
     public static function create(
@@ -77,7 +84,8 @@ class AppFactory
         ?ContainerInterface $container = null,
         ?CallableResolverInterface $callableResolver = null,
         ?RouteCollectorInterface $routeCollector = null,
-        ?RouteResolverInterface $routeResolver = null
+        ?RouteResolverInterface $routeResolver = null,
+        ?MiddlewareDispatcherInterface $middlewareDispatcher = null
     ): App {
         static::$responseFactory = $responseFactory ?? static::$responseFactory;
         return new App(
@@ -85,7 +93,8 @@ class AppFactory
             $container ?? static::$container,
             $callableResolver ?? static::$callableResolver,
             $routeCollector ?? static::$routeCollector,
-            $routeResolver ?? static::$routeResolver
+            $routeResolver ?? static::$routeResolver,
+            $middlewareDispatcher ?? static::$middlewareDispatcher
         );
     }
 
@@ -111,7 +120,11 @@ class AppFactory
             ? $container->get(RouteResolverInterface::class)
             : null;
 
-        return new App($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver);
+        $middlewareDispatcher = $container->has(MiddlewareDispatcherInterface::class)
+            ? $container->get(MiddlewareDispatcherInterface::class)
+            : null;
+
+        return new App($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver, $middlewareDispatcher);
     }
 
     /**
@@ -222,6 +235,14 @@ class AppFactory
     public static function setRouteResolver(RouteResolverInterface $routeResolver): void
     {
         static::$routeResolver = $routeResolver;
+    }
+
+    /**
+     * @param MiddlewareDispatcherInterface $middlewareDispatcher
+     */
+    public static function setMiddlewareDispatcher(MiddlewareDispatcherInterface $middlewareDispatcher): void
+    {
+        static::$middlewareDispatcher = $middlewareDispatcher;
     }
 
     /**
