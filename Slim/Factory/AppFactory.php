@@ -124,7 +124,14 @@ class AppFactory
             ? $container->get(MiddlewareDispatcherInterface::class)
             : null;
 
-        return new App($responseFactory, $container, $callableResolver, $routeCollector, $routeResolver, $middlewareDispatcher);
+        return new App(
+            $responseFactory,
+            $container,
+            $callableResolver,
+            $routeCollector,
+            $routeResolver,
+            $middlewareDispatcher
+        );
     }
 
     /**

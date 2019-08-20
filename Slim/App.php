@@ -72,11 +72,13 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
         $this->routeResolver = $routeResolver ?? new RouteResolver($this->routeCollector);
         $routeRunner = new RouteRunner($this->routeResolver, $this->routeCollector->getRouteParser());
 
-        if ($middlewareDispatcher) {
+        if (!$middlewareDispatcher) {
+            $middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $this->callableResolver, $container);
+        } else {
             $middlewareDispatcher->seedMiddlewareStack($routeRunner);
         }
 
-        $this->middlewareDispatcher = $middlewareDispatcher ?? new MiddlewareDispatcher($routeRunner, $this->callableResolver, $container);
+        $this->middlewareDispatcher = $middlewareDispatcher;
     }
 
     /**
