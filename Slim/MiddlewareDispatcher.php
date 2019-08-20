@@ -40,13 +40,13 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     protected $container;
 
     /**
-     * @param RequestHandlerInterface   $kernel
-     * @param CallableResolverInterface $callableResolver
-     * @param ContainerInterface|null   $container
+     * @param RequestHandlerInterface        $kernel
+     * @param CallableResolverInterface|null $callableResolver
+     * @param ContainerInterface|null        $container
      */
     public function __construct(
         RequestHandlerInterface $kernel,
-        CallableResolverInterface $callableResolver,
+        ?CallableResolverInterface $callableResolver = null,
         ?ContainerInterface $container = null
     ) {
         $this->seedMiddlewareStack($kernel);
