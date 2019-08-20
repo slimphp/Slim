@@ -17,6 +17,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\MiddlewareDispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Middleware\BodyParsingMiddleware;
@@ -46,18 +47,20 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     protected $routeResolver;
 
     /**
-     * @param ResponseFactoryInterface       $responseFactory
-     * @param ContainerInterface|null        $container
-     * @param CallableResolverInterface|null $callableResolver
-     * @param RouteCollectorInterface|null   $routeCollector
-     * @param RouteResolverInterface|null    $routeResolver
+     * @param ResponseFactoryInterface              $responseFactory
+     * @param ContainerInterface|null               $container
+     * @param CallableResolverInterface|null        $callableResolver
+     * @param RouteCollectorInterface|null          $routeCollector
+     * @param RouteResolverInterface|null           $routeResolver
+     * @param MiddlewareDispatcherInterface|null    $middlewareDispatcher
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         ?ContainerInterface $container = null,
         ?CallableResolverInterface $callableResolver = null,
         ?RouteCollectorInterface $routeCollector = null,
-        ?RouteResolverInterface $routeResolver = null
+        ?RouteResolverInterface $routeResolver = null,
+        ?MiddlewareDispatcherInterface $middlewareDispatcher = null
     ) {
         parent::__construct(
             $responseFactory,
@@ -69,7 +72,11 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
         $this->routeResolver = $routeResolver ?? new RouteResolver($this->routeCollector);
         $routeRunner = new RouteRunner($this->routeResolver, $this->routeCollector->getRouteParser());
 
-        $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $this->callableResolver, $container);
+        if ($middlewareDispatcher) {
+            $middlewareDispatcher->seedMiddlewareStack($routeRunner);
+        }
+
+        $this->middlewareDispatcher = $middlewareDispatcher ?? new MiddlewareDispatcher($routeRunner, $this->callableResolver, $container);
     }
 
     /**
@@ -78,6 +85,14 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     public function getRouteResolver(): RouteResolverInterface
     {
         return $this->routeResolver;
+    }
+
+    /**
+     * @return MiddlewareDispatcherInterface
+     */
+    public function getMiddlewareDispatcher(): MiddlewareDispatcherInterface
+    {
+        return $this->middlewareDispatcher;
     }
 
     /**
