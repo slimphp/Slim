@@ -195,8 +195,10 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function redirect(string $from, $to, int $status = 302): RouteInterface
     {
-        $handler = function () use ($to, $status) {
-            $response = $this->responseFactory->createResponse($status);
+        $responseFactory = $this->responseFactory;
+
+        $handler = function () use ($to, $status, $responseFactory) {
+            $response = $responseFactory->createResponse($status);
             return $response->withHeader('Location', (string) $to);
         };
 
