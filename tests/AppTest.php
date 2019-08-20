@@ -119,24 +119,7 @@ class AppTest extends TestCase
         $this->assertEquals($routeCollector, $app->getRouteCollector());
     }
 
-    public function testGetMiddlewareDispatcherReturnsInjectedInstance()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $middlewareDispatcherProphecy = $this->prophesize(MiddlewareDispatcherInterface::class);
-
-        $app = new App(
-            $responseFactoryProphecy->reveal(),
-            null,
-            null,
-            null,
-            null,
-            $middlewareDispatcherProphecy->reveal()
-        );
-
-        $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
-    }
-
-    public function testMiddlewareDispatcherGetsSeededWithInjectedInstance()
+    public function testGetMiddlewareDispatcherGetsSeededAndReturnsInjectedInstance()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
 
