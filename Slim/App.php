@@ -37,14 +37,14 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     public const VERSION = '4.1.0';
 
     /**
-     * @var MiddlewareDispatcher
-     */
-    protected $middlewareDispatcher;
-
-    /**
      * @var RouteResolverInterface
      */
     protected $routeResolver;
+
+    /**
+     * @var MiddlewareDispatcherInterface
+     */
+    protected $middlewareDispatcher;
 
     /**
      * @param ResponseFactoryInterface              $responseFactory

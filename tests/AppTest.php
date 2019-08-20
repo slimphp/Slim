@@ -124,7 +124,14 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $middlewareDispatcherProphecy = $this->prophesize(MiddlewareDispatcherInterface::class);
 
-        $app = new App($responseFactoryProphecy->reveal(), null, null, null, null, $middlewareDispatcherProphecy->reveal());
+        $app = new App(
+            $responseFactoryProphecy->reveal(),
+            null,
+            null,
+            null,
+            null,
+            $middlewareDispatcherProphecy->reveal()
+        );
 
         $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
     }
@@ -138,7 +145,14 @@ class AppTest extends TestCase
             ->seedMiddlewareStack(Argument::any())
             ->shouldBeCalledOnce();
 
-        $app = new App($responseFactoryProphecy->reveal(), null, null, null, null, $middlewareDispatcherProphecy->reveal());
+        $app = new App(
+            $responseFactoryProphecy->reveal(),
+            null,
+            null,
+            null,
+            null,
+            $middlewareDispatcherProphecy->reveal()
+        );
 
         $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
     }
