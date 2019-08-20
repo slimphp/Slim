@@ -18,8 +18,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\AdvancedCallableResolverInterface;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\MiddlewareDispatcherInterface;
 
-class MiddlewareDispatcher implements RequestHandlerInterface
+class MiddlewareDispatcher implements MiddlewareDispatcherInterface
 {
     /**
      * Tip of the middleware call stack
@@ -29,7 +30,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     protected $tip;
 
     /**
-     * @var CallableResolverInterface
+     * @var CallableResolverInterface|null
      */
     protected $callableResolver;
 
@@ -54,12 +55,9 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     }
 
     /**
-     * Seed the middleware stack with the inner request handler
-     *
-     * @param RequestHandlerInterface $kernel
-     * @return void
+     * {@inheritdoc}
      */
-    protected function seedMiddlewareStack(RequestHandlerInterface $kernel): void
+    public function seedMiddlewareStack(RequestHandlerInterface $kernel): void
     {
         $this->tip = $kernel;
     }
@@ -83,9 +81,9 @@ class MiddlewareDispatcher implements RequestHandlerInterface
      * added one (last in, first out).
      *
      * @param MiddlewareInterface|string|callable $middleware
-     * @return self
+     * @return MiddlewareDispatcherInterface
      */
-    public function add($middleware): self
+    public function add($middleware): MiddlewareDispatcherInterface
     {
         if ($middleware instanceof MiddlewareInterface) {
             return $this->addMiddleware($middleware);
@@ -113,9 +111,9 @@ class MiddlewareDispatcher implements RequestHandlerInterface
      * added one (last in, first out).
      *
      * @param MiddlewareInterface $middleware
-     * @return self
+     * @return MiddlewareDispatcherInterface
      */
-    public function addMiddleware(MiddlewareInterface $middleware): self
+    public function addMiddleware(MiddlewareInterface $middleware): MiddlewareDispatcherInterface
     {
         $next = $this->tip;
         $this->tip = new class($middleware, $next) implements RequestHandlerInterface
