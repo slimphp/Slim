@@ -25,6 +25,7 @@ use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\MiddlewareDispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteParserInterface;
@@ -116,6 +117,30 @@ class AppTest extends TestCase
         );
 
         $this->assertEquals($routeCollector, $app->getRouteCollector());
+    }
+
+    public function testGetMiddlewareDispatcherReturnsInjectedInstance()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $middlewareDispatcherProphecy = $this->prophesize(MiddlewareDispatcherInterface::class);
+
+        $app = new App($responseFactoryProphecy->reveal(), null, null, null, null, $middlewareDispatcherProphecy->reveal());
+
+        $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
+    }
+
+    public function testMiddlewareDispatcherGetsSeededWithInjectedInstance()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $middlewareDispatcherProphecy = $this->prophesize(MiddlewareDispatcherInterface::class);
+        $middlewareDispatcherProphecy
+            ->seedMiddlewareStack(Argument::any())
+            ->shouldBeCalledOnce();
+
+        $app = new App($responseFactoryProphecy->reveal(), null, null, null, null, $middlewareDispatcherProphecy->reveal());
+
+        $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
     }
 
     public function lowerCaseRequestMethodsProvider()

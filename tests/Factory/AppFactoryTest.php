@@ -26,6 +26,7 @@ use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
 use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Http\Response as DecoratedResponse;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\MiddlewareDispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
@@ -117,6 +118,7 @@ class AppFactoryTest extends TestCase
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeParserProphecy = $this->prophesize(RouteParserInterface::class);
         $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+        $middlewareDispatcherProphecy = $this->prophesize(MiddlewareDispatcherInterface::class);
 
         $routeCollectorProphecy->getRouteParser()->willReturn($routeParserProphecy);
 
@@ -126,6 +128,7 @@ class AppFactoryTest extends TestCase
         AppFactory::setCallableResolver($callableResolverProphecy->reveal());
         AppFactory::setRouteCollector($routeCollectorProphecy->reveal());
         AppFactory::setRouteResolver($routeResolverProphecy->reveal());
+        AppFactory::setMiddlewareDispatcher($middlewareDispatcherProphecy->reveal());
 
         $app = AppFactory::create();
 
@@ -152,6 +155,11 @@ class AppFactoryTest extends TestCase
         $this->assertSame(
             $routeResolverProphecy->reveal(),
             $app->getRouteResolver()
+        );
+
+        $this->assertSame(
+            $middlewareDispatcherProphecy->reveal(),
+            $app->getMiddlewareDispatcher()
         );
     }
 
@@ -242,6 +250,8 @@ class AppFactoryTest extends TestCase
             ->willReturn($routeParserProphecy->reveal())
             ->shouldBeCalledOnce();
 
+        $middlewareDispatcherProphecy = $this->prophesize(MiddlewareDispatcherInterface::class);
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
 
         $containerProphecy
@@ -284,6 +294,16 @@ class AppFactoryTest extends TestCase
             ->willReturn($routeResolverProphecy->reveal())
             ->shouldBeCalledOnce();
 
+        $containerProphecy
+            ->has(MiddlewareDispatcherInterface::class)
+            ->willReturn(true)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->get(MiddlewareDispatcherInterface::class)
+            ->willReturn($middlewareDispatcherProphecy->reveal())
+            ->shouldBeCalledOnce();
+
         AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
         $app = AppFactory::createFromContainer($containerProphecy->reveal());
 
@@ -292,5 +312,6 @@ class AppFactoryTest extends TestCase
         $this->assertSame($app->getCallableResolver(), $callableResolverProphecy->reveal());
         $this->assertSame($app->getRouteCollector(), $routeCollectorProphecy->reveal());
         $this->assertSame($app->getRouteResolver(), $routeResolverProphecy->reveal());
+        $this->assertSame($app->getMiddlewareDispatcher(), $middlewareDispatcherProphecy->reveal());
     }
 }
