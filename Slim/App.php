@@ -120,6 +120,8 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     /**
      * Add the Slim built-in routing middleware to the app middleware stack
      *
+     * This method can be used to control middleware order and is not required for default routing operation.
+     *
      * @return RoutingMiddleware
      */
     public function addRoutingMiddleware(): RoutingMiddleware
