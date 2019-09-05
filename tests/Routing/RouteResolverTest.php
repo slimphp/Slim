@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
+use Error;
+use Prophecy\Argument;
 use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteInterface;
@@ -18,18 +20,41 @@ use Slim\Tests\TestCase;
 
 class RouteResolverTest extends TestCase
 {
-    public function testComputeRoutingResults()
+    public function computeRoutingResultsDataProvider(): array
     {
-        $method = 'GET';
-        $uri = '/';
+        return [
+            ['GET', '', '/'],
+            ['GET', '/', '/'],
+            ['GET', '//foo', '//foo'],
+            ['GET', 'hello%20world', '/hello world'],
+        ];
+    }
 
+    /**
+     * @dataProvider computeRoutingResultsDataProvider
+     *
+     * @param string $method      The request method
+     * @param string $uri         The request uri
+     * @param string $expectedUri The expected uri after transformation in the computeRoutingResults()
+     */
+    public function testComputeRoutingResults(string $method, string $uri, string $expectedUri)
+    {
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routingResultsProphecy = $this->prophesize(RoutingResults::class);
 
         $dispatcherProphecy = $this->prophesize(DispatcherInterface::class);
         $dispatcherProphecy
-            ->dispatch($method, $uri)
-            ->willReturn($routingResultsProphecy->reveal())
+            ->dispatch(Argument::type('string'), Argument::type('string'))
+            ->will(function ($args) use ($routingResultsProphecy, $method, $expectedUri) {
+                if ($args[1] !== $expectedUri) {
+                    throw new Error(sprintf(
+                        "URI transformation failed.\n  Received: '%s'\n  Expected: '%s'",
+                        $args[1],
+                        $expectedUri
+                    ));
+                }
+                return $routingResultsProphecy->reveal();
+            })
             ->shouldBeCalledOnce();
 
         $routeResolver = new RouteResolver(
