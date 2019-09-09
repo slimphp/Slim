@@ -21,64 +21,56 @@ class FastRouteDispatcher extends GroupCountBased
     /**
      * @param string $httpMethod
      * @param string $uri
+     *
      * @return array
      */
     public function dispatch($httpMethod, $uri): array
     {
-        if (isset($this->staticRouteMap[$httpMethod][$uri])) {
-            return [self::FOUND, $this->staticRouteMap[$httpMethod][$uri], []];
+        $routingResults = $this->routingResults($httpMethod, $uri);
+        if ($routingResults[0] === self::FOUND) {
+            return $routingResults;
         }
 
-        $varRouteData = $this->variableRouteData;
-        if (isset($varRouteData[$httpMethod])) {
-            $result = $this->dispatchVariableRoute($varRouteData[$httpMethod], $uri);
-            $routingResults = $this->routingResultsFromVariableRouteResults($result);
+        // For HEAD requests, attempt fallback to GET
+        if ($httpMethod === 'HEAD') {
+            $routingResults = $this->routingResults('GET', $uri);
             if ($routingResults[0] === self::FOUND) {
                 return $routingResults;
             }
         }
 
-        // For HEAD requests, attempt fallback to GET
-        if ($httpMethod === 'HEAD') {
-            if (isset($this->staticRouteMap['GET'][$uri])) {
-                return [self::FOUND, $this->staticRouteMap['GET'][$uri], []];
-            }
-            if (isset($varRouteData['GET'])) {
-                $result = $this->dispatchVariableRoute($varRouteData['GET'], $uri);
-                return $this->routingResultsFromVariableRouteResults($result);
-            }
-        }
-
         // If nothing else matches, try fallback routes
-        if (isset($this->staticRouteMap['*'][$uri])) {
-            return [self::FOUND, $this->staticRouteMap['*'][$uri], []];
-        }
-        if (isset($varRouteData['*'])) {
-            $result = $this->dispatchVariableRoute($varRouteData['*'], $uri);
-            return $this->routingResultsFromVariableRouteResults($result);
+        $routingResults = $this->routingResults('*', $uri);
+        if ($routingResults[0] === self::FOUND) {
+            return $routingResults;
         }
 
-        if (count($this->getAllowedMethods($uri))) {
+        if (!empty($this->getAllowedMethods($uri))) {
             return [self::METHOD_NOT_ALLOWED, null, []];
         }
 
         return [self::NOT_FOUND, null, []];
     }
 
-    /**
-     * @param array $result
-     * @return array
-     */
-    protected function routingResultsFromVariableRouteResults(array $result): array
+    private function routingResults(string $httpMethod, string $uri): array
     {
-        if ($result[0] === self::FOUND) {
-            return [self::FOUND, $result[1], $result[2]];
+        if (isset($this->staticRouteMap[$httpMethod][$uri])) {
+            return [self::FOUND, $this->staticRouteMap[$httpMethod][$uri], []];
         }
+
+        if (isset($this->variableRouteData[$httpMethod])) {
+            $result = $this->dispatchVariableRoute($this->variableRouteData[$httpMethod], $uri);
+            if ($result[0] === self::FOUND) {
+                return [self::FOUND, $result[1], $result[2]];
+            }
+        }
+
         return [self::NOT_FOUND, null, []];
     }
 
     /**
      * @param string $uri
+     *
      * @return array
      */
     public function getAllowedMethods(string $uri): array
@@ -94,8 +86,7 @@ class FastRouteDispatcher extends GroupCountBased
             }
         }
 
-        $varRouteData = $this->variableRouteData;
-        foreach ($varRouteData as $method => $routeData) {
+        foreach ($this->variableRouteData as $method => $routeData) {
             $result = $this->dispatchVariableRoute($routeData, $uri);
             if ($result[0] === self::FOUND) {
                 $this->allowedMethods[$uri][] = $method;
