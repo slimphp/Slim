@@ -262,7 +262,6 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function map(array $methods, string $pattern, $handler): RouteInterface
     {
-
         $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
