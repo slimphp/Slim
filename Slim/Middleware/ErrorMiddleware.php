@@ -142,13 +142,15 @@ class ErrorMiddleware implements MiddlewareInterface
     /**
      * Set callable as the default Slim application error handler.
      *
-     * This service MUST return a callable that accepts
-     * three arguments optionally four arguments.
+     * The callable signature MUST match the ErrorHandlerInterface
+     *
+     * @see \Slim\Interfaces\ErrorHandlerInterface
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Exception
-     * 4. Boolean displayErrorDetails (optional)
+     * 2. Instance of \Throwable
+     * 3. Boolean displayErrorDetails
+     * 4. Boolean $logErrors
+     * 5. Boolean $logErrorDetails
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
@@ -166,13 +168,15 @@ class ErrorMiddleware implements MiddlewareInterface
      * Set callable to handle scenarios where an error
      * occurs when processing the current request.
      *
-     * This service MUST return a callable that accepts
-     * three arguments optionally four arguments.
+     * The callable signature MUST match the ErrorHandlerInterface
+     *
+     * @see \Slim\Interfaces\ErrorHandlerInterface
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Exception
-     * 4. Boolean displayErrorDetails (optional)
+     * 2. Instance of \Throwable
+     * 3. Boolean displayErrorDetails
+     * 4. Boolean $logErrors
+     * 5. Boolean $logErrorDetails
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
