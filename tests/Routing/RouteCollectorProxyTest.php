@@ -100,15 +100,14 @@ class RouteCollectorProxyTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
 
         $routeCollectorProxy = new RouteCollectorProxy(
             $responseFactoryProphecy->reveal(),
             $callableResolverProphecy->reveal(),
-            $containerProphecy->reveal(),
-            $routeCollectorProphecy->reveal(),
-            $basePath
+            $containerProphecy->reveal()
         );
+
+        $routeCollectorProxy->setBasePath($basePath);
 
         $this->assertEquals($basePath, $routeCollectorProxy->getBasePath());
 
