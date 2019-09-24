@@ -68,9 +68,9 @@
             "@phpcs",
             "@phpstan"
         ],
-        "phpunit": "php vendor/bin/phpunit",
-        "phpcs": "php vendor/bin/phpcs",
-        "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse Slim"
+        "phpunit": "phpunit",
+        "phpcs": "phpcs",
+        "phpstan": "phpstan analyse Slim --memory-limit=-1"
     },
     "suggest": {
         "ext-simplexml": "Needed to support XML format in BodyParsingMiddleware",
