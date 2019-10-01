@@ -194,4 +194,17 @@ class RouteParserTest extends TestCase
         $expectedResult = 'http://example.com:8080/app/123';
         $this->assertEquals($expectedResult, $result);
     }
+
+    public function testBasePath()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->setBasePath('/app');
+
+        $routeParser = $routeCollector->getRouteParser();
+
+        $this->assertEquals('/app', $routeParser->basePath());
+    }
 }

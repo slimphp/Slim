@@ -55,4 +55,11 @@ interface RouteParserInterface
      * @return string
      */
     public function fullUrlFor(UriInterface $uri, string $routeName, array $data = [], array $queryParams = []): string;
+
+    /**
+     * Get base path
+     *
+     * @return string
+     */
+    public function basePath(): string;
 }
