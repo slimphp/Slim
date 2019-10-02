@@ -129,7 +129,7 @@ class RouteParser implements RouteParserInterface
     /**
      * {@inheritdoc}
      */
-    public function basePath(): string
+    public function getBasePath(): string
     {
         return $this->routeCollector->getBasePath();
     }

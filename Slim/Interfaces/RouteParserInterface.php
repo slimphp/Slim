@@ -61,5 +61,5 @@ interface RouteParserInterface
      *
      * @return string
      */
-    public function basePath(): string;
+    public function getBasePath(): string;
 }

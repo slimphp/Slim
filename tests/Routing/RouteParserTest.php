@@ -195,7 +195,7 @@ class RouteParserTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    public function testBasePath()
+    public function testGetBasePath()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
@@ -205,6 +205,6 @@ class RouteParserTest extends TestCase
 
         $routeParser = $routeCollector->getRouteParser();
 
-        $this->assertEquals('/app', $routeParser->basePath());
+        $this->assertEquals('/app', $routeParser->getBasePath());
     }
 }
