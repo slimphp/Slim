@@ -43,8 +43,10 @@ class HttpExceptionTest extends TestCase
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);
         $this->assertEquals(['GET'], $exception->getAllowedMethods());
+        $this->assertEquals('Method not allowed. Must be one of: GET', $exception->getMessage());
 
         $exception = new HttpMethodNotAllowedException($request);
         $this->assertEquals([], $exception->getAllowedMethods());
+        $this->assertEquals('Method not allowed.', $exception->getMessage());
     }
 }
