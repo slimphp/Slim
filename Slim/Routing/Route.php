@@ -143,7 +143,7 @@ class Route implements RouteInterface, RequestHandlerInterface
         $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
         $this->container = $container;
-        $this->invocationStrategy = $invocationStrategy ?? new RequestResponse();
+        $this->invocationStrategy = $invocationStrategy ?? new RequestResponse($responseFactory);
         $this->groups = $groups;
         $this->identifier = 'route' . $identifier;
         $this->middlewareDispatcher = new MiddlewareDispatcher($this, $callableResolver, $container);
@@ -368,7 +368,6 @@ class Route implements RouteInterface, RequestHandlerInterface
             $strategy = new RequestHandler();
         }
 
-        $response = $this->responseFactory->createResponse();
-        return $strategy($callable, $request, $response, $this->arguments);
+        return $strategy($callable, $request, $this->arguments);
     }
 }

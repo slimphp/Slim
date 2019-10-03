@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim\Handlers\Strategies;
 
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
@@ -19,12 +20,24 @@ use Slim\Interfaces\InvocationStrategyInterface;
 class RequestResponse implements InvocationStrategyInterface
 {
     /**
+     * @var ResponseFactoryInterface
+     */
+    private $responseFactory;
+
+    /**
+     * @param ResponseFactoryInterface $responseFactory
+     */
+    public function __construct(ResponseFactoryInterface $responseFactory)
+    {
+        $this->responseFactory = $responseFactory;
+    }
+
+    /**
      * Invoke a route callable with request, response, and all route parameters
      * as an array of arguments.
      *
      * @param callable               $callable
      * @param ServerRequestInterface $request
-     * @param ResponseInterface      $response
      * @param array                  $routeArguments
      *
      * @return ResponseInterface
@@ -32,13 +45,12 @@ class RequestResponse implements InvocationStrategyInterface
     public function __invoke(
         callable $callable,
         ServerRequestInterface $request,
-        ResponseInterface $response,
         array $routeArguments
     ): ResponseInterface {
         foreach ($routeArguments as $k => $v) {
             $request = $request->withAttribute($k, $v);
         }
 
-        return $callable($request, $response, $routeArguments);
+        return $callable($request, $this->responseFactory->createResponse(), $routeArguments);
     }
 }

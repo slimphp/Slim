@@ -1269,7 +1269,9 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->getRouteCollector()->setDefaultInvocationStrategy(new RequestResponseArgs());
+        $app->getRouteCollector()->setDefaultInvocationStrategy(
+            new RequestResponseArgs($responseFactoryProphecy->reveal())
+        );
         $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
             $response->getBody()->write("Hello {$name}");
             return $response;
@@ -1583,7 +1585,9 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->getRouteCollector()->setDefaultInvocationStrategy(new RequestResponseArgs());
+        $app->getRouteCollector()->setDefaultInvocationStrategy(
+            new RequestResponseArgs($responseFactoryProphecy->reveal())
+        );
         $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
             $response->getBody()->write($request->getAttribute('greeting') . ' ' . $name);
             return $response;

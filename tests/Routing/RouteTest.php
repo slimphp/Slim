@@ -293,7 +293,7 @@ class RouteTest extends TestCase
             ->shouldBeCalledOnce();
 
         $routeCollectorProxyProphecy = $this->prophesize(RouteCollectorProxyInterface::class);
-        $strategy = new RequestResponse();
+        $strategy = new RequestResponse($responseFactoryProphecy->reveal());
 
         $called = 0;
         $mw = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use (&$called) {

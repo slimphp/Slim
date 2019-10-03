@@ -36,7 +36,6 @@ class RequestHandler implements RequestHandlerInvocationStrategyInterface
      *
      * @param callable               $callable
      * @param ServerRequestInterface $request
-     * @param ResponseInterface      $response
      * @param array                  $routeArguments
      *
      * @return ResponseInterface
@@ -44,7 +43,6 @@ class RequestHandler implements RequestHandlerInvocationStrategyInterface
     public function __invoke(
         callable $callable,
         ServerRequestInterface $request,
-        ResponseInterface $response,
         array $routeArguments
     ): ResponseInterface {
         if ($this->appendRouteArgumentsToRequestAttributes) {
