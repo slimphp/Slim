@@ -537,7 +537,7 @@ class RouteTest extends TestCase
             ->shouldBeCalledOnce();
 
         $callableResolver = new CallableResolver();
-        $invocationStrategy = new InvocationStrategyTest();
+        $invocationStrategy = new InvocationStrategyTest($responseFactoryProphecy->reveal());
 
         $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
         $route = new Route(
@@ -575,7 +575,7 @@ class RouteTest extends TestCase
         $containerProphecy->get('\Slim\Tests\Mocks\CallableTest')->willReturn(new CallableTest());
 
         $callableResolver = new CallableResolver($containerProphecy->reveal());
-        $strategy = new InvocationStrategyTest();
+        $strategy = new InvocationStrategyTest($responseFactoryProphecy->reveal());
 
         $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
         $route = new Route(
@@ -597,13 +597,10 @@ class RouteTest extends TestCase
 
     public function testInvokeUsesRequestHandlerStrategyForRequestHandlers()
     {
-        $responseProphecy = $this->prophesize(ResponseInterface::class);
-
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy
             ->createResponse()
-            ->willReturn($responseProphecy->reveal())
-            ->shouldBeCalledOnce();
+            ->shouldNotBeCalled();
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(RequestHandlerTest::class)->willReturn(true);
@@ -634,13 +631,10 @@ class RouteTest extends TestCase
 
     public function testInvokeUsesUserSetStrategyForRequestHandlers()
     {
-        $responseProphecy = $this->prophesize(ResponseInterface::class);
-
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy
             ->createResponse()
-            ->willReturn($responseProphecy->reveal())
-            ->shouldBeCalledOnce();
+            ->shouldNotBeCalled();
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(RequestHandlerTest::class)->willReturn(true);
@@ -676,8 +670,7 @@ class RouteTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy
             ->createResponse()
-            ->willReturn($responseProphecy->reveal())
-            ->shouldBeCalledOnce();
+            ->shouldNotBeCalled();
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(RequestHandlerTest::class)->willReturn(true);
@@ -774,7 +767,7 @@ class RouteTest extends TestCase
         $containerProphecy->get('CallableTest2')->willReturn(new CallableTest());
 
         $callableResolver = new CallableResolver($containerProphecy->reveal());
-        $strategy = new InvocationStrategyTest();
+        $strategy = new InvocationStrategyTest($responseFactoryProphecy->reveal());
 
         $deferred = 'NonExistent:toCall';
         $route = new Route(
@@ -839,7 +832,7 @@ class RouteTest extends TestCase
         });
 
         $callableResolver = new CallableResolver($containerProphecy->reveal());
-        $strategy = new InvocationStrategyTest();
+        $strategy = new InvocationStrategyTest($responseFactoryProphecy->reveal());
 
         $deferred = 'CallableTest3';
         $route = new Route(
