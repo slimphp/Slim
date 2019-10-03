@@ -120,6 +120,9 @@ class ResponseEmitter
                 }
             }
         }
+        if ($body->isReadable() && strlen($data = $body->read($amountToRead ?? $this->responseChunkSize)) > 0) {
+            echo $data;
+        }
     }
 
     /**
