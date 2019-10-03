@@ -11,7 +11,6 @@ namespace Slim\Tests\Factory\Psr17;
 
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionProperty;
-use RuntimeException;
 use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
 use Slim\Http\ServerRequest;
 use Slim\Interfaces\ServerRequestCreatorInterface;

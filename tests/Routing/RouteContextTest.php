@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Slim\Tests\Routing;
 
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Routing\RouteContext;

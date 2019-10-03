@@ -11,7 +11,6 @@ namespace Slim\Tests\Routing;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\CallableResolver;
 use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteParser;

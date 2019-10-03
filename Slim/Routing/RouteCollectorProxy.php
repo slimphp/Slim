@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\Interfaces\CallableResolverInterface;
