@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Middleware\RoutingMiddleware;
@@ -31,13 +32,23 @@ class RouteRunner implements RequestHandlerInterface
     private $routeParser;
 
     /**
-     * @param RouteResolverInterface $routeResolver
-     * @param RouteParserInterface   $routeParser
+     * @var RouteCollectorProxyInterface|null
      */
-    public function __construct(RouteResolverInterface $routeResolver, RouteParserInterface $routeParser)
-    {
+    private $routeCollectorProxy;
+
+    /**
+     * @param RouteResolverInterface            $routeResolver
+     * @param RouteParserInterface              $routeParser
+     * @param RouteCollectorProxyInterface|null $routeCollectorProxy
+     */
+    public function __construct(
+        RouteResolverInterface $routeResolver,
+        RouteParserInterface $routeParser,
+        ?RouteCollectorProxyInterface $routeCollectorProxy = null
+    ) {
         $this->routeResolver = $routeResolver;
         $this->routeParser = $routeParser;
+        $this->routeCollectorProxy = $routeCollectorProxy;
     }
 
     /**
