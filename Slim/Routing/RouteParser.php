@@ -125,4 +125,14 @@ class RouteParser implements RouteParserInterface
         $protocol = ($scheme ? $scheme . ':' : '') . ($authority ? '//' . $authority : '');
         return $protocol . $path;
     }
+
+    /**
+     * Get base path
+     *
+     * @return string
+     */
+    public function getBasePath(): string
+    {
+        return $this->routeCollector->getBasePath();
+    }
 }
