@@ -35,7 +35,7 @@ To install the Slim-Http library simply run the following command:
 composer require slim/http
 ```
 
-The `ServerRequest` and `Response` object decorators are automatically detected and applied by the internal factories. If you have installed Slim-Http and wish to turn off automatic object decoration you can use the following statements:
+The `ServerRequest` and `Response` object decorators are automatically detected and applied by the internal factories. If you have installed Slim-Http and wish to turn off automatic object decoration then you can use the following statements:
 ```php
 <?php
 
@@ -74,7 +74,7 @@ $app = AppFactory::create();
 $app->addErrorMiddleware(true, true, true);
 
 // Add routes
-$app->get('/', function () {
+$app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write('<a href="/hello/world">Try /hello/world</a>');
     return $response;
 });
