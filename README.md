@@ -35,7 +35,7 @@ To install the Slim-Http library simply run the following command:
 composer require slim/http
 ```
 
-The `ServerRequest` and `Response` object decorators are automatically detected and applied by the internal factories. If you have installed Slim-Http and wish to turn off automatic object decoration you can use the following statements:
+The `ServerRequest` and `Response` object decorators are automatically detected and applied by the internal factories. If you have installed Slim-Http and wish to turn off automatic object decoration then you can use the following statements:
 ```php
 <?php
 
@@ -57,6 +57,8 @@ In order for auto-detection to work and enable you to use `AppFactory::create()`
 - [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - Install using `composer require guzzlehttp/psr7 http-interop/http-factory-guzzle`
 - [zend-diactoros](https://github.com/zendframework/zend-diactoros) - Install using `composer require zendframework/zend-diactoros`
 
+Then create file _public/index.php_.
+
 ```php
 <?php
 use Psr\Http\Message\ResponseInterface as Response;
@@ -71,7 +73,12 @@ $app = AppFactory::create();
 // Add error middleware
 $app->addErrorMiddleware(true, true, true);
 
-// Add route
+// Add routes
+$app->get('/', function (Request $request, Response $response) {
+    $response->getBody()->write('<a href="/hello/world">Try /hello/world</a>');
+    return $response;
+});
+
 $app->get('/hello/{name}', function (Request $request, Response $response, $args) {
     $name = $args['name'];
     $response->getBody()->write("Hello, $name");
@@ -83,7 +90,7 @@ $app->run();
 
 You may quickly test this using the built-in PHP server:
 ```bash
-$ php -S localhost:8000
+$ php -S localhost:8000 -t public
 ```
 
 Going to http://localhost:8000/hello/world will now display "Hello, world".

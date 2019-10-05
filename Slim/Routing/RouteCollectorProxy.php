@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\Interfaces\CallableResolverInterface;
@@ -43,27 +42,27 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * @var string
      */
-    protected $basePath;
+    protected $groupPattern;
 
     /**
      * @param ResponseFactoryInterface     $responseFactory
      * @param CallableResolverInterface    $callableResolver
      * @param RouteCollectorInterface|null $routeCollector
      * @param ContainerInterface|null      $container
-     * @param string                       $basePath
+     * @param string                       $groupPattern
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver,
         ?ContainerInterface $container = null,
         ?RouteCollectorInterface $routeCollector = null,
-        string $basePath = ''
+        string $groupPattern = ''
     ) {
         $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
         $this->container = $container;
         $this->routeCollector = $routeCollector ?? new RouteCollector($responseFactory, $callableResolver, $container);
-        $this->basePath = $basePath;
+        $this->groupPattern = $groupPattern;
     }
 
     /**
@@ -103,7 +102,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function getBasePath(): string
     {
-        return $this->basePath;
+        return $this->routeCollector->getBasePath();
     }
 
     /**
@@ -111,7 +110,8 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function setBasePath(string $basePath): RouteCollectorProxyInterface
     {
-        $this->basePath = $basePath;
+        $this->routeCollector->setBasePath($basePath);
+
         return $this;
     }
 
@@ -176,7 +176,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function map(array $methods, string $pattern, $callable): RouteInterface
     {
-        $pattern = $this->basePath . $pattern;
+        $pattern = $this->groupPattern . $pattern;
 
         return $this->routeCollector->map($methods, $pattern, $callable);
     }
@@ -186,7 +186,8 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface
     {
-        $pattern = $this->basePath . $pattern;
+        $pattern = $this->groupPattern . $pattern;
+
         return $this->routeCollector->group($pattern, $callable);
     }
 

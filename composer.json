@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs",
     "keywords": ["framework","micro","api","router"],
-    "homepage": "https://slimframework.com",
+    "homepage": "https://www.slimframework.com",
     "license": "MIT",
     "authors": [
         {
@@ -68,9 +68,9 @@
             "@phpcs",
             "@phpstan"
         ],
-        "phpunit": "php vendor/bin/phpunit",
-        "phpcs": "php vendor/bin/phpcs",
-        "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse Slim"
+        "phpunit": "phpunit",
+        "phpcs": "phpcs",
+        "phpstan": "phpstan analyse Slim --memory-limit=-1"
     },
     "suggest": {
         "ext-simplexml": "Needed to support XML format in BodyParsingMiddleware",

@@ -13,7 +13,6 @@ use FastRoute\Dispatcher;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 use Slim\CallableResolver;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
