@@ -1,5 +1,28 @@
 # Changelog
 
+## 4.3.0 - 2019-10-05
+
+### Added
+- [2819](https://github.com/slimphp/Slim/pull/2819) Added description to addRoutingMiddleware()
+- [2820](https://github.com/slimphp/Slim/pull/2820) Update link to homepage in composer.json
+- [2828](https://github.com/slimphp/Slim/pull/2828) Allow URIs with leading multi-slashes
+- [2832](https://github.com/slimphp/Slim/pull/2832) Refactor `FastRouteDispatcher`
+- [2835](https://github.com/slimphp/Slim/pull/2835) Rename `pathFor` to `urlFor` in docblock
+- [2846](https://github.com/slimphp/Slim/pull/2846) Correcting the branch name as per issue-2843
+- [2849](https://github.com/slimphp/Slim/pull/2849) Create class alias for FastRoute\RouteCollector
+- [2855](https://github.com/slimphp/Slim/pull/2855) Add list of allowed methods to HttpMethodNotAllowedException
+- [2860](https://github.com/slimphp/Slim/pull/2860) Add base path to `$request` and use `RouteContext` to read
+
+### Fixed
+- [2839](https://github.com/slimphp/Slim/pull/2839) Fix description for handler signature in phpdocs
+- [2844](https://github.com/slimphp/Slim/pull/2844) Handle base path by routeCollector instead of RouteCollectorProxy
+- [2845](https://github.com/slimphp/Slim/pull/2845) Fix composer scripts
+- [2851](https://github.com/slimphp/Slim/pull/2851) Fix example of 'Hello World' app
+- [2854](https://github.com/slimphp/Slim/pull/2854) Fix undefined property in tests
+
+### Removed
+- [2853](https://github.com/slimphp/Slim/pull/2853) Remove unused classes
+
 ## 4.2.0 - 2019-08-20
 
 ### Added
