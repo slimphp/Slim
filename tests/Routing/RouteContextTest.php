@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Routing;
 
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Routing\RouteContext;
@@ -25,6 +26,7 @@ class RouteContextTest extends TestCase
         $routingResults = $this->createMock(RoutingResults::class);
 
         $serverRequest = $this->createServerRequest('/')
+                              ->withAttribute('basePath', '')
                               ->withAttribute('route', $route)
                               ->withAttribute('routeParser', $routeParser)
                               ->withAttribute('routingResults', $routingResults);
@@ -34,6 +36,7 @@ class RouteContextTest extends TestCase
         $this->assertSame($route, $routeContext->getRoute());
         $this->assertSame($routeParser, $routeContext->getRouteParser());
         $this->assertSame($routingResults, $routeContext->getRoutingResults());
+        $this->assertSame('', $routeContext->getBasePath());
     }
 
     public function testCanCreateInstanceWithoutRoute(): void
@@ -47,6 +50,23 @@ class RouteContextTest extends TestCase
         $this->assertNull($routeContext->getRoute());
         $this->assertNotNull($routeContext->getRouteParser());
         $this->assertNotNull($routeContext->getRoutingResults());
+        $this->assertNotNull($routeContext->getBasePath());
+    }
+
+    public function testCanCreateInstanceWithoutBasePathAndThrowExceptionIfGetBasePathIsCalled(): void
+    {
+        $serverRequest = $this->createServerRequestWithRouteAttributes();
+
+        // Route attribute is not required
+        $serverRequest = $serverRequest->withoutAttribute('basePath');
+
+        $routeContext = RouteContext::fromRequest($serverRequest);
+        $this->assertNotNull($routeContext->getRoute());
+        $this->assertNotNull($routeContext->getRouteParser());
+        $this->assertNotNull($routeContext->getRoutingResults());
+
+        $this->expectException(RuntimeException::class);
+        $routeContext->getBasePath();
     }
 
     public function requiredRouteContextRequestAttributes(): array
@@ -76,6 +96,7 @@ class RouteContextTest extends TestCase
         $routingResults = $this->createMock(RoutingResults::class);
 
         return $this->createServerRequest('/')
+                    ->withAttribute('basePath', '')
                     ->withAttribute('route', $route)
                     ->withAttribute('routeParser', $routeParser)
                     ->withAttribute('routingResults', $routingResults);
