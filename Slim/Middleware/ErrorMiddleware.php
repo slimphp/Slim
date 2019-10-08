@@ -48,9 +48,14 @@ class ErrorMiddleware implements MiddlewareInterface
     protected $logErrorDetails;
 
     /**
-     * @var array
+     * @var ErrorHandlerInterface[]|callable[]
      */
     protected $handlers = [];
+
+    /**
+     * @var ErrorHandlerInterface[]|callable[]
+     */
+    protected $subClassHandlers = [];
 
     /**
      * @var ErrorHandlerInterface|callable|null
@@ -120,6 +125,14 @@ class ErrorMiddleware implements MiddlewareInterface
     {
         if (isset($this->handlers[$type])) {
             return $this->callableResolver->resolve($this->handlers[$type]);
+        } elseif (isset($this->subClassHandlers[$type])) {
+            return $this->callableResolver->resolve($this->subClassHandlers[$type]);
+        } else {
+            foreach ($this->subClassHandlers as $class => $handler) {
+                if (is_subclass_of($type, $class)) {
+                    return $this->callableResolver->resolve($handler);
+                }
+            }
         }
 
         return $this->getDefaultErrorHandler();
@@ -170,6 +183,9 @@ class ErrorMiddleware implements MiddlewareInterface
      *
      * The callable signature MUST match the ErrorHandlerInterface
      *
+     * Pass true to $handleSubclasses to make the handler handle all subclasses of
+     * the type as well.
+     *
      * @see \Slim\Interfaces\ErrorHandlerInterface
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
@@ -183,11 +199,17 @@ class ErrorMiddleware implements MiddlewareInterface
      *
      * @param string                         $type Exception/Throwable name. ie: RuntimeException::class
      * @param callable|ErrorHandlerInterface $handler
+     * @param bool $handleSubclasses
      * @return self
      */
-    public function setErrorHandler(string $type, $handler): self
+    public function setErrorHandler(string $type, $handler, bool $handleSubclasses = false): self
     {
-        $this->handlers[$type] = $handler;
+        if ($handleSubclasses) {
+            $this->subClassHandlers[$type] = $handler;
+        } else {
+            $this->handlers[$type] = $handler;
+        }
+
         return $this;
     }
 }
