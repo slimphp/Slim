@@ -56,7 +56,6 @@ class OutputBufferingMiddleware implements MiddlewareInterface
     {
         try {
             ob_start();
-            /** @var ResponseInterface $response */
             $response = $handler->handle($request);
             $output = ob_get_clean();
         } catch (Throwable $e) {
