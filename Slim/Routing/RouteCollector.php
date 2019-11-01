@@ -87,12 +87,12 @@ class RouteCollector implements RouteCollectorInterface
     protected $responseFactory;
 
     /**
-     * @param ResponseFactoryInterface    $responseFactory
-     * @param CallableResolverInterface   $callableResolver
-     * @param ContainerInterface|null     $container
-     * @param InvocationStrategyInterface $defaultInvocationStrategy
-     * @param RouteParserInterface        $routeParser
-     * @param string                      $cacheFile
+     * @param ResponseFactoryInterface         $responseFactory
+     * @param CallableResolverInterface        $callableResolver
+     * @param ContainerInterface|null          $container
+     * @param InvocationStrategyInterface|null $defaultInvocationStrategy
+     * @param RouteParserInterface|null        $routeParser
+     * @param string|null                      $cacheFile
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
