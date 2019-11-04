@@ -205,7 +205,6 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function removeNamedRoute(string $name): RouteCollectorInterface
     {
-        /** @var Route $route */
         $route = $this->getNamedRoute($name);
         unset($this->routes[$route->getIdentifier()]);
         return $this;
