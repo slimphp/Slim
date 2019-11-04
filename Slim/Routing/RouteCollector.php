@@ -54,7 +54,7 @@ class RouteCollector implements RouteCollectorInterface
     protected $basePath = '';
 
     /**
-     * Path to fast route cache file. Set to false to disable route caching
+     * Path to fast route cache file. Set to null to disable route caching
      *
      * @var string|null
      */
