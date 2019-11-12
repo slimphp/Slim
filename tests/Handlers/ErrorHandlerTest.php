@@ -307,16 +307,47 @@ class ErrorHandlerTest extends TestCase
                 'callableResolver' => $this->getCallableResolver(),
                 'responseFactory' => $this->getResponseFactory(),
             ])
-            ->setMethods(['writeToErrorLog', 'logError'])
+            ->setMethods(['logError'])
             ->getMock();
 
+        $handler->expects(self::once())
+            ->method('logError')
+            ->willReturnCallback(static function (string $error) {
+                self::assertStringNotContainsString(
+                    'set "displayErrorDetails" to true in the ErrorHandler constructor',
+                    $error
+                );
+            });
+
         $exception = new HttpNotFoundException($request);
-
-        $handler
-            ->expects($this->once())
-            ->method('writeToErrorLog');
-
         $handler->__invoke($request, $exception, true, true, true);
+    }
+
+    public function testWriteToErrorLogShowTip()
+    {
+        $request = $this
+            ->createServerRequest('/', 'GET')
+            ->withHeader('Accept', 'application/json');
+
+        $handler = $this->getMockBuilder(ErrorHandler::class)
+            ->setConstructorArgs([
+                'callableResolver' => $this->getCallableResolver(),
+                'responseFactory' => $this->getResponseFactory(),
+            ])
+            ->setMethods(['logError'])
+            ->getMock();
+
+        $handler->expects(self::once())
+            ->method('logError')
+            ->willReturnCallback(static function (string $error) {
+                self::assertStringContainsString(
+                    'set "displayErrorDetails" to true in the ErrorHandler constructor',
+                    $error
+                );
+            });
+
+        $exception = new HttpNotFoundException($request);
+        $handler->__invoke($request, $exception, false, true, true);
     }
 
     public function testDefaultErrorRenderer()

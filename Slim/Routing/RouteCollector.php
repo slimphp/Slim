@@ -54,7 +54,7 @@ class RouteCollector implements RouteCollectorInterface
     protected $basePath = '';
 
     /**
-     * Path to fast route cache file. Set to false to disable route caching
+     * Path to fast route cache file. Set to null to disable route caching
      *
      * @var string|null
      */
@@ -87,12 +87,12 @@ class RouteCollector implements RouteCollectorInterface
     protected $responseFactory;
 
     /**
-     * @param ResponseFactoryInterface    $responseFactory
-     * @param CallableResolverInterface   $callableResolver
-     * @param ContainerInterface|null     $container
-     * @param InvocationStrategyInterface $defaultInvocationStrategy
-     * @param RouteParserInterface        $routeParser
-     * @param string                      $cacheFile
+     * @param ResponseFactoryInterface         $responseFactory
+     * @param CallableResolverInterface        $callableResolver
+     * @param ContainerInterface|null          $container
+     * @param InvocationStrategyInterface|null $defaultInvocationStrategy
+     * @param RouteParserInterface|null        $routeParser
+     * @param string|null                      $cacheFile
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
@@ -205,7 +205,6 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function removeNamedRoute(string $name): RouteCollectorInterface
     {
-        /** @var Route $route */
         $route = $this->getNamedRoute($name);
         unset($this->routes[$route->getIdentifier()]);
         return $this;

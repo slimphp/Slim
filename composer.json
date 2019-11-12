@@ -75,7 +75,7 @@
     "suggest": {
         "ext-simplexml": "Needed to support XML format in BodyParsingMiddleware",
         "ext-xml": "Needed to support XML format in BodyParsingMiddleware",
-        "slim/psr7": "Slim PSR-7 implementation. See http://www.slimframework.com/docs/v4/start/installation.html for more information.",
-        "php-di/php-di": "PHP-DI bridge library is needed to use container in Slim"
+        "slim/psr7": "Slim PSR-7 implementation. See https://www.slimframework.com/docs/v4/start/installation.html for more information.",
+        "php-di/php-di": "PHP-DI is the recommended container library to be used with Slim"
     }
 }
