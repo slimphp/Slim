@@ -87,9 +87,9 @@ class BodyParsingMiddleware implements MiddlewareInterface
     protected function registerDefaultBodyParsers(): void
     {
         $this->registerBodyParser('application/json', function ($input) {
-            $result = json_decode($input, true);
+            $result = \json_decode($input, true);
 
-            if (!is_array($result)) {
+            if (!\is_array($result)) {
                 return null;
             }
 
@@ -97,18 +97,18 @@ class BodyParsingMiddleware implements MiddlewareInterface
         });
 
         $this->registerBodyParser('application/x-www-form-urlencoded', function ($input) {
-            parse_str($input, $data);
+            \parse_str($input, $data);
             return $data;
         });
 
         $xmlCallable = function ($input) {
-            $backup = libxml_disable_entity_loader(true);
-            $backup_errors = libxml_use_internal_errors(true);
-            $result = simplexml_load_string($input);
+            $backup = \libxml_disable_entity_loader(true);
+            $backup_errors = \libxml_use_internal_errors(true);
+            $result = \simplexml_load_string($input);
 
-            libxml_disable_entity_loader($backup);
-            libxml_clear_errors();
-            libxml_use_internal_errors($backup_errors);
+            \libxml_disable_entity_loader($backup);
+            \libxml_clear_errors();
+            \libxml_use_internal_errors($backup_errors);
 
             if ($result === false) {
                 return null;
@@ -135,9 +135,9 @@ class BodyParsingMiddleware implements MiddlewareInterface
         // Check if this specific media type has a parser registered first
         if (!isset($this->bodyParsers[$mediaType])) {
             // If not, look for a media type with a structured syntax suffix (RFC 6839)
-            $parts = explode('+', $mediaType);
-            if (count($parts) >= 2) {
-                $mediaType = 'application/' . $parts[count($parts) - 1];
+            $parts = \explode('+', $mediaType);
+            if (\count($parts) >= 2) {
+                $mediaType = 'application/' . $parts[\count($parts) - 1];
             }
         }
 
@@ -145,7 +145,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
             $body = (string)$request->getBody();
             $parsed = $this->bodyParsers[$mediaType]($body);
 
-            if (!is_null($parsed) && !is_object($parsed) && !is_array($parsed)) {
+            if (!\is_null($parsed) && !\is_object($parsed) && !\is_array($parsed)) {
                 throw new RuntimeException(
                     'Request body media type parser return value must be an array, an object, or null'
                 );
@@ -165,9 +165,9 @@ class BodyParsingMiddleware implements MiddlewareInterface
     {
         $contentType = $request->getHeader('Content-Type')[0] ?? null;
 
-        if (is_string($contentType) && trim($contentType) != '') {
-            $contentTypeParts = explode(';', $contentType);
-            return strtolower(trim($contentTypeParts[0]));
+        if (\is_string($contentType) && \trim($contentType) != '') {
+            $contentTypeParts = \explode(';', $contentType);
+            return \strtolower(\trim($contentTypeParts[0]));
         }
 
         return null;

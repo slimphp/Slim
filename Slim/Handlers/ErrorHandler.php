@@ -193,29 +193,29 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function determineContentType(ServerRequestInterface $request): ?string
     {
         $acceptHeader = $request->getHeaderLine('Accept');
-        $selectedContentTypes = array_intersect(
-            explode(',', $acceptHeader),
-            array_keys($this->errorRenderers)
+        $selectedContentTypes = \array_intersect(
+            \explode(',', $acceptHeader),
+            \array_keys($this->errorRenderers)
         );
-        $count = count($selectedContentTypes);
+        $count = \count($selectedContentTypes);
 
         if ($count) {
-            $current = current($selectedContentTypes);
+            $current = \current($selectedContentTypes);
 
             /**
              * Ensure other supported content types take precedence over text/plain
              * when multiple content types are provided via Accept header.
              */
             if ($current === 'text/plain' && $count > 1) {
-                return next($selectedContentTypes);
+                return \next($selectedContentTypes);
             }
 
             return $current;
         }
 
-        if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
+        if (\preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
             $mediaType = 'application/' . $matches[1];
-            if (array_key_exists($mediaType, $this->errorRenderers)) {
+            if (\array_key_exists($mediaType, $this->errorRenderers)) {
                 return $mediaType;
             }
         }
@@ -232,7 +232,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function determineRenderer(): callable
     {
-        if ($this->contentType !== null && array_key_exists($this->contentType, $this->errorRenderers)) {
+        if ($this->contentType !== null && \array_key_exists($this->contentType, $this->errorRenderers)) {
             $renderer = $this->errorRenderers[$this->contentType];
         } else {
             $renderer = $this->defaultErrorRenderer;
@@ -298,7 +298,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function logError(string $error): void
     {
-        error_log($error);
+        \error_log($error);
     }
 
     /**
@@ -307,19 +307,19 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function respond(): ResponseInterface
     {
         $response = $this->responseFactory->createResponse($this->statusCode);
-        if ($this->contentType !== null && array_key_exists($this->contentType, $this->errorRenderers)) {
+        if ($this->contentType !== null && \array_key_exists($this->contentType, $this->errorRenderers)) {
             $response = $response->withHeader('Content-type', $this->contentType);
         } else {
             $response = $response->withHeader('Content-type', $this->defaultErrorRendererContentType);
         }
 
         if ($this->exception instanceof HttpMethodNotAllowedException) {
-            $allowedMethods = implode(', ', $this->exception->getAllowedMethods());
+            $allowedMethods = \implode(', ', $this->exception->getAllowedMethods());
             $response = $response->withHeader('Allow', $allowedMethods);
         }
 
         $renderer = $this->determineRenderer();
-        $body = call_user_func($renderer, $this->exception, $this->displayErrorDetails);
+        $body = \call_user_func($renderer, $this->exception, $this->displayErrorDetails);
         $response->getBody()->write($body);
 
         return $response;

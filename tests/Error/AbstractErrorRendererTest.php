@@ -66,8 +66,8 @@ class AbstractErrorRendererTest extends TestCase
         $method->setAccessible(true);
 
         $fragment = $method->invoke($renderer, $exception);
-        $output = json_encode(json_decode($renderer->__invoke($exception, true)));
-        $expectedString = json_encode(['message' => 'Oops..', 'exception' => [$fragment]]);
+        $output = \json_encode(\json_decode($renderer->__invoke($exception, true)));
+        $expectedString = \json_encode(['message' => 'Oops..', 'exception' => [$fragment]]);
 
         $this->assertEquals($output, $expectedString);
     }
@@ -77,9 +77,9 @@ class AbstractErrorRendererTest extends TestCase
         $exception = new Exception('Oops..');
 
         $renderer = new JsonErrorRenderer();
-        $output = json_encode(json_decode($renderer->__invoke($exception, false)));
+        $output = \json_encode(\json_decode($renderer->__invoke($exception, false)));
 
-        $this->assertEquals($output, json_encode(['message' => 'Oops..']));
+        $this->assertEquals($output, \json_encode(['message' => 'Oops..']));
     }
 
     public function testJSONErrorRendererDisplaysPreviousError()
@@ -92,14 +92,14 @@ class AbstractErrorRendererTest extends TestCase
         $method = $reflectionRenderer->getMethod('formatExceptionFragment');
         $method->setAccessible(true);
 
-        $output = json_encode(json_decode($renderer->__invoke($exception, true)));
+        $output = \json_encode(\json_decode($renderer->__invoke($exception, true)));
 
         $fragments = [
             $method->invoke($renderer, $exception),
             $method->invoke($renderer, $previousException),
         ];
 
-        $expectedString = json_encode(['message' => 'Oops..', 'exception' => $fragments]);
+        $expectedString = \json_encode(['message' => 'Oops..', 'exception' => $fragments]);
 
         $this->assertEquals($output, $expectedString);
     }
@@ -112,7 +112,7 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new XmlErrorRenderer();
 
         /** @var stdClass $output */
-        $output = simplexml_load_string($renderer->__invoke($exception, true));
+        $output = \simplexml_load_string($renderer->__invoke($exception, true));
 
         $this->assertEquals($output->message[0], 'Ooops...');
         $this->assertEquals((string) $output->exception[0]->type, 'Exception');

@@ -154,15 +154,15 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function setCacheFile(string $cacheFile): RouteCollectorInterface
     {
-        if (file_exists($cacheFile) && !is_readable($cacheFile)) {
+        if (\file_exists($cacheFile) && !\is_readable($cacheFile)) {
             throw new RuntimeException(
-                sprintf('Route collector cache file `%s` is not readable', $cacheFile)
+                \sprintf('Route collector cache file `%s` is not readable', $cacheFile)
             );
         }
 
-        if (!file_exists($cacheFile) && !is_writable(dirname($cacheFile))) {
+        if (!\file_exists($cacheFile) && !\is_writable(\dirname($cacheFile))) {
             throw new RuntimeException(
-                sprintf('Route collector cache file directory `%s` is not writable', dirname($cacheFile))
+                \sprintf('Route collector cache file directory `%s` is not writable', \dirname($cacheFile))
             );
         }
 
@@ -251,7 +251,7 @@ class RouteCollector implements RouteCollectorInterface
         $this->routeGroups[] = $routeGroup;
 
         $routeGroup->collectRoutes();
-        array_pop($this->routeGroups);
+        \array_pop($this->routeGroups);
 
         return $routeGroup;
     }

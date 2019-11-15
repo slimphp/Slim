@@ -33,7 +33,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
             } while ($exception = $exception->getPrevious());
         }
 
-        return (string) json_encode($error, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        return (string) \json_encode($error, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -43,7 +43,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
     private function formatExceptionFragment(Throwable $exception): array
     {
         return [
-            'type' => get_class($exception),
+            'type' => \get_class($exception),
             'code' => $exception->getCode(),
             'message' => $exception->getMessage(),
             'file' => $exception->getFile(),

@@ -41,31 +41,31 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
      */
     private function formatExceptionFragment(Throwable $exception): string
     {
-        $text = sprintf("Type: %s\n", get_class($exception));
+        $text = \sprintf("Type: %s\n", \get_class($exception));
 
         $code = $exception->getCode();
         if ($code !== null) {
-            $text .= sprintf("Code: %s\n", $code);
+            $text .= \sprintf("Code: %s\n", $code);
         }
 
         $message = $exception->getMessage();
         if ($message !== null) {
-            $text .= sprintf("Message: %s\n", htmlentities($message));
+            $text .= \sprintf("Message: %s\n", \htmlentities($message));
         }
 
         $file = $exception->getFile();
         if ($file !== null) {
-            $text .= sprintf("File: %s\n", $file);
+            $text .= \sprintf("File: %s\n", $file);
         }
 
         $line = $exception->getLine();
         if ($line !== null) {
-            $text .= sprintf("Line: %s\n", $line);
+            $text .= \sprintf("Line: %s\n", $line);
         }
 
         $trace = $exception->getTraceAsString();
         if ($trace !== null) {
-            $text .= sprintf('Trace: %s', $trace);
+            $text .= \sprintf('Trace: %s', $trace);
         }
 
         return $text;

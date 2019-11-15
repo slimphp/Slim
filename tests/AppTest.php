@@ -42,7 +42,7 @@ class AppTest extends TestCase
 {
     public static function setupBeforeClass()
     {
-        ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
+        \ini_set('error_log', \tempnam(\sys_get_temp_dir(), 'slim'));
     }
 
     public function testDoesNotUseContainerAsServiceLocator()
@@ -180,7 +180,7 @@ class AppTest extends TestCase
             return $clone;
         });
 
-        $methodName = strtolower($method);
+        $methodName = \strtolower($method);
         $app = new App($responseFactoryProphecy->reveal());
         $app->$methodName('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
@@ -537,13 +537,13 @@ class AppTest extends TestCase
         $app = new App($responseFactoryProphecy->reveal());
 
         $processSequence = function (RouteCollectorProxy $app, array $sequence, $processSequence) {
-            $path = array_shift($sequence);
+            $path = \array_shift($sequence);
 
             /**
              * If sequence isn't on last element we use $app->group()
              * The very tail of the sequence uses the $app->get() method
              */
-            if (count($sequence)) {
+            if (\count($sequence)) {
                 $app->group($path, function (RouteCollectorProxy $group) use (&$sequence, $processSequence) {
                     $processSequence($group, $sequence, $processSequence);
                 });
@@ -1473,7 +1473,7 @@ class AppTest extends TestCase
 
         $response = $app->handle($requestProphecy->reveal());
 
-        $expectedPayload = json_encode(['name' => 'foo', 'arguments' => []]);
+        $expectedPayload = \json_encode(['name' => 'foo', 'arguments' => []]);
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals($expectedPayload, (string) $response->getBody());
     }
@@ -1855,7 +1855,7 @@ class AppTest extends TestCase
         $requestProphecy->getMethod()->willReturn('GET');
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->hasHeader(Argument::type('string'))->will(function ($args) use (&$responseHeaders) {
-            return array_key_exists($args[0], $responseHeaders);
+            return \array_key_exists($args[0], $responseHeaders);
         });
         $requestProphecy->withAddedHeader(
             Argument::type('string'),
@@ -1946,7 +1946,7 @@ class AppTest extends TestCase
 
         $app = new App($responseFactoryProphecy->reveal());
         $app->get('/Hello[/{name}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write((string) count($args));
+            $response->getBody()->write((string) \count($args));
             return $response;
         });
 
@@ -2002,7 +2002,7 @@ class AppTest extends TestCase
 
         $app = new App($responseFactoryProphecy->reveal());
         $app->get('/Hello[/{name}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write((string) count($args));
+            $response->getBody()->write((string) \count($args));
             return $response;
         })->setArgument('extra', 'value');
 
@@ -2062,7 +2062,7 @@ class AppTest extends TestCase
             ResponseInterface $response,
             $args
         ) {
-            $response->getBody()->write((string) count($args));
+            $response->getBody()->write((string) \count($args));
             return $response;
         })->setArgument('extra', 'value');
 

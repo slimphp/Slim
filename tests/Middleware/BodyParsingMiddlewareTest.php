@@ -49,10 +49,10 @@ class BodyParsingMiddlewareTest extends TestCase
     protected function createRequestWithBody($contentType, $body)
     {
         $request = $this->createServerRequest('/', 'POST');
-        if (is_string($contentType)) {
+        if (\is_string($contentType)) {
             $request = $request->withHeader('Content-Type', $contentType);
         }
-        if (is_string($body)) {
+        if (\is_string($body)) {
             $request = $request->withBody($this->createStream($body));
         }
         return $request;
@@ -85,17 +85,17 @@ class BodyParsingMiddlewareTest extends TestCase
             'xml' => [
                 'application/xml',
                 '<person><name>John</name></person>',
-                simplexml_load_string('<person><name>John</name></person>'),
+                \simplexml_load_string('<person><name>John</name></person>'),
             ],
             'xml-suffix' => [
                 'application/hal+xml;charset=utf8',
                 '<person><name>John</name></person>',
-                simplexml_load_string('<person><name>John</name></person>'),
+                \simplexml_load_string('<person><name>John</name></person>'),
             ],
             'text-xml' => [
                 'text/xml',
                 '<person><name>John</name></person>',
-                simplexml_load_string('<person><name>John</name></person>'),
+                \simplexml_load_string('<person><name>John</name></person>'),
             ],
             'invalid-json' => [
                 'application/json;charset=utf8',

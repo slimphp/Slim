@@ -246,7 +246,7 @@ class Route implements RouteInterface, RequestHandlerInterface
      */
     public function getArgument(string $name, ?string $default = null): ?string
     {
-        if (array_key_exists($name, $this->arguments)) {
+        if (\array_key_exists($name, $this->arguments)) {
             return $this->arguments[$name];
         }
         return $default;
@@ -304,7 +304,7 @@ class Route implements RouteInterface, RequestHandlerInterface
      */
     public function prepare(array $arguments): RouteInterface
     {
-        $this->arguments = array_replace($this->savedArguments, $arguments) ?? [];
+        $this->arguments = \array_replace($this->savedArguments, $arguments) ?? [];
         return $this;
     }
 
@@ -342,7 +342,7 @@ class Route implements RouteInterface, RequestHandlerInterface
         $this->middlewareDispatcher = new MiddlewareDispatcher($inner, $this->callableResolver, $this->container);
 
         /** @var RouteGroupInterface $group */
-        foreach (array_reverse($this->groups) as $group) {
+        foreach (\array_reverse($this->groups) as $group) {
             $group->appendMiddlewareToDispatcher($this->middlewareDispatcher);
         }
 
@@ -361,9 +361,9 @@ class Route implements RouteInterface, RequestHandlerInterface
         }
         $strategy = $this->invocationStrategy;
 
-        if (is_array($callable)
+        if (\is_array($callable)
             && $callable[0] instanceof RequestHandlerInterface
-            && !in_array(RequestHandlerInvocationStrategyInterface::class, class_implements($strategy))
+            && !\in_array(RequestHandlerInvocationStrategyInterface::class, \class_implements($strategy))
         ) {
             $strategy = new RequestHandler();
         }

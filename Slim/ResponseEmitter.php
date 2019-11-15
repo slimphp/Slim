@@ -35,7 +35,7 @@ class ResponseEmitter
     public function emit(ResponseInterface $response): void
     {
         $isEmpty = $this->isResponseEmpty($response);
-        if (headers_sent() === false) {
+        if (\headers_sent() === false) {
             if ($isEmpty) {
                 $response = $response
                     ->withoutHeader('Content-Type')
@@ -58,10 +58,10 @@ class ResponseEmitter
     private function emitHeaders(ResponseInterface $response): void
     {
         foreach ($response->getHeaders() as $name => $values) {
-            $first = strtolower($name) !== 'set-cookie';
+            $first = \strtolower($name) !== 'set-cookie';
             foreach ($values as $value) {
-                $header = sprintf('%s: %s', $name, $value);
-                header($header, $first);
+                $header = \sprintf('%s: %s', $name, $value);
+                \header($header, $first);
                 $first = false;
             }
         }
@@ -74,13 +74,13 @@ class ResponseEmitter
      */
     private function emitStatusLine(ResponseInterface $response): void
     {
-        $statusLine = sprintf(
+        $statusLine = \sprintf(
             'HTTP/%s %s %s',
             $response->getProtocolVersion(),
             $response->getStatusCode(),
             $response->getReasonPhrase()
         );
-        header($statusLine, true, $response->getStatusCode());
+        \header($statusLine, true, $response->getStatusCode());
     }
 
     /**
@@ -102,20 +102,20 @@ class ResponseEmitter
 
         if ($amountToRead) {
             while ($amountToRead > 0 && !$body->eof()) {
-                $length = min($this->responseChunkSize, $amountToRead);
+                $length = \min($this->responseChunkSize, $amountToRead);
                 $data = $body->read($length);
                 echo $data;
 
-                $amountToRead -= strlen($data);
+                $amountToRead -= \strlen($data);
 
-                if (connection_status() !== CONNECTION_NORMAL) {
+                if (\connection_status() !== CONNECTION_NORMAL) {
                     break;
                 }
             }
         } else {
             while (!$body->eof()) {
                 echo $body->read($this->responseChunkSize);
-                if (connection_status() !== CONNECTION_NORMAL) {
+                if (\connection_status() !== CONNECTION_NORMAL) {
                     break;
                 }
             }
@@ -130,7 +130,7 @@ class ResponseEmitter
      */
     public function isResponseEmpty(ResponseInterface $response): bool
     {
-        if (in_array($response->getStatusCode(), [204, 205, 304], true)) {
+        if (\in_array($response->getStatusCode(), [204, 205, 304], true)) {
             return true;
         }
         $stream = $response->getBody();

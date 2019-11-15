@@ -36,7 +36,7 @@ class HttpMethodNotAllowedException extends HttpSpecializedException
     public function setAllowedMethods(array $methods): HttpMethodNotAllowedException
     {
         $this->allowedMethods = $methods;
-        $this->message = 'Method not allowed. Must be one of: ' . implode(', ', $methods);
+        $this->message = 'Method not allowed. Must be one of: ' . \implode(', ', $methods);
         return $this;
     }
 }

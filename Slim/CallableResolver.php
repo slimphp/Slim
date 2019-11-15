@@ -41,11 +41,11 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolve($toResolve): callable
     {
-        if (is_callable($toResolve)) {
+        if (\is_callable($toResolve)) {
             return $this->bindToContainer($toResolve);
         }
         $resolved = $toResolve;
-        if (is_string($toResolve)) {
+        if (\is_string($toResolve)) {
             $resolved = $this->resolveSlimNotation($toResolve);
             $resolved[1] = $resolved[1] ?? '__invoke';
         }
@@ -80,14 +80,14 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     private function resolveByPredicate($toResolve, callable $predicate, string $defaultMethod): callable
     {
-        if (is_callable($toResolve)) {
+        if (\is_callable($toResolve)) {
             return $this->bindToContainer($toResolve);
         }
         $resolved = $toResolve;
         if ($predicate($toResolve)) {
             $resolved = [$toResolve, $defaultMethod];
         }
-        if (is_string($toResolve)) {
+        if (\is_string($toResolve)) {
             [$instance, $method] = $this->resolveSlimNotation($toResolve);
             if ($predicate($instance) && $method === null) {
                 $method = $defaultMethod;
@@ -127,14 +127,14 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     private function resolveSlimNotation(string $toResolve): array
     {
-        preg_match(CallableResolver::$callablePattern, $toResolve, $matches);
+        \preg_match(CallableResolver::$callablePattern, $toResolve, $matches);
         [$class, $method] = $matches ? [$matches[1], $matches[2]] : [$toResolve, null];
 
         if ($this->container && $this->container->has($class)) {
             $instance = $this->container->get($class);
         } else {
-            if (!class_exists($class)) {
-                throw new RuntimeException(sprintf('Callable %s does not exist', $class));
+            if (!\class_exists($class)) {
+                throw new RuntimeException(\sprintf('Callable %s does not exist', $class));
             }
             $instance = new $class($this->container);
         }
@@ -151,11 +151,11 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     private function assertCallable($resolved, $toResolve): callable
     {
-        if (!is_callable($resolved)) {
-            throw new RuntimeException(sprintf(
+        if (!\is_callable($resolved)) {
+            throw new RuntimeException(\sprintf(
                 '%s is not resolvable',
-                is_callable($toResolve) || is_object($toResolve) || is_array($toResolve) ?
-                    json_encode($toResolve) : $toResolve
+                \is_callable($toResolve) || \is_object($toResolve) || \is_array($toResolve) ?
+                    \json_encode($toResolve) : $toResolve
             ));
         }
         return $resolved;
@@ -168,7 +168,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     private function bindToContainer(callable $callable): callable
     {
-        if (is_array($callable) && $callable[0] instanceof Closure) {
+        if (\is_array($callable) && $callable[0] instanceof Closure) {
             $callable = $callable[0];
         }
         if ($this->container && $callable instanceof Closure) {

@@ -41,7 +41,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
         $this->streamFactory = $streamFactory;
         $this->style = $style;
 
-        if (!in_array($style, [static::APPEND, static::PREPEND], true)) {
+        if (!\in_array($style, [static::APPEND, static::PREPEND], true)) {
             throw new InvalidArgumentException("Invalid style `{$style}`. Must be `append` or `prepend`");
         }
     }
@@ -55,11 +55,11 @@ class OutputBufferingMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
-            ob_start();
+            \ob_start();
             $response = $handler->handle($request);
-            $output = ob_get_clean();
+            $output = \ob_get_clean();
         } catch (Throwable $e) {
-            ob_end_clean();
+            \ob_end_clean();
             throw $e;
         }
 

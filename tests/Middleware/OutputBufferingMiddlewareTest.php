@@ -102,7 +102,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $mw = (function ($request, $handler) use ($responseFactory) {
             echo "Test";
-            $this->assertEquals('Test', ob_get_contents());
+            $this->assertEquals('Test', \ob_get_contents());
             throw new Exception('Oops...');
         })->bindTo($this);
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
@@ -119,7 +119,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         try {
             $middlewareDispatcher->handle($request);
         } catch (Exception $e) {
-            $this->assertEquals('', ob_get_contents());
+            $this->assertEquals('', \ob_get_contents());
         }
     }
 }

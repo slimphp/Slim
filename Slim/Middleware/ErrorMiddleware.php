@@ -103,7 +103,7 @@ class ErrorMiddleware implements MiddlewareInterface
             $request = $exception->getRequest();
         }
 
-        $exceptionType = get_class($exception);
+        $exceptionType = \get_class($exception);
         $handler = $this->getErrorHandler($exceptionType);
 
         return $handler($request, $exception, $this->displayErrorDetails, $this->logErrors, $this->logErrorDetails);

@@ -89,11 +89,11 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
             return $this->addMiddleware($middleware);
         }
 
-        if (is_string($middleware)) {
+        if (\is_string($middleware)) {
             return $this->addDeferred($middleware);
         }
 
-        if (is_callable($middleware)) {
+        if (\is_callable($middleware)) {
             return $this->addCallable($middleware);
         }
 
@@ -196,7 +196,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
                     $method = null;
 
                     // Check for Slim callable as `class:method`
-                    if (preg_match(CallableResolver::$callablePattern, $resolved, $matches)) {
+                    if (\preg_match(CallableResolver::$callablePattern, $resolved, $matches)) {
                         $resolved = $matches[1];
                         $method = $matches[2];
                     }
@@ -206,9 +206,9 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
                         if ($instance instanceof MiddlewareInterface) {
                             return $instance->process($request, $this->next);
                         }
-                    } elseif (!function_exists($resolved)) {
-                        if (!class_exists($resolved)) {
-                            throw new RuntimeException(sprintf('Middleware %s does not exist', $resolved));
+                    } elseif (!\function_exists($resolved)) {
+                        if (!\class_exists($resolved)) {
+                            throw new RuntimeException(\sprintf('Middleware %s does not exist', $resolved));
                         }
                         $instance = new $resolved($this->container);
                     }
@@ -227,8 +227,8 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
                     }
                 }
 
-                if (!is_callable($callable)) {
-                    throw new RuntimeException(sprintf(
+                if (!\is_callable($callable)) {
+                    throw new RuntimeException(\sprintf(
                         'Middleware %s is not resolvable',
                         $this->middleware
                     ));

@@ -127,7 +127,7 @@ class RoutingResults
 
         $routeArguments = [];
         foreach ($this->routeArguments as $key => $value) {
-            $routeArguments[$key] = rawurldecode($value);
+            $routeArguments[$key] = \rawurldecode($value);
         }
 
         return $routeArguments;

@@ -43,32 +43,32 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
      */
     private function renderExceptionFragment(Throwable $exception): string
     {
-        $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
+        $html = \sprintf('<div><strong>Type:</strong> %s</div>', \get_class($exception));
 
         $code = $exception->getCode();
         if ($code !== null) {
-            $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
+            $html .= \sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
 
         $message = $exception->getMessage();
         if ($message !== null) {
-            $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($message));
+            $html .= \sprintf('<div><strong>Message:</strong> %s</div>', \htmlentities($message));
         }
 
         $file = $exception->getFile();
         if ($file !== null) {
-            $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
+            $html .= \sprintf('<div><strong>File:</strong> %s</div>', $file);
         }
 
         $line = $exception->getLine();
         if ($line !== null) {
-            $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
+            $html .= \sprintf('<div><strong>Line:</strong> %s</div>', $line);
         }
 
         $trace = $exception->getTraceAsString();
         if ($trace !== null) {
             $html .= '<h2>Trace</h2>';
-            $html .= sprintf('<pre>%s</pre>', htmlentities($trace));
+            $html .= \sprintf('<pre>%s</pre>', \htmlentities($trace));
         }
 
         return $html;
@@ -81,7 +81,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
      */
     public function renderHtmlBody(string $title = '', string $html = ''): string
     {
-        return sprintf(
+        return \sprintf(
             '<html>' .
             '   <head>' .
             "       <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .

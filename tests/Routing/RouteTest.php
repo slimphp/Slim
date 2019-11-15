@@ -85,7 +85,7 @@ class RouteTest extends TestCase
             ->createResponse()
             ->willReturn($responseProphecy->reveal());
 
-        $methods = is_string($methods) ? [$methods] : $methods;
+        $methods = \is_string($methods) ? [$methods] : $methods;
         return new Route(
             $methods,
             $pattern,
@@ -135,7 +135,7 @@ class RouteTest extends TestCase
     {
         $route = $this->createRoute();
 
-        $this->assertTrue(is_callable($route->getCallable()));
+        $this->assertTrue(\is_callable($route->getCallable()));
     }
 
     public function testGetCallableResolver()
@@ -482,9 +482,9 @@ class RouteTest extends TestCase
         $request = $this->createServerRequest('/');
 
         // We capture output buffer here only to clean test CLI output
-        ob_start();
+        \ob_start();
         $response = $route->run($request);
-        ob_end_clean();
+        \ob_end_clean();
 
         // Output buffer is ignored without optional middleware
         $this->assertEquals('', (string) $response->getBody());

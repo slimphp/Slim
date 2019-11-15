@@ -17,7 +17,7 @@ namespace Slim\Routing;
  */
 function is_readable($file)
 {
-    if (stripos($file, 'non-readable.cache') !== false) {
+    if (\stripos($file, 'non-readable.cache') !== false) {
         return false;
     }
     return true;
@@ -31,7 +31,7 @@ function is_readable($file)
  */
 function is_writable($path)
 {
-    if (stripos($path, 'non-writable-directory') !== false) {
+    if (\stripos($path, 'non-writable-directory') !== false) {
         return false;
     }
     return true;

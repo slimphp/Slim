@@ -27,8 +27,8 @@ class RouteCollectorTest extends TestCase
 
     public function tearDown()
     {
-        if ($this->cacheFile && file_exists($this->cacheFile)) {
-            unlink($this->cacheFile);
+        if ($this->cacheFile && \file_exists($this->cacheFile)) {
+            \unlink($this->cacheFile);
         }
     }
 
@@ -148,10 +148,10 @@ class RouteCollectorTest extends TestCase
     public function testCacheFileExistsAndIsNotReadable()
     {
         $this->cacheFile = __DIR__ . '/non-readable.cache';
-        file_put_contents($this->cacheFile, '<?php return []; ?>');
+        \file_put_contents($this->cacheFile, '<?php return []; ?>');
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('Route collector cache file `%s` is not readable', $this->cacheFile));
+        $this->expectExceptionMessage(\sprintf('Route collector cache file `%s` is not readable', $this->cacheFile));
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
@@ -168,9 +168,9 @@ class RouteCollectorTest extends TestCase
         $cacheFile = __DIR__ . '/non-writable-directory/router.cache';
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(sprintf(
+        $this->expectExceptionMessage(\sprintf(
             'Route collector cache file directory `%s` is not writable',
-            dirname($cacheFile)
+            \dirname($cacheFile)
         ));
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);

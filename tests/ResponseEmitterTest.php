@@ -76,30 +76,30 @@ class ResponseEmitterTest extends TestCase
 
     public function testRespondWithPaddedStreamFilterOutput()
     {
-        $availableFilter = stream_get_filters();
+        $availableFilter = \stream_get_filters();
 
         $filterName = 'string.rot13';
         $unfilterName = 'string.rot13';
         $specificFilterName = 'string.rot13';
         $specificUnfilterName = 'string.rot13';
 
-        if (in_array($filterName, $availableFilter) && in_array($unfilterName, $availableFilter)) {
-            $key = base64_decode('xxxxxxxxxxxxxxxx');
-            $iv = base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
+        if (\in_array($filterName, $availableFilter) && \in_array($unfilterName, $availableFilter)) {
+            $key = \base64_decode('xxxxxxxxxxxxxxxx');
+            $iv = \base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
 
             $data = 'Hello';
-            $length = strlen($data);
+            $length = \strlen($data);
 
-            $stream = fopen('php://temp', 'r+');
-            $filter = stream_filter_append($stream, $specificFilterName, STREAM_FILTER_WRITE, [
+            $stream = \fopen('php://temp', 'r+');
+            $filter = \stream_filter_append($stream, $specificFilterName, STREAM_FILTER_WRITE, [
                 'key' => $key,
                 'iv' => $iv
             ]);
 
-            fwrite($stream, $data);
-            rewind($stream);
-            stream_filter_remove($filter);
-            stream_filter_append($stream, $specificUnfilterName, STREAM_FILTER_READ, [
+            \fwrite($stream, $data);
+            \rewind($stream);
+            \stream_filter_remove($filter);
+            \stream_filter_append($stream, $specificUnfilterName, STREAM_FILTER_READ, [
                 'key' => $key,
                 'iv' => $iv
             ]);
@@ -121,9 +121,9 @@ class ResponseEmitterTest extends TestCase
 
     public function testRespondIndeterminateLength()
     {
-        $stream = fopen('php://temp', 'r+');
-        fwrite($stream, 'Hello');
-        rewind($stream);
+        $stream = \fopen('php://temp', 'r+');
+        \fwrite($stream, 'Hello');
+        \rewind($stream);
 
         $body = $this
             ->getMockBuilder(MockStream::class)
@@ -147,7 +147,7 @@ class ResponseEmitterTest extends TestCase
         $responseEmitter = new ResponseEmitter($body::CHUNK_SIZE * 2);
         $responseEmitter->emit($response);
 
-        $this->expectOutputString(str_repeat('.', $body->getSize()));
+        $this->expectOutputString(\str_repeat('.', $body->getSize()));
     }
 
     public function testResponseReplacesPreviouslySetHeaders()
@@ -213,7 +213,7 @@ class ResponseEmitterTest extends TestCase
 
     public function testIsResponseEmptyDoesNotDrainNonSeekableResponseWithContent()
     {
-        $resource = popen('echo 12', 'r');
+        $resource = \popen('echo 12', 'r');
         $body = $this->getStreamFactory()->createStreamFromResource($resource);
         $response = $this->createResponse(200)->withBody($body);
         $responseEmitter = new ResponseEmitter();
@@ -221,7 +221,7 @@ class ResponseEmitterTest extends TestCase
         $responseEmitter->isResponseEmpty($response);
 
         $this->assertFalse($body->isSeekable());
-        $this->assertSame('12', trim((string) $body));
+        $this->assertSame('12', \trim((string) $body));
     }
 
     public function testAvoidReadFromSlowStreamAccordingToStatus()
@@ -259,7 +259,7 @@ class ResponseEmitterTest extends TestCase
 
     public function testWillHandleInvalidConnectionStatusWithADeterminateBody()
     {
-        $body = $this->getStreamFactory()->createStreamFromResource(fopen('php://temp', 'r+'));
+        $body = $this->getStreamFactory()->createStreamFromResource(\fopen('php://temp', 'r+'));
         $body->write('Hello!' . "\n");
         $body->write('Hello!' . "\n");
 
@@ -282,7 +282,7 @@ class ResponseEmitterTest extends TestCase
 
     public function testWillHandleInvalidConnectionStatusWithAnIndeterminateBody()
     {
-        $body = $this->getStreamFactory()->createStreamFromResource(fopen('php://input', 'r+'));
+        $body = $this->getStreamFactory()->createStreamFromResource(\fopen('php://input', 'r+'));
 
         // Tell connection_status() to fail.
         $GLOBALS['connection_status_return'] = CONNECTION_TIMEOUT;

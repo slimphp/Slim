@@ -47,7 +47,7 @@ class DispatcherTest extends TestCase
         });
         $route->setName('foo');
 
-        $cacheFile = dirname(__FILE__) . '/' . uniqid((string) microtime(true));
+        $cacheFile = \dirname(__FILE__) . '/' . \uniqid((string) \microtime(true));
         $routeCollector->setCacheFile($cacheFile);
 
         $method = new ReflectionMethod(Dispatcher::class, 'createDispatcher');
@@ -67,7 +67,7 @@ class DispatcherTest extends TestCase
         $result = $dispatcher2->dispatch('GET', '/');
         $this->assertEquals(FastRouteDispatcher::FOUND, $result->getRouteStatus());
 
-        unlink($cacheFile);
+        \unlink($cacheFile);
     }
 
     /**

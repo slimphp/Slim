@@ -35,7 +35,7 @@ class PSR7ObjectProvider implements PSR7ObjectProviderInterface
         string $method = 'GET',
         array $data = []
     ): ServerRequestInterface {
-        $headers = array_merge([
+        $headers = \array_merge([
             'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'HTTP_ACCEPT_CHARSET' => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
             'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
@@ -44,8 +44,8 @@ class PSR7ObjectProvider implements PSR7ObjectProviderInterface
             'QUERY_STRING' => '',
             'REMOTE_ADDR' => '127.0.0.1',
             'REQUEST_METHOD' => $method,
-            'REQUEST_TIME' => time(),
-            'REQUEST_TIME_FLOAT' => microtime(true),
+            'REQUEST_TIME' => \time(),
+            'REQUEST_TIME_FLOAT' => \microtime(true),
             'REQUEST_URI' => '',
             'SCRIPT_NAME' => '/index.php',
             'SERVER_NAME' => 'localhost',

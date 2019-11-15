@@ -29,7 +29,7 @@ class SmallChunksStream implements StreamInterface
 
     public function __toString()
     {
-        return str_repeat('.', self::SIZE);
+        return \str_repeat('.', self::SIZE);
     }
 
     public function close()
@@ -78,10 +78,10 @@ class SmallChunksStream implements StreamInterface
 
     public function read($length)
     {
-        $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
+        $size = \min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
 
-        return str_repeat('.', min($length, $size));
+        return \str_repeat('.', \min($length, $size));
     }
 
     public function rewind()

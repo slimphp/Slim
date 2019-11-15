@@ -44,6 +44,6 @@ class Psr17FactoryProvider implements Psr17FactoryProviderInterface
      */
     public static function addFactory(string $factory): void
     {
-        array_unshift(static::$factories, $factory);
+        \array_unshift(static::$factories, $factory);
     }
 }

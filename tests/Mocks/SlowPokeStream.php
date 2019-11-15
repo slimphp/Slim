@@ -83,9 +83,9 @@ class SlowPokeStream implements StreamInterface
     public function read($length)
     {
         \usleep(1);
-        $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
+        $size = \min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
-        return str_repeat('.', $size);
+        return \str_repeat('.', $size);
     }
 
     public function rewind()
