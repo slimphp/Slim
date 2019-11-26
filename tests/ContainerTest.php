@@ -55,7 +55,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test `get()` recasts InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
+     * Test `get()` recasts InvalidArgumentException as psr/container exceptions when an error is present
      * in the DI config
      *
      * @expectedException \Slim\Exception\ContainerException

@@ -8,8 +8,8 @@
 namespace Slim;
 
 use ArrayAccess;
-use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
+use Psr\Container\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface as ContainerException;
 use InvalidArgumentException;
 use Pimple\Container as PimpleContainer;
 use Slim\Exception\ContainerException as SlimContainerException;
@@ -120,7 +120,7 @@ class Container extends PimpleContainer implements ContainerInterface
     }
 
     /**
-     * Tests whether an exception needs to be recast for compliance with Container-Interop.  This will be if the
+     * Tests whether an exception needs to be recast for compliance with psr/container.  This will be if the
      * exception was thrown by Pimple.
      *
      * @param InvalidArgumentException $exception
