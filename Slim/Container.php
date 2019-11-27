@@ -9,7 +9,7 @@ namespace Slim;
 
 use ArrayAccess;
 use Psr\Container\ContainerInterface;
-use Psr\Container\ContainerExceptionInterface as ContainerException;
+use Psr\Container\ContainerExceptionInterface;
 use InvalidArgumentException;
 use Pimple\Container as PimpleContainer;
 use Slim\Exception\ContainerException as SlimContainerException;
@@ -95,9 +95,10 @@ class Container extends PimpleContainer implements ContainerInterface
      * @return mixed
      *
      * @throws InvalidArgumentException         Thrown when an offset cannot be found in the Pimple container
-     * @throws SlimContainerException           Thrown when an exception is not an instance of ContainerException
+     * @throws SlimContainerException           Thrown when an exception is
+     *         not an instance of ContainerExceptionInterface
      * @throws ContainerValueNotFoundException  No entry was found for this identifier.
-     * @throws ContainerException               Error while retrieving the entry.
+     * @throws ContainerExceptionInterface      Error while retrieving the entry.
      */
     public function get($id)
     {
@@ -153,9 +154,10 @@ class Container extends PimpleContainer implements ContainerInterface
      * @return mixed
      *
      * @throws InvalidArgumentException         Thrown when an offset cannot be found in the Pimple container
-     * @throws SlimContainerException           Thrown when an exception is not an instance of ContainerException
+     * @throws SlimContainerException           Thrown when an exception is not
+     *         an instance of ContainerExceptionInterface
      * @throws ContainerValueNotFoundException  No entry was found for this identifier.
-     * @throws ContainerException               Error while retrieving the entry.
+     * @throws ContainerExceptionInterface      Error while retrieving the entry.
      */
     public function __get($name)
     {
