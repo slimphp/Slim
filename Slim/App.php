@@ -41,7 +41,7 @@ class App
      *
      * @var string
      */
-    const VERSION = '3.12.2';
+    const VERSION = '3.12.3';
 
     /**
      * @var ContainerInterface
