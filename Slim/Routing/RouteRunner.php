@@ -66,17 +66,17 @@ class RouteRunner implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         // If routing hasn't been done, then do it now so we can dispatch
-        if ($request->getAttribute('routingResults') === null) {
+        if (!RouteContext::routingResultsAttached($request)) {
             $routingMiddleware = new RoutingMiddleware($this->routeResolver, $this->routeParser);
             $request = $routingMiddleware->performRouting($request);
         }
 
         if ($this->routeCollectorProxy !== null) {
-            $request = $request->withAttribute('basePath', $this->routeCollectorProxy->getBasePath());
+            $request = RouteContext::attachBasePath($request, $this->routeCollectorProxy->getBasePath());
         }
 
         /** @var Route $route */
-        $route = $request->getAttribute('route');
+        $route = RouteContext::grabRoute($request);
         return $route->run($request);
     }
 }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Routing;
 
 use Psr\Http\Message\ServerRequestInterface;
+use ReflectionClass;
 use RuntimeException;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteParserInterface;
@@ -19,6 +20,30 @@ use Slim\Tests\TestCase;
 
 class RouteContextTest extends TestCase
 {
+    public function testStaticSetAttributeNames()
+    {
+        $routeContextReflection = new ReflectionClass(RouteContext::class);
+        $originals = $routeContextReflection->getStaticProperties();
+
+        RouteContext::setRouteAttributeName('##route##');
+        RouteContext::setRouteParserAttributeName('##routeParser##');
+        RouteContext::setRoutingResultsAttributeName('##routingResults##');
+        RouteContext::setBasePathAttributeName('##basePath##');
+
+        $properties = $routeContextReflection->getStaticProperties();
+
+        // Set the static properties back to their original values
+        RouteContext::setRouteAttributeName($originals['routeAttributeName']);
+        RouteContext::setRouteParserAttributeName($originals['routeParserAttributeName']);
+        RouteContext::setRoutingResultsAttributeName($originals['routingResultsAttributeName']);
+        RouteContext::setBasePathAttributeName($originals['basePathAttributeName']);
+
+        $this->assertEquals('##route##', $properties['routeAttributeName']);
+        $this->assertEquals('##routeParser##', $properties['routeParserAttributeName']);
+        $this->assertEquals('##routingResults##', $properties['routingResultsAttributeName']);
+        $this->assertEquals('##basePath##', $properties['basePathAttributeName']);
+    }
+
     public function testCanCreateInstanceFromServerRequest(): void
     {
         $route = $this->createMock(RouteInterface::class);
@@ -26,10 +51,10 @@ class RouteContextTest extends TestCase
         $routingResults = $this->createMock(RoutingResults::class);
 
         $serverRequest = $this->createServerRequest('/')
-                              ->withAttribute('basePath', '')
-                              ->withAttribute('route', $route)
-                              ->withAttribute('routeParser', $routeParser)
-                              ->withAttribute('routingResults', $routingResults);
+                              ->withAttribute('__basePath__', '')
+                              ->withAttribute('__route__', $route)
+                              ->withAttribute('__routeParser__', $routeParser)
+                              ->withAttribute('__routingResults__', $routingResults);
 
         $routeContext = RouteContext::fromRequest($serverRequest);
 
@@ -44,7 +69,7 @@ class RouteContextTest extends TestCase
         $serverRequest = $this->createServerRequestWithRouteAttributes();
 
         // Route attribute is not required
-        $serverRequest = $serverRequest->withoutAttribute('route');
+        $serverRequest = $serverRequest->withoutAttribute('__route__');
 
         $routeContext = RouteContext::fromRequest($serverRequest);
         $this->assertNull($routeContext->getRoute());
@@ -58,7 +83,7 @@ class RouteContextTest extends TestCase
         $serverRequest = $this->createServerRequestWithRouteAttributes();
 
         // Route attribute is not required
-        $serverRequest = $serverRequest->withoutAttribute('basePath');
+        $serverRequest = $serverRequest->withoutAttribute('__basePath__');
 
         $routeContext = RouteContext::fromRequest($serverRequest);
         $this->assertNotNull($routeContext->getRoute());
@@ -72,8 +97,8 @@ class RouteContextTest extends TestCase
     public function requiredRouteContextRequestAttributes(): array
     {
         return [
-            ['routeParser'],
-            ['routingResults'],
+            ['__routeParser__'],
+            ['__routingResults__'],
         ];
     }
 
@@ -96,9 +121,9 @@ class RouteContextTest extends TestCase
         $routingResults = $this->createMock(RoutingResults::class);
 
         return $this->createServerRequest('/')
-                    ->withAttribute('basePath', '')
-                    ->withAttribute('route', $route)
-                    ->withAttribute('routeParser', $routeParser)
-                    ->withAttribute('routingResults', $routingResults);
+                    ->withAttribute('__basePath__', '')
+                    ->withAttribute('__route__', $route)
+                    ->withAttribute('__routeParser__', $routeParser)
+                    ->withAttribute('__routingResults__', $routingResults);
     }
 }
