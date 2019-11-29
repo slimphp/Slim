@@ -27,10 +27,10 @@ class RouteContextTest extends TestCase
         $routingResults = $this->createMock(RoutingResults::class);
 
         $serverRequest = $this->createServerRequest('/')
-                              ->withAttribute(RouteContext::BASE_PATH_ATTRIBUTE_NAME, '')
-                              ->withAttribute(RouteContext::ROUTE_ATTRIBUTE_NAME, $route)
-                              ->withAttribute(RouteContext::ROUTE_PARSER_ATTRIBUTE_NAME, $routeParser)
-                              ->withAttribute(RouteContext::ROUTING_RESULTS_ATTRIBUTE_NAME, $routingResults);
+                              ->withAttribute(RouteContext::BASE_PATH, '')
+                              ->withAttribute(RouteContext::ROUTE, $route)
+                              ->withAttribute(RouteContext::ROUTE_PARSER, $routeParser)
+                              ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($serverRequest);
 
@@ -45,7 +45,7 @@ class RouteContextTest extends TestCase
         $serverRequest = $this->createServerRequestWithRouteAttributes();
 
         // Route attribute is not required
-        $serverRequest = $serverRequest->withoutAttribute(RouteContext::ROUTE_ATTRIBUTE_NAME);
+        $serverRequest = $serverRequest->withoutAttribute(RouteContext::ROUTE);
 
         $routeContext = RouteContext::fromRequest($serverRequest);
         $this->assertNull($routeContext->getRoute());
@@ -59,7 +59,7 @@ class RouteContextTest extends TestCase
         $serverRequest = $this->createServerRequestWithRouteAttributes();
 
         // Route attribute is not required
-        $serverRequest = $serverRequest->withoutAttribute(RouteContext::BASE_PATH_ATTRIBUTE_NAME);
+        $serverRequest = $serverRequest->withoutAttribute(RouteContext::BASE_PATH);
 
         $routeContext = RouteContext::fromRequest($serverRequest);
         $this->assertNotNull($routeContext->getRoute());
@@ -73,8 +73,8 @@ class RouteContextTest extends TestCase
     public function requiredRouteContextRequestAttributes(): array
     {
         return [
-            [RouteContext::ROUTE_PARSER_ATTRIBUTE_NAME],
-            [RouteContext::ROUTING_RESULTS_ATTRIBUTE_NAME],
+            [RouteContext::ROUTE_PARSER],
+            [RouteContext::ROUTING_RESULTS],
         ];
     }
 
@@ -97,9 +97,9 @@ class RouteContextTest extends TestCase
         $routingResults = $this->createMock(RoutingResults::class);
 
         return $this->createServerRequest('/')
-                    ->withAttribute(RouteContext::BASE_PATH_ATTRIBUTE_NAME, '')
-                    ->withAttribute(RouteContext::ROUTE_ATTRIBUTE_NAME, $route)
-                    ->withAttribute(RouteContext::ROUTE_PARSER_ATTRIBUTE_NAME, $routeParser)
-                    ->withAttribute(RouteContext::ROUTING_RESULTS_ATTRIBUTE_NAME, $routingResults);
+                    ->withAttribute(RouteContext::BASE_PATH, '')
+                    ->withAttribute(RouteContext::ROUTE, $route)
+                    ->withAttribute(RouteContext::ROUTE_PARSER, $routeParser)
+                    ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
     }
 }

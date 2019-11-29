@@ -25,7 +25,7 @@ class RouteRunnerTest extends TestCase
     public function testRoutingIsPerformedIfRoutingResultsAreUnavailable()
     {
         $handler = (function (ServerRequestInterface $request, ResponseInterface $response) {
-            $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS_ATTRIBUTE_NAME);
+            $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
             $this->assertInstanceOf(RoutingResults::class, $routingResults);
             return $response;
         })->bindTo($this);
