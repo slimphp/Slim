@@ -54,7 +54,7 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $request = RouteContext::attachRouteParser($request, $this->routeParser);
+        $request = $request->withAttribute(RouteContext::ROUTE_PARSER_ATTRIBUTE_NAME, $this->routeParser);
         $request = $this->performRouting($request);
         return $handler->handle($request);
     }
@@ -77,7 +77,7 @@ class RoutingMiddleware implements MiddlewareInterface
         );
         $routeStatus = $routingResults->getRouteStatus();
 
-        $request = RouteContext::attachRoutingResults($request, $routingResults);
+        $request = $request->withAttribute(RouteContext::ROUTING_RESULTS_ATTRIBUTE_NAME, $routingResults);
 
         switch ($routeStatus) {
             case RoutingResults::FOUND:
@@ -86,7 +86,7 @@ class RoutingMiddleware implements MiddlewareInterface
                 $route = $this->routeResolver
                     ->resolveRoute($routeIdentifier)
                     ->prepare($routeArguments);
-                return RouteContext::attachRoute($request, $route);
+                return $request->withAttribute(RouteContext::ROUTE_ATTRIBUTE_NAME, $route);
 
             case RoutingResults::NOT_FOUND:
                 throw new HttpNotFoundException($request);

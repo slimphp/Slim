@@ -16,67 +16,13 @@ use Slim\Interfaces\RouteParserInterface;
 
 final class RouteContext
 {
-    private static $routeAttributeName = '__route__';
+    public const ROUTE_ATTRIBUTE_NAME = '__route__';
 
-    private static $routeParserAttributeName = '__routeParser__';
+    public const ROUTE_PARSER_ATTRIBUTE_NAME = '__routeParser__';
 
-    private static $routingResultsAttributeName = '__routingResults__';
+    public const ROUTING_RESULTS_ATTRIBUTE_NAME = '__routingResults__';
 
-    private static $basePathAttributeName = '__basePath__';
-
-    public static function setRouteAttributeName(string $routeAttributeName): void
-    {
-        self::$routeAttributeName = $routeAttributeName;
-    }
-
-    public static function setRouteParserAttributeName(string $routeParserAttributeName): void
-    {
-        self::$routeParserAttributeName = $routeParserAttributeName;
-    }
-
-    public static function setRoutingResultsAttributeName(string $routingResultsAttributeName): void
-    {
-        self::$routingResultsAttributeName = $routingResultsAttributeName;
-    }
-
-    public static function setBasePathAttributeName(string $basePathAttributeName): void
-    {
-        self::$basePathAttributeName = $basePathAttributeName;
-    }
-
-    public static function attachRoute(ServerRequestInterface $request, RouteInterface $route): ServerRequestInterface
-    {
-        return $request->withAttribute(self::$routeAttributeName, $route);
-    }
-
-    public static function grabRoute(ServerRequestInterface $request): ?RouteInterface
-    {
-        return $request->getAttribute(self::$routeAttributeName);
-    }
-
-    public static function attachRouteParser(
-        ServerRequestInterface $request,
-        RouteParserInterface $routeParser
-    ): ServerRequestInterface {
-        return $request->withAttribute(self::$routeParserAttributeName, $routeParser);
-    }
-
-    public static function attachRoutingResults(
-        ServerRequestInterface $request,
-        RoutingResults $routingResults
-    ): ServerRequestInterface {
-        return $request->withAttribute(self::$routingResultsAttributeName, $routingResults);
-    }
-
-    public static function routingResultsAttached(ServerRequestInterface $request): bool
-    {
-        return $request->getAttribute(self::$routingResultsAttributeName) !== null;
-    }
-
-    public static function attachBasePath(ServerRequestInterface $request, string $basePath): ServerRequestInterface
-    {
-        return $request->withAttribute(self::$basePathAttributeName, $basePath);
-    }
+    public const BASE_PATH_ATTRIBUTE_NAME = '__basePath__';
 
     /**
      * @param ServerRequestInterface $serverRequest
@@ -84,10 +30,10 @@ final class RouteContext
      */
     public static function fromRequest(ServerRequestInterface $serverRequest): self
     {
-        $route = $serverRequest->getAttribute(self::$routeAttributeName);
-        $routeParser = $serverRequest->getAttribute(self::$routeParserAttributeName);
-        $routingResults = $serverRequest->getAttribute(self::$routingResultsAttributeName);
-        $basePath = $serverRequest->getAttribute(self::$basePathAttributeName);
+        $route = $serverRequest->getAttribute(self::ROUTE_ATTRIBUTE_NAME);
+        $routeParser = $serverRequest->getAttribute(self::ROUTE_PARSER_ATTRIBUTE_NAME);
+        $routingResults = $serverRequest->getAttribute(self::ROUTING_RESULTS_ATTRIBUTE_NAME);
+        $basePath = $serverRequest->getAttribute(self::BASE_PATH_ATTRIBUTE_NAME);
 
         if ($routeParser === null || $routingResults === null) {
             throw new RuntimeException('Cannot create RouteContext before routing has been completed');
