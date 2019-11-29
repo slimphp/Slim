@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteCollector;
+use Slim\Routing\RouteContext;
 use Slim\Routing\RouteParser;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
@@ -24,7 +25,7 @@ class RouteRunnerTest extends TestCase
     public function testRoutingIsPerformedIfRoutingResultsAreUnavailable()
     {
         $handler = (function (ServerRequestInterface $request, ResponseInterface $response) {
-            $routingResults = $request->getAttribute('routingResults');
+            $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
             $this->assertInstanceOf(RoutingResults::class, $routingResults);
             return $response;
         })->bindTo($this);

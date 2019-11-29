@@ -16,16 +16,24 @@ use Slim\Interfaces\RouteParserInterface;
 
 final class RouteContext
 {
+    public const ROUTE = '__route__';
+
+    public const ROUTE_PARSER = '__routeParser__';
+
+    public const ROUTING_RESULTS = '__routingResults__';
+
+    public const BASE_PATH = '__basePath__';
+
     /**
      * @param ServerRequestInterface $serverRequest
      * @return RouteContext
      */
     public static function fromRequest(ServerRequestInterface $serverRequest): self
     {
-        $route = $serverRequest->getAttribute('route');
-        $routeParser = $serverRequest->getAttribute('routeParser');
-        $routingResults = $serverRequest->getAttribute('routingResults');
-        $basePath = $serverRequest->getAttribute('basePath');
+        $route = $serverRequest->getAttribute(self::ROUTE);
+        $routeParser = $serverRequest->getAttribute(self::ROUTE_PARSER);
+        $routingResults = $serverRequest->getAttribute(self::ROUTING_RESULTS);
+        $basePath = $serverRequest->getAttribute(self::BASE_PATH);
 
         if ($routeParser === null || $routingResults === null) {
             throw new RuntimeException('Cannot create RouteContext before routing has been completed');
