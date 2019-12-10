@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Slim\Tests\Middleware;
 
 use Error;
+use InvalidArgumentException;
+use LogicException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
@@ -106,9 +108,9 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $app->add(function ($request, $handler) {
-            throw new \LogicException('This is a LogicException...');
+            throw new LogicException('This is a LogicException...');
         });
-        $mw->setErrorHandler(\LogicException::class, (function (ServerRequestInterface $request, $exception) {
+        $mw->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
@@ -137,10 +139,10 @@ class ErrorMiddlewareTest extends TestCase
         $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
 
         $app->add(function ($request, $handler) {
-            throw new \InvalidArgumentException('This is a subclass of LogicException...');
+            throw new InvalidArgumentException('This is a subclass of LogicException...');
         });
 
-        $mw->setErrorHandler(\LogicException::class, (function (ServerRequestInterface $request, $exception) {
+        $mw->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
@@ -174,10 +176,10 @@ class ErrorMiddlewareTest extends TestCase
         $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
 
         $app->add(function ($request, $handler) {
-            throw new \InvalidArgumentException('This is a subclass of LogicException...');
+            throw new InvalidArgumentException('This is a subclass of LogicException...');
         });
 
-        $mw->setErrorHandler(\LogicException::class, (function (ServerRequestInterface $request, $exception) {
+        $mw->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
