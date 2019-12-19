@@ -49,7 +49,7 @@ class RouteTest extends TestCase
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $callableResolverProphecy
-            ->resolve($callable)
+            ->resolve(Argument::is($callable))
             ->willReturn($callable);
 
         $streamProphecy = $this->prophesize(StreamInterface::class);
@@ -280,7 +280,7 @@ class RouteTest extends TestCase
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $callableResolverProphecy
-            ->resolve($callable)
+            ->resolve(Argument::is($callable))
             ->willReturn($callable)
             ->shouldBeCalledOnce();
 
@@ -410,7 +410,7 @@ class RouteTest extends TestCase
         $callable = 'CallableTest:toCall';
 
         $callableResolverProphecy
-            ->resolve($callable)
+            ->resolve(Argument::is($callable))
             ->willReturn(function (
                 ServerRequestInterface $request,
                 ResponseInterface $response
@@ -425,7 +425,7 @@ class RouteTest extends TestCase
 
         $deferred = $callableResolverProphecy->reveal()->resolve($callable);
         $callableResolverProphecy
-            ->resolve($deferred)
+            ->resolve(Argument::is($deferred))
             ->willReturn($deferred)
             ->shouldBeCalledOnce();
 

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
+use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -134,7 +135,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map(['GET'], $pattern, $callable)
+            ->map(['GET'], $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -167,7 +168,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map(['POST'], $pattern, $callable)
+            ->map(['POST'], $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -200,7 +201,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map(['PUT'], $pattern, $callable)
+            ->map(['PUT'], $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -233,7 +234,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map(['PATCH'], $pattern, $callable)
+            ->map(['PATCH'], $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -266,7 +267,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map(['DELETE'], $pattern, $callable)
+            ->map(['DELETE'], $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -299,7 +300,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map(['OPTIONS'], $pattern, $callable)
+            ->map(['OPTIONS'], $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -332,7 +333,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable)
+            ->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -366,7 +367,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->map($methods, $pattern, $callable)
+            ->map($methods, $pattern, Argument::is($callable))
             ->willReturn($routeProphecy->reveal())
             ->shouldBeCalledOnce();
 
@@ -440,7 +441,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeCollectorProphecy
-            ->group($pattern, $callable)
+            ->group($pattern, Argument::is($callable))
             ->willReturn($routeGroupProphecy->reveal())
             ->shouldBeCalledOnce();
 
