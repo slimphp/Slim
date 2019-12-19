@@ -51,6 +51,11 @@ class RouteTest extends TestCase
         $callableResolverProphecy
             ->resolve(Argument::is($callable))
             ->willReturn($callable);
+        $callableResolverProphecy
+            ->resolve(MockMiddlewareWithoutConstructor::class)
+            ->will(function ($args) {
+                return [new MockMiddlewareWithoutConstructor(), 'process'];
+            });
 
         $streamProphecy = $this->prophesize(StreamInterface::class);
 
