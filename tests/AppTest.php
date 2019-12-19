@@ -1429,6 +1429,13 @@ class AppTest extends TestCase
         $requestProphecy = $this->prophesize(ServerRequestInterface::class);
         $requestProphecy->getMethod()->willReturn('GET');
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())
+            ->will(function ($args) {
+                $clone = clone $this;
+                $clone->getAttribute($args[0])->willReturn($args[1]);
+                return $clone;
+            });
 
         $app->handle($requestProphecy->reveal());
     }
