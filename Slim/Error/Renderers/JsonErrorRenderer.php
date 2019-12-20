@@ -24,7 +24,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
      */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
-        $error = ['message' => $exception->getMessage()];
+        $error = ['message' => $this->getErrorTitle($exception)];
 
         if ($displayErrorDetails) {
             $error['exception'] = [];

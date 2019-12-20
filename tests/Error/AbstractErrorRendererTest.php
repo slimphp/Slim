@@ -10,12 +10,14 @@ declare(strict_types=1);
 namespace Slim\Tests\Error;
 
 use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
+use Slim\Exception\HttpException;
 use Slim\Tests\TestCase;
 use stdClass;
 
@@ -28,6 +30,7 @@ class AbstractErrorRendererTest extends TestCase
         $output = $renderer->__invoke($exception, true);
 
         $this->assertRegExp('/.*The application could not run because of the following error:.*/', $output);
+        $this->assertContains('Oops..', $output);
     }
 
     public function testHTMLErrorRendererNoErrorDetails()
@@ -37,6 +40,7 @@ class AbstractErrorRendererTest extends TestCase
         $output = $renderer->__invoke($exception, false);
 
         $this->assertRegExp('/.*A website error has occurred. Sorry for the temporary inconvenience.*/', $output);
+        $this->assertNotContains('Oops..', $output);
     }
 
     public function testHTMLErrorRendererRenderFragmentMethod()
@@ -56,6 +60,30 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertRegExp('/.*Line*/', $output);
     }
 
+    public function testHTMLErrorRendererRenderHttpException()
+    {
+        $exceptionTitle = 'exception-title';
+        $exceptionDescription = 'exception-description';
+
+        /** @var HttpException|MockObject $httpException */
+        $httpException = $this->getMockBuilder(HttpException::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $httpException->expects($this->any())
+            ->method('getTitle')
+            ->willReturn($exceptionTitle);
+        $httpException->expects($this->any())
+            ->method('getDescription')
+            ->willReturn($exceptionDescription);
+
+        $renderer = new HtmlErrorRenderer();
+        $output = $renderer->__invoke($httpException, false);
+
+        $this->assertContains($exceptionTitle, $output, 'Should contain http exception title');
+        $this->assertContains($exceptionDescription, $output, 'Should contain http exception description');
+    }
+
     public function testJSONErrorRendererDisplaysErrorDetails()
     {
         $exception = new Exception('Oops..');
@@ -67,7 +95,7 @@ class AbstractErrorRendererTest extends TestCase
 
         $fragment = $method->invoke($renderer, $exception);
         $output = json_encode(json_decode($renderer->__invoke($exception, true)));
-        $expectedString = json_encode(['message' => 'Oops..', 'exception' => [$fragment]]);
+        $expectedString = json_encode(['message' => 'Slim Application Error', 'exception' => [$fragment]]);
 
         $this->assertEquals($output, $expectedString);
     }
@@ -79,7 +107,7 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new JsonErrorRenderer();
         $output = json_encode(json_decode($renderer->__invoke($exception, false)));
 
-        $this->assertEquals($output, json_encode(['message' => 'Oops..']));
+        $this->assertEquals($output, json_encode(['message' => 'Slim Application Error']));
     }
 
     public function testJSONErrorRendererDisplaysPreviousError()
@@ -99,10 +127,34 @@ class AbstractErrorRendererTest extends TestCase
             $method->invoke($renderer, $previousException),
         ];
 
-        $expectedString = json_encode(['message' => 'Oops..', 'exception' => $fragments]);
+        $expectedString = json_encode(['message' => 'Slim Application Error', 'exception' => $fragments]);
 
         $this->assertEquals($output, $expectedString);
     }
+
+    public function testJSONErrorRendererRenderHttpException()
+    {
+        $exceptionTitle = 'exception-title';
+
+        /** @var HttpException|MockObject $httpException */
+        $httpException = $this->getMockBuilder(HttpException::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $httpException->expects($this->any())
+            ->method('getTitle')
+            ->willReturn($exceptionTitle);
+
+        $renderer = new JsonErrorRenderer();
+        $output = json_encode(json_decode($renderer->__invoke($httpException, false)));
+
+        $this->assertEquals(
+            $output,
+            json_encode(['message' => $exceptionTitle]),
+            'Should contain http exception title'
+        );
+    }
+
 
     public function testXMLErrorRendererDisplaysErrorDetails()
     {
@@ -114,9 +166,32 @@ class AbstractErrorRendererTest extends TestCase
         /** @var stdClass $output */
         $output = simplexml_load_string($renderer->__invoke($exception, true));
 
-        $this->assertEquals($output->message[0], 'Ooops...');
+        $this->assertEquals($output->message[0], 'Slim Application Error');
         $this->assertEquals((string) $output->exception[0]->type, 'Exception');
+        $this->assertEquals((string) $output->exception[0]->message, 'Ooops...');
         $this->assertEquals((string) $output->exception[1]->type, 'RuntimeException');
+        $this->assertEquals((string) $output->exception[1]->message, 'Oops..');
+    }
+
+    public function testXMLErrorRendererRenderHttpException()
+    {
+        $exceptionTitle = 'exception-title';
+
+        /** @var HttpException|MockObject $httpException */
+        $httpException = $this->getMockBuilder(HttpException::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $httpException->expects($this->any())
+            ->method('getTitle')
+            ->willReturn($exceptionTitle);
+
+        $renderer = new XmlErrorRenderer();
+
+        /** @var stdClass $output */
+        $output = simplexml_load_string($renderer->__invoke($httpException, true));
+
+        $this->assertEquals($output->message[0], $exceptionTitle, 'Should contain http exception title');
     }
 
     public function testPlainTextErrorRendererFormatFragmentMethod()
@@ -145,5 +220,35 @@ class AbstractErrorRendererTest extends TestCase
         $output = $renderer->__invoke($exception, true);
 
         $this->assertRegExp('/Ooops.../', $output);
+    }
+
+    public function testPlainTextErrorRendererNotDisplaysErrorDetails()
+    {
+        $previousException = new RuntimeException('Oops..');
+        $exception = new Exception('Ooops...', 0, $previousException);
+
+        $renderer = new PlainTextErrorRenderer();
+        $output = $renderer->__invoke($exception, false);
+
+        $this->assertEquals("Slim Application Error\n", $output, 'Should show only one string');
+    }
+
+    public function testPlainTextErrorRendererRenderHttpException()
+    {
+        $exceptionTitle = 'exception-title';
+
+        /** @var HttpException|MockObject $httpException */
+        $httpException = $this->getMockBuilder(HttpException::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $httpException->expects($this->any())
+            ->method('getTitle')
+            ->willReturn($exceptionTitle);
+
+        $renderer = new PlainTextErrorRenderer();
+        $output = $renderer->__invoke($httpException, true);
+
+        $this->assertContains($exceptionTitle, $output, 'Should contain http exception title');
     }
 }
