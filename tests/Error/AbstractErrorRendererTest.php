@@ -62,23 +62,23 @@ class AbstractErrorRendererTest extends TestCase
 
     public function testHTMLErrorRendererRenderHttpException()
     {
-        $exceptionTitle = 'exception-title';
-        $exceptionDescription = 'exception-description';
+        $exceptionTitle = 'title';
+        $exceptionDescription = 'description';
 
-        /** @var HttpException|MockObject $httpException */
-        $httpException = $this->getMockBuilder(HttpException::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpExceptionProphecy = $this->prophesize(HttpException::class);
 
-        $httpException->expects($this->any())
-            ->method('getTitle')
-            ->willReturn($exceptionTitle);
-        $httpException->expects($this->any())
-            ->method('getDescription')
-            ->willReturn($exceptionDescription);
+        $httpExceptionProphecy
+            ->getTitle()
+            ->willReturn($exceptionTitle)
+            ->shouldBeCalledOnce();
+
+        $httpExceptionProphecy
+            ->getDescription()
+            ->willReturn($exceptionDescription)
+            ->shouldBeCalledOnce();
 
         $renderer = new HtmlErrorRenderer();
-        $output = $renderer->__invoke($httpException, false);
+        $output = $renderer->__invoke($httpExceptionProphecy->reveal(), false);
 
         $this->assertContains($exceptionTitle, $output, 'Should contain http exception title');
         $this->assertContains($exceptionDescription, $output, 'Should contain http exception description');
@@ -134,19 +134,17 @@ class AbstractErrorRendererTest extends TestCase
 
     public function testJSONErrorRendererRenderHttpException()
     {
-        $exceptionTitle = 'exception-title';
+        $exceptionTitle = 'title';
 
-        /** @var HttpException|MockObject $httpException */
-        $httpException = $this->getMockBuilder(HttpException::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpExceptionProphecy = $this->prophesize(HttpException::class);
 
-        $httpException->expects($this->any())
-            ->method('getTitle')
-            ->willReturn($exceptionTitle);
+        $httpExceptionProphecy
+            ->getTitle()
+            ->willReturn($exceptionTitle)
+            ->shouldBeCalledOnce();
 
         $renderer = new JsonErrorRenderer();
-        $output = json_encode(json_decode($renderer->__invoke($httpException, false)));
+        $output = json_encode(json_decode($renderer->__invoke($httpExceptionProphecy->reveal(), false)));
 
         $this->assertEquals(
             $output,
@@ -175,21 +173,19 @@ class AbstractErrorRendererTest extends TestCase
 
     public function testXMLErrorRendererRenderHttpException()
     {
-        $exceptionTitle = 'exception-title';
+        $exceptionTitle = 'title';
 
-        /** @var HttpException|MockObject $httpException */
-        $httpException = $this->getMockBuilder(HttpException::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpExceptionProphecy = $this->prophesize(HttpException::class);
 
-        $httpException->expects($this->any())
-            ->method('getTitle')
-            ->willReturn($exceptionTitle);
+        $httpExceptionProphecy
+            ->getTitle()
+            ->willReturn($exceptionTitle)
+            ->shouldBeCalledOnce();
 
         $renderer = new XmlErrorRenderer();
 
         /** @var stdClass $output */
-        $output = simplexml_load_string($renderer->__invoke($httpException, true));
+        $output = simplexml_load_string($renderer->__invoke($httpExceptionProphecy->reveal(), true));
 
         $this->assertEquals($output->message[0], $exceptionTitle, 'Should contain http exception title');
     }
@@ -235,19 +231,17 @@ class AbstractErrorRendererTest extends TestCase
 
     public function testPlainTextErrorRendererRenderHttpException()
     {
-        $exceptionTitle = 'exception-title';
+        $exceptionTitle = 'title';
 
-        /** @var HttpException|MockObject $httpException */
-        $httpException = $this->getMockBuilder(HttpException::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpExceptionProphecy = $this->prophesize(HttpException::class);
 
-        $httpException->expects($this->any())
-            ->method('getTitle')
-            ->willReturn($exceptionTitle);
+        $httpExceptionProphecy
+            ->getTitle()
+            ->willReturn($exceptionTitle)
+            ->shouldBeCalledOnce();
 
         $renderer = new PlainTextErrorRenderer();
-        $output = $renderer->__invoke($httpException, true);
+        $output = $renderer->__invoke($httpExceptionProphecy->reveal(), true);
 
         $this->assertContains($exceptionTitle, $output, 'Should contain http exception title');
     }
