@@ -30,7 +30,7 @@ class AbstractErrorRendererTest extends TestCase
         $output = $renderer->__invoke($exception, true);
 
         $this->assertRegExp('/.*The application could not run because of the following error:.*/', $output);
-        $this->assertContains('Oops..', $output);
+        $this->assertStringContainsString('Oops..', $output);
     }
 
     public function testHTMLErrorRendererNoErrorDetails()
@@ -40,7 +40,7 @@ class AbstractErrorRendererTest extends TestCase
         $output = $renderer->__invoke($exception, false);
 
         $this->assertRegExp('/.*A website error has occurred. Sorry for the temporary inconvenience.*/', $output);
-        $this->assertNotContains('Oops..', $output);
+        $this->assertStringNotContainsString('Oops..', $output);
     }
 
     public function testHTMLErrorRendererRenderFragmentMethod()
@@ -80,8 +80,8 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new HtmlErrorRenderer();
         $output = $renderer->__invoke($httpExceptionProphecy->reveal(), false);
 
-        $this->assertContains($exceptionTitle, $output, 'Should contain http exception title');
-        $this->assertContains($exceptionDescription, $output, 'Should contain http exception description');
+        $this->assertStringContainsString($exceptionTitle, $output, 'Should contain http exception title');
+        $this->assertStringContainsString($exceptionDescription, $output, 'Should contain http exception description');
     }
 
     public function testJSONErrorRendererDisplaysErrorDetails()
@@ -243,6 +243,6 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new PlainTextErrorRenderer();
         $output = $renderer->__invoke($httpExceptionProphecy->reveal(), true);
 
-        $this->assertContains($exceptionTitle, $output, 'Should contain http exception title');
+        $this->assertStringContainsString($exceptionTitle, $output, 'Should contain http exception title');
     }
 }
