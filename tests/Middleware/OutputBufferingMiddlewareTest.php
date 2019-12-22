@@ -39,11 +39,10 @@ class OutputBufferingMiddlewareTest extends TestCase
         $this->assertEquals('prepend', $value);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testStyleCustomInvalid()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
     }
 

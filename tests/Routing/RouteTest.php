@@ -514,11 +514,10 @@ class RouteTest extends TestCase
         $this->assertEquals('foo', (string) $response->getBody());
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testInvokeWithException()
     {
+        $this->expectException(\Exception::class);
+
         $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             throw new Exception();
         };

@@ -75,11 +75,10 @@ class ErrorMiddlewareTest extends TestCase
         $this->expectOutputString('Oops..');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testSetDefaultErrorHandlerThrowsException()
     {
+        $this->expectException(\RuntimeException::class);
+
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();

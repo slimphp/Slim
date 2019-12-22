@@ -126,11 +126,10 @@ class RouteParserTest extends TestCase
         $this->assertEquals($expectedResult, $results);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testUrlForWithMissingSegmentData()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
@@ -143,11 +142,10 @@ class RouteParserTest extends TestCase
         $routeParser->urlFor('test', ['last' => 'world']);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testUrlForRouteThatDoesNotExist()
     {
+        $this->expectException(\RuntimeException::class);
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 

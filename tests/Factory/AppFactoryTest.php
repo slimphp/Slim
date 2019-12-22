@@ -79,11 +79,10 @@ class AppFactoryTest extends TestCase
         $this->assertInstanceOf(DecoratedResponseFactory::class, $app->getResponseFactory());
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testDetermineResponseFactoryThrowsRuntimeException()
     {
+        $this->expectException(\RuntimeException::class);
+
         Psr17FactoryProvider::setFactories([]);
         AppFactory::create();
     }
