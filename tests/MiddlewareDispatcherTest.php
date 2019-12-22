@@ -26,7 +26,7 @@ use stdClass;
 
 class MiddlewareDispatcherTest extends TestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         function testProcessRequest(ServerRequestInterface $request, RequestHandlerInterface $handler)
         {

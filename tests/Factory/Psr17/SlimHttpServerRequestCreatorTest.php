@@ -22,7 +22,7 @@ class SlimHttpServerRequestCreatorTest extends TestCase
      * We need to reset the static property of SlimHttpServerRequestCreator back to its original value
      * Otherwise other tests will fail
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $serverRequestCreatorProphecy = $this->prophesize(ServerRequestCreatorInterface::class);
 

@@ -26,7 +26,7 @@ class CallableResolverTest extends TestCase
      */
     private $containerProphecy;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         function testAdvancedCallable()
         {
@@ -34,7 +34,7 @@ class CallableResolverTest extends TestCase
         }
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         CallableTest::$CalledCount = 0;
         InvokableTest::$CalledCount = 0;
