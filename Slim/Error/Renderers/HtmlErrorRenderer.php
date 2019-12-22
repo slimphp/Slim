@@ -24,17 +24,15 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
      */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
-        $title = 'Slim Application Error';
-
         if ($displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
             $html .= $this->renderExceptionFragment($exception);
         } else {
-            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
+            $html = "<p>{$this->getErrorDescription($exception)}</p>";
         }
 
-        return $this->renderHtmlBody($title, $html);
+        return $this->renderHtmlBody($this->getErrorTitle($exception), $html);
     }
 
     /**
