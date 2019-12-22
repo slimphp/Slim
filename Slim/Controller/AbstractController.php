@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace Slim\Controller;
 
-use App\Application\Actions\ActionPayload;
 use BadMethodCallException;
 use DI\Container;
 use DI\DependencyException;
