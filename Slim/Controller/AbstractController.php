@@ -70,9 +70,9 @@ abstract class AbstractController
     {
         $name .= 'Action';
 
-        $this->request = $arguments[0];
-        $this->response = $arguments[1];
-        $this->args = $arguments[2];
+        $this->request = $arguments[0] ?? null;
+        $this->response = $arguments[1] ?? null;
+        $this->args = $arguments[2] ?? [];
 
         if (!method_exists($this, $name)) {
             throw new BadMethodCallException(
@@ -159,20 +159,16 @@ abstract class AbstractController
      * Return JSON response.
      *
      * @param mixed $data Response data.
-     * @param int   $code Response status code.
      *
      * @return Response New JSON Response.
      */
-    protected function json($data = null, int $code = 200): Response
+    protected function json($data = null): Response
     {
-        $payload = new ActionPayload($code, $data);
-
-        $json = json_encode($payload, JSON_PRETTY_PRINT);
+        $json = json_encode($data, JSON_PRETTY_PRINT);
         $this->response->getBody()->write($json);
 
         return $this->response->withHeader('Content-Type', 'application/json');
     }
-
 
     /**
      * Renders a view.
