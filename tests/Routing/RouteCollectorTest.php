@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
+use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use RuntimeException;
@@ -73,7 +74,7 @@ class RouteCollectorTest extends TestCase
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $callableResolverProphecy
-            ->resolve($callable)
+            ->resolve(Argument::is($callable))
             ->willReturn($callable)
             ->shouldBeCalledOnce();
 
