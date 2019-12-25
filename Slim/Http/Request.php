@@ -1186,7 +1186,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param array|null $only list the keys to retrieve.
      *
-     * @return array|null
+     * @return mixed[]
      */
     public function getParams(array $only = null)
     {
