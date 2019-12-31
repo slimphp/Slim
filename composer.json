@@ -58,7 +58,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Slim\\": "Slim",
+            "Slim\\": "Slim"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Slim\\Tests\\": "tests"
         }
     },
