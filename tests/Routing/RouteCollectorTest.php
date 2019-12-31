@@ -121,7 +121,7 @@ class RouteCollectorTest extends TestCase
 
     public function testRemoveNamedRouteWithARouteThatDoesNotExist()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
@@ -132,7 +132,7 @@ class RouteCollectorTest extends TestCase
 
     public function testLookupRouteThrowsExceptionIfRouteNotFound()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);

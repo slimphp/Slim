@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\UriInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteInterface;
@@ -128,7 +130,7 @@ class RouteParserTest extends TestCase
 
     public function testUrlForWithMissingSegmentData()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
@@ -144,7 +146,7 @@ class RouteParserTest extends TestCase
 
     public function testUrlForRouteThatDoesNotExist()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);

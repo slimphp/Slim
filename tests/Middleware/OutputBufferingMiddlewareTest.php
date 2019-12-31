@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Middleware;
 
 use Exception;
+use InvalidArgumentException;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionProperty;
 use Slim\Middleware\OutputBufferingMiddleware;
@@ -41,7 +42,7 @@ class OutputBufferingMiddlewareTest extends TestCase
 
     public function testStyleCustomInvalid()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
     }

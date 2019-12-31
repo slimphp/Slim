@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Slim\Tests\Error;
 
 use Exception;
-use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;

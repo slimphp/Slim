@@ -256,7 +256,7 @@ class MiddlewareDispatcherTest extends TestCase
 
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('MiddlewareInterfaceNotImplemented is not resolvable');
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
@@ -281,7 +281,7 @@ class MiddlewareDispatcherTest extends TestCase
 
     public function testResolveThrowsExceptionWithoutContainerAndUnresolvableClass()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageRegExp('/(Middleware|Callable) Unresolvable::class does not exist/');
 
         $handler = new MockRequestHandler();
@@ -294,7 +294,7 @@ class MiddlewareDispatcherTest extends TestCase
 
     public function testResolveThrowsExceptionWithoutContainerNonAdvancedCallableResolverAndUnresolvableClass()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageRegExp('/(Middleware|Callable) Unresolvable::class does not exist/');
 
         $unresolvable = 'Unresolvable::class';

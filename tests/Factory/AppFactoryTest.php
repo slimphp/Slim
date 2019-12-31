@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use ReflectionProperty;
+use RuntimeException;
 use Slim\Factory\AppFactory;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
@@ -81,7 +82,7 @@ class AppFactoryTest extends TestCase
 
     public function testDetermineResponseFactoryThrowsRuntimeException()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         Psr17FactoryProvider::setFactories([]);
         AppFactory::create();

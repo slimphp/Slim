@@ -13,6 +13,7 @@ use FastRoute\Dispatcher;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Slim\CallableResolver;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
@@ -149,7 +150,7 @@ class RoutingMiddlewareTest extends TestCase
 
     public function testPerformRoutingThrowsExceptionOnInvalidRoutingResultsRouteStatus()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('An unexpected error occurred while performing routing.');
 
         // Prophesize the `RoutingResults` instance that would return an invalid route

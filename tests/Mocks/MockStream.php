@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Mocks;
 
+use Exception;
+use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 
 class MockStream implements StreamInterface
@@ -67,7 +69,7 @@ class MockStream implements StreamInterface
             $this->writable = isset(self::$readWriteHash['write'][$meta['mode']]);
             $this->uri = $this->getMetadata('uri');
         } else {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'First argument to Stream::create() must be a string, resource or StreamInterface.'
             );
         }
@@ -89,7 +91,7 @@ class MockStream implements StreamInterface
             }
 
             return $this->getContents();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return '';
         }
     }
