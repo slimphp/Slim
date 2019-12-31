@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -171,7 +172,7 @@ class MockStream implements StreamInterface
         } elseif (\fseek($this->stream, $offset, $whence) === -1) {
             throw new \RuntimeException(
                 'Unable to seek to stream position '
-                .$offset.' with whence '.\var_export($whence, true)
+                . $offset . ' with whence ' . \var_export($whence, true)
             );
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -361,7 +362,8 @@ class Route implements RouteInterface, RequestHandlerInterface
         }
         $strategy = $this->invocationStrategy;
 
-        if (is_array($callable)
+        if (
+            is_array($callable)
             && $callable[0] instanceof RequestHandlerInterface
             && !in_array(RequestHandlerInvocationStrategyInterface::class, class_implements($strategy))
         ) {

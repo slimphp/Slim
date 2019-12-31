@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -14,8 +15,8 @@ use Psr\Http\Message\StreamInterface;
 
 class SlowPokeStream implements StreamInterface
 {
-    const CHUNK_SIZE = 1;
-    const SIZE = 500;
+    public const CHUNK_SIZE = 1;
+    public const SIZE = 500;
 
     /**
      * @var int

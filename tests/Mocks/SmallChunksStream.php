@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -14,8 +15,8 @@ use Psr\Http\Message\StreamInterface;
 
 class SmallChunksStream implements StreamInterface
 {
-    const CHUNK_SIZE = 10;
-    const SIZE = 40;
+    public const CHUNK_SIZE = 10;
+    public const SIZE = 40;
 
     /**
      * @var int

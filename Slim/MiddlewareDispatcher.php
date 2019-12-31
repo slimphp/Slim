@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -116,7 +117,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     public function addMiddleware(MiddlewareInterface $middleware): MiddlewareDispatcherInterface
     {
         $next = $this->tip;
-        $this->tip = new class($middleware, $next) implements RequestHandlerInterface
+        $this->tip = new class ($middleware, $next) implements RequestHandlerInterface
         {
             private $middleware;
             private $next;
@@ -149,7 +150,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     public function addDeferred(string $middleware): self
     {
         $next = $this->tip;
-        $this->tip = new class(
+        $this->tip = new class (
             $middleware,
             $next,
             $this->container,
@@ -259,7 +260,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
             $middleware = $middleware->bindTo($this->container);
         }
 
-        $this->tip = new class($middleware, $next) implements RequestHandlerInterface
+        $this->tip = new class ($middleware, $next) implements RequestHandlerInterface
         {
             private $middleware;
             private $next;
