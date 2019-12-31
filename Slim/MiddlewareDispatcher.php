@@ -21,6 +21,13 @@ use Slim\Interfaces\AdvancedCallableResolverInterface;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\MiddlewareDispatcherInterface;
 
+use function is_string;
+use function preg_match;
+use function function_exists;
+use function class_exists;
+use function is_callable;
+use function sprintf;
+
 class MiddlewareDispatcher implements MiddlewareDispatcherInterface
 {
     /**

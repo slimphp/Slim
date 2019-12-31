@@ -18,6 +18,11 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
+use function in_array;
+use function ob_start;
+use function ob_get_clean;
+use function ob_end_clean;
+
 class OutputBufferingMiddleware implements MiddlewareInterface
 {
     public const APPEND = 'append';

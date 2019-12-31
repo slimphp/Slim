@@ -21,6 +21,10 @@ use Slim\Exception\HttpException;
 use Slim\Tests\TestCase;
 use stdClass;
 
+use function json_decode;
+use function json_encode;
+use function simplexml_load_string;
+
 class AbstractErrorRendererTest extends TestCase
 {
     public function testHTMLErrorRendererDisplaysErrorDetails()

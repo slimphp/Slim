@@ -35,6 +35,11 @@ use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
+use function is_string;
+use function is_callable;
+use function ob_start;
+use function ob_end_clean;
+
 class RouteTest extends TestCase
 {
     /**

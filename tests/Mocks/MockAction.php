@@ -12,6 +12,10 @@ namespace Slim\Tests\Mocks;
 
 use InvalidArgumentException;
 
+use function count;
+use function json_encode;
+use function compact;
+
 class MockAction
 {
     public function __call($name, array $arguments)

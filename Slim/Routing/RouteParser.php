@@ -16,6 +16,12 @@ use Psr\Http\Message\UriInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteParserInterface;
 
+use function array_reverse;
+use function is_string;
+use function array_key_exists;
+use function implode;
+use function http_build_query;
+
 class RouteParser implements RouteParserInterface
 {
     /**

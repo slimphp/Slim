@@ -39,6 +39,17 @@ use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteContext;
 use Slim\Tests\Mocks\MockAction;
 use stdClass;
+use ReflectionProperty;
+use ReflectionClass;
+
+use function ini_set;
+use function tempnam;
+use function sys_get_temp_dir;
+use function strtolower;
+use function array_shift;
+use function json_encode;
+use function array_key_exists;
+use function count;
 
 class AppTest extends TestCase
 {
@@ -690,17 +701,17 @@ class AppTest extends TestCase
         $routingMiddleware = $app->addRoutingMiddleware();
 
         // Check that the routing middleware really has been added to the tip of the app middleware stack.
-        $middlewareDispatcherProperty = new \ReflectionProperty(App::class, 'middlewareDispatcher');
+        $middlewareDispatcherProperty = new ReflectionProperty(App::class, 'middlewareDispatcher');
         $middlewareDispatcherProperty->setAccessible(true);
         /** @var MiddlewareDispatcher $middlewareDispatcher */
         $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
 
-        $tipProperty = new \ReflectionProperty(MiddlewareDispatcher::class, 'tip');
+        $tipProperty = new ReflectionProperty(MiddlewareDispatcher::class, 'tip');
         $tipProperty->setAccessible(true);
         /** @var RequestHandlerInterface $tip */
         $tip = $tipProperty->getValue($middlewareDispatcher);
 
-        $reflection = new \ReflectionClass($tip);
+        $reflection = new ReflectionClass($tip);
         $middlewareProperty = $reflection->getProperty('middleware');
         $middlewareProperty->setAccessible(true);
 
@@ -720,17 +731,17 @@ class AppTest extends TestCase
         $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
         // Check that the error middleware really has been added to the tip of the app middleware stack.
-        $middlewareDispatcherProperty = new \ReflectionProperty(App::class, 'middlewareDispatcher');
+        $middlewareDispatcherProperty = new ReflectionProperty(App::class, 'middlewareDispatcher');
         $middlewareDispatcherProperty->setAccessible(true);
         /** @var MiddlewareDispatcher $middlewareDispatcher */
         $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
 
-        $tipProperty = new \ReflectionProperty(MiddlewareDispatcher::class, 'tip');
+        $tipProperty = new ReflectionProperty(MiddlewareDispatcher::class, 'tip');
         $tipProperty->setAccessible(true);
         /** @var RequestHandlerInterface $tip */
         $tip = $tipProperty->getValue($middlewareDispatcher);
 
-        $reflection = new \ReflectionClass($tip);
+        $reflection = new ReflectionClass($tip);
         $middlewareProperty = $reflection->getProperty('middleware');
         $middlewareProperty->setAccessible(true);
 
@@ -750,17 +761,17 @@ class AppTest extends TestCase
         $bodyParsingMiddleware = $app->addBodyParsingMiddleware();
 
         // Check that the body parsing middleware really has been added to the tip of the app middleware stack.
-        $middlewareDispatcherProperty = new \ReflectionProperty(App::class, 'middlewareDispatcher');
+        $middlewareDispatcherProperty = new ReflectionProperty(App::class, 'middlewareDispatcher');
         $middlewareDispatcherProperty->setAccessible(true);
         /** @var MiddlewareDispatcher $middlewareDispatcher */
         $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
 
-        $tipProperty = new \ReflectionProperty(MiddlewareDispatcher::class, 'tip');
+        $tipProperty = new ReflectionProperty(MiddlewareDispatcher::class, 'tip');
         $tipProperty->setAccessible(true);
         /** @var RequestHandlerInterface $tip */
         $tip = $tipProperty->getValue($middlewareDispatcher);
 
-        $reflection = new \ReflectionClass($tip);
+        $reflection = new ReflectionClass($tip);
         $middlewareProperty = $reflection->getProperty('middleware');
         $middlewareProperty->setAccessible(true);
 

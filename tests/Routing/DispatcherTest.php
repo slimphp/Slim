@@ -19,6 +19,11 @@ use Slim\Routing\RouteCollector;
 use Slim\Routing\RoutingResults;
 use Slim\Tests\TestCase;
 
+use function dirname;
+use function uniqid;
+use function microtime;
+use function unlink;
+
 class DispatcherTest extends TestCase
 {
     public function testCreateDispatcher()

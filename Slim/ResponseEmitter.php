@@ -12,6 +12,14 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 
+use function strtolower;
+use function sprintf;
+use function min;
+use function strlen;
+use function in_array;
+
+use const CONNECTION_NORMAL;
+
 class ResponseEmitter
 {
     /**

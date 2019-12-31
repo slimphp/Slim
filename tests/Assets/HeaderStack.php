@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Assets;
 
+use function explode;
+use function trim;
+
 /**
  * Zend Framework (http://framework.zend.com/)
  *

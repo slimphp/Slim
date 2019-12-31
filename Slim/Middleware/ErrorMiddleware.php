@@ -21,6 +21,9 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Throwable;
 
+use function get_class;
+use function is_subclass_of;
+
 class ErrorMiddleware implements MiddlewareInterface
 {
     /**

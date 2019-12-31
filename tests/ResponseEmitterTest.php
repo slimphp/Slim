@@ -15,6 +15,25 @@ use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockStream;
 use Slim\Tests\Mocks\SlowPokeStream;
 use Slim\Tests\Mocks\SmallChunksStream;
+use ReflectionClass;
+
+use function stream_get_filters;
+use function in_array;
+use function base64_decode;
+use function strlen;
+use function stream_filter_remove;
+use function stream_filter_append;
+use function fwrite;
+use function rewind;
+use function str_repeat;
+use function popen;
+use function trim;
+use function fopen;
+
+use const STREAM_FILTER_WRITE;
+use const STREAM_FILTER_READ;
+use const CONNECTION_ABORTED;
+use const CONNECTION_TIMEOUT;
 
 class ResponseEmitterTest extends TestCase
 {
@@ -295,7 +314,7 @@ class ResponseEmitterTest extends TestCase
 
         $responseEmitter = new ResponseEmitter();
 
-        $mirror = new \ReflectionClass(ResponseEmitter::class);
+        $mirror = new ReflectionClass(ResponseEmitter::class);
         $emitBodyMethod = $mirror->getMethod('emitBody');
         $emitBodyMethod->setAccessible(true);
         $emitBodyMethod->invoke($responseEmitter, $response);

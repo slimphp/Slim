@@ -13,6 +13,10 @@ namespace Slim\Error\Renderers;
 use Slim\Error\AbstractErrorRenderer;
 use Throwable;
 
+use function get_class;
+use function htmlentities;
+use function sprintf;
+
 /**
  * Default Slim application HTML Error Renderer
  */

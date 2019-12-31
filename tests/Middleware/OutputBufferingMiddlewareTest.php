@@ -17,6 +17,8 @@ use ReflectionProperty;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\Tests\TestCase;
 
+use function ob_get_contents;
+
 class OutputBufferingMiddlewareTest extends TestCase
 {
     public function testStyleDefaultValid()

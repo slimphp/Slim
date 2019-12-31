@@ -460,7 +460,7 @@ class MiddlewareDispatcherTest extends TestCase
         /** @var RequestHandlerInterface $kernel */
         $kernel = $kernelProphecy->reveal();
         $dispatcher = $this->createMiddlewareDispatcher($kernel, null);
-        $dispatcher->addDeferred(\stdClass::class);
+        $dispatcher->addDeferred(stdClass::class);
         $dispatcher->handle($requestProphecy->reveal());
 
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();

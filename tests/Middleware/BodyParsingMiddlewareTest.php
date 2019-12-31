@@ -17,6 +17,9 @@ use RuntimeException;
 use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Tests\TestCase;
 
+use function is_string;
+use function simplexml_load_string;
+
 class BodyParsingMiddlewareTest extends TestCase
 {
     /**
