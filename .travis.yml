@@ -1,20 +1,18 @@
 language: php
 
-dist: trusty
-
 matrix:
   include:
-  - php: 7.1
   - php: 7.2
   - php: 7.3
     env: ANALYSIS='true'
+  - php: 7.4
   - php: nightly
 
   allow_failures:
   - php: nightly
 
 before_script:
-- if [[ "$ANALYSIS" == 'true' ]]; then composer require php-coveralls/php-coveralls:^2.1.0 ; fi
+- if [[ "$ANALYSIS" == 'true' ]]; then composer require php-coveralls/php-coveralls:^2.2.0 ; fi
 - composer install -n
 
 script:

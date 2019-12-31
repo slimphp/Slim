@@ -13,6 +13,7 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Slim\CallableResolver;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
@@ -26,7 +27,7 @@ class CallableResolverTest extends TestCase
      */
     private $containerProphecy;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         function testAdvancedCallable()
         {
@@ -34,7 +35,7 @@ class CallableResolverTest extends TestCase
         }
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         CallableTest::$CalledCount = 0;
         InvokableTest::$CalledCount = 0;
@@ -211,12 +212,11 @@ class CallableResolverTest extends TestCase
         $this->assertEquals(3, InvokableTest::$CalledCount);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Slim\Tests\Mocks\RequestHandlerTest is not resolvable
-     */
     public function testResolutionToAPsrRequestHandlerClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Slim\\Tests\\Mocks\\RequestHandlerTest is not resolvable');
+
         $resolver = new CallableResolver(); // No container injected
         $resolver->resolve(RequestHandlerTest::class);
     }
@@ -230,22 +230,20 @@ class CallableResolverTest extends TestCase
         $this->assertEquals('1', RequestHandlerTest::$CalledCount);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Slim\Tests\Mocks\RequestHandlerTest is not resolvable
-     */
     public function testMiddlewareResolutionToAPsrRequestHandlerClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Slim\\Tests\\Mocks\\RequestHandlerTest is not resolvable');
+
         $resolver = new CallableResolver(); // No container injected
         $resolver->resolveMiddleware(RequestHandlerTest::class);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage {} is not resolvable
-     */
     public function testObjPsrRequestHandlerClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('{} is not resolvable');
+
         $obj = new RequestHandlerTest();
         $resolver = new CallableResolver(); // No container injected
         $resolver->resolve($obj);
@@ -261,23 +259,21 @@ class CallableResolverTest extends TestCase
         $this->assertEquals('1', RequestHandlerTest::$CalledCount);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage {} is not resolvable
-     */
     public function testMiddlewareObjPsrRequestHandlerClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('{} is not resolvable');
+
         $obj = new RequestHandlerTest();
         $resolver = new CallableResolver(); // No container injected
         $resolver->resolveMiddleware($obj);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage a_requesthandler is not resolvable
-     */
     public function testObjPsrRequestHandlerClassInContainer()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('a_requesthandler is not resolvable');
+
         $this->containerProphecy->has('a_requesthandler')->willReturn(true);
         $this->containerProphecy->get('a_requesthandler')->willReturn(new RequestHandlerTest());
 
@@ -302,12 +298,11 @@ class CallableResolverTest extends TestCase
         $this->assertEquals('1', RequestHandlerTest::$CalledCount);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage a_requesthandler is not resolvable
-     */
     public function testMiddlewareObjPsrRequestHandlerClassInContainer()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('a_requesthandler is not resolvable');
+
         $this->containerProphecy->has('a_requesthandler')->willReturn(true);
         $this->containerProphecy->get('a_requesthandler')->willReturn(new RequestHandlerTest());
 
@@ -337,23 +332,21 @@ class CallableResolverTest extends TestCase
         $this->assertEquals('custom', $callableMiddleware[1]);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage {} is not resolvable
-     */
     public function testObjMiddlewareClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('{} is not resolvable');
+
         $obj = new MiddlewareTest();
         $resolver = new CallableResolver(); // No container injected
         $resolver->resolve($obj);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage {} is not resolvable
-     */
     public function testRouteObjMiddlewareClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('{} is not resolvable');
+
         $obj = new MiddlewareTest();
         $resolver = new CallableResolver(); // No container injected
         $resolver->resolveRoute($obj);
@@ -369,12 +362,11 @@ class CallableResolverTest extends TestCase
         $this->assertEquals('1', MiddlewareTest::$CalledCount);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage callable_service:notFound is not resolvable
-     */
     public function testMethodNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('callable_service:notFound is not resolvable');
+
         $this->containerProphecy->has('callable_service')->willReturn(true);
         $this->containerProphecy->get('callable_service')->willReturn(new CallableTest());
 
@@ -384,12 +376,11 @@ class CallableResolverTest extends TestCase
         $resolver->resolve('callable_service:notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage callable_service:notFound is not resolvable
-     */
     public function testRouteMethodNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('callable_service:notFound is not resolvable');
+
         $this->containerProphecy->has('callable_service')->willReturn(true);
         $this->containerProphecy->get('callable_service')->willReturn(new CallableTest());
 
@@ -399,12 +390,11 @@ class CallableResolverTest extends TestCase
         $resolver->resolveRoute('callable_service:notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage callable_service:notFound is not resolvable
-     */
     public function testMiddlewareMethodNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('callable_service:notFound is not resolvable');
+
         $this->containerProphecy->has('callable_service')->willReturn(true);
         $this->containerProphecy->get('callable_service')->willReturn(new CallableTest());
 
@@ -414,108 +404,99 @@ class CallableResolverTest extends TestCase
         $resolver->resolveMiddleware('callable_service:notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Callable notFound does not exist
-     */
     public function testFunctionNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Callable notFound does not exist');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolve('notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Callable notFound does not exist
-     */
     public function testRouteFunctionNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Callable notFound does not exist');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolveRoute('notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Callable notFound does not exist
-     */
     public function testMiddlewareFunctionNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Callable notFound does not exist');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolveMiddleware('notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Callable Unknown does not exist
-     */
     public function testClassNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Callable Unknown does not exist');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolve('Unknown:notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Callable Unknown does not exist
-     */
     public function testRouteClassNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Callable Unknown does not exist');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolveRoute('Unknown:notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Callable Unknown does not exist
-     */
     public function testMiddlewareClassNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Callable Unknown does not exist');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolveMiddleware('Unknown:notFound');
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage is not resolvable
-     */
     public function testCallableClassNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('is not resolvable');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolve(['Unknown', 'notFound']);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage is not resolvable
-     */
     public function testRouteCallableClassNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('is not resolvable');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);
         $resolver->resolveRoute(['Unknown', 'notFound']);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage is not resolvable
-     */
     public function testMiddlewareCallableClassNotFoundThrowException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('is not resolvable');
+
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
         $resolver = new CallableResolver($container);

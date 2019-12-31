@@ -12,17 +12,17 @@ namespace Slim\Tests;
 use Slim\ResponseEmitter;
 use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockStream;
-use Slim\Tests\Mocks\SmallChunksStream;
 use Slim\Tests\Mocks\SlowPokeStream;
+use Slim\Tests\Mocks\SmallChunksStream;
 
 class ResponseEmitterTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         HeaderStack::reset();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         HeaderStack::reset();
     }

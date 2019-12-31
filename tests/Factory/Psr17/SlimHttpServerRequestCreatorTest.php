@@ -11,6 +11,7 @@ namespace Slim\Tests\Factory\Psr17;
 
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionProperty;
+use RuntimeException;
 use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
 use Slim\Http\ServerRequest;
 use Slim\Interfaces\ServerRequestCreatorInterface;
@@ -22,7 +23,7 @@ class SlimHttpServerRequestCreatorTest extends TestCase
      * We need to reset the static property of SlimHttpServerRequestCreator back to its original value
      * Otherwise other tests will fail
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $serverRequestCreatorProphecy = $this->prophesize(ServerRequestCreatorInterface::class);
 
@@ -52,12 +53,11 @@ class SlimHttpServerRequestCreatorTest extends TestCase
         $this->assertInstanceOf(ServerRequest::class, $slimHttpServerRequestCreator->createServerRequestFromGlobals());
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The Slim-Http ServerRequest decorator is not available.
-     */
     public function testCreateServerRequestFromGlobalsThrowsRuntimeException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The Slim-Http ServerRequest decorator is not available.');
+
         $serverRequestCreatorProphecy = $this->prophesize(ServerRequestCreatorInterface::class);
 
         $slimHttpServerRequestCreator = new SlimHttpServerRequestCreator($serverRequestCreatorProphecy->reveal());

@@ -12,6 +12,7 @@ namespace Slim\Tests\Factory;
 use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
 use Nyholm\Psr7\ServerRequest as NyholmServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
@@ -64,11 +65,10 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $this->assertInstanceOf(ServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testDetermineServerRequestCreatorThrowsRuntimeException()
     {
+        $this->expectException(RuntimeException::class);
+
         Psr17FactoryProvider::setFactories([]);
         ServerRequestCreatorFactory::create();
     }

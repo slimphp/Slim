@@ -41,7 +41,7 @@ use stdClass;
 
 class AppTest extends TestCase
 {
-    public static function setupBeforeClass()
+    public static function setupBeforeClass(): void
     {
         ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
     }

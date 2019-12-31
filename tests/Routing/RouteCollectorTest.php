@@ -26,7 +26,7 @@ class RouteCollectorTest extends TestCase
      */
     protected $cacheFile;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if ($this->cacheFile && file_exists($this->cacheFile)) {
             unlink($this->cacheFile);
@@ -119,11 +119,10 @@ class RouteCollectorTest extends TestCase
         $this->assertCount(0, $routes);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testRemoveNamedRouteWithARouteThatDoesNotExist()
     {
+        $this->expectException(RuntimeException::class);
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
@@ -131,11 +130,10 @@ class RouteCollectorTest extends TestCase
         $routeCollector->removeNamedRoute('missing');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testLookupRouteThrowsExceptionIfRouteNotFound()
     {
+        $this->expectException(RuntimeException::class);
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 

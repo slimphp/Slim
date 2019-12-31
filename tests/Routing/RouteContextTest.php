@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Slim\Tests\Routing;
 
 use Psr\Http\Message\ServerRequestInterface;
-use ReflectionClass;
 use RuntimeException;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteParserInterface;
@@ -80,11 +79,12 @@ class RouteContextTest extends TestCase
 
     /**
      * @dataProvider requiredRouteContextRequestAttributes
-     * @expectedException RuntimeException
      * @param string $attribute
      */
     public function testCannotCreateInstanceIfRequestIsMissingAttributes(string $attribute): void
     {
+        $this->expectException(RuntimeException::class);
+
         $serverRequest = $this->createServerRequestWithRouteAttributes()->withoutAttribute($attribute);
 
         RouteContext::fromRequest($serverRequest);

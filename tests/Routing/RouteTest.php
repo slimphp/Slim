@@ -18,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Slim\CallableResolver;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
@@ -365,7 +366,7 @@ class RouteTest extends TestCase
 
     public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(
             'A middleware must be an object/class name referencing an implementation of ' .
             'MiddlewareInterface or a callable with a matching signature.'
@@ -514,11 +515,10 @@ class RouteTest extends TestCase
         $this->assertEquals('foo', (string) $response->getBody());
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testInvokeWithException()
     {
+        $this->expectException(Exception::class);
+
         $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             throw new Exception();
         };

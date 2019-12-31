@@ -26,7 +26,7 @@ use stdClass;
 
 class MiddlewareDispatcherTest extends TestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         function testProcessRequest(ServerRequestInterface $request, RequestHandlerInterface $handler)
         {
@@ -254,12 +254,11 @@ class MiddlewareDispatcherTest extends TestCase
         $this->assertEquals(1, $handler->getCalledCount());
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage MiddlewareInterfaceNotImplemented is not resolvable
-     */
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('MiddlewareInterfaceNotImplemented is not resolvable');
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
 
         $containerProphecy
@@ -280,12 +279,11 @@ class MiddlewareDispatcherTest extends TestCase
         $middlewareDispatcher->handle($request);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessageRegExp /(Middleware|Callable) Unresolvable::class does not exist/
-     */
     public function testResolveThrowsExceptionWithoutContainerAndUnresolvableClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageRegExp('/(Middleware|Callable) Unresolvable::class does not exist/');
+
         $handler = new MockRequestHandler();
         $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null);
         $middlewareDispatcher->addDeferred('Unresolvable::class');
@@ -294,12 +292,11 @@ class MiddlewareDispatcherTest extends TestCase
         $middlewareDispatcher->handle($request);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessageRegExp /(Middleware|Callable) Unresolvable::class does not exist/
-     */
     public function testResolveThrowsExceptionWithoutContainerNonAdvancedCallableResolverAndUnresolvableClass()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageRegExp('/(Middleware|Callable) Unresolvable::class does not exist/');
+
         $unresolvable = 'Unresolvable::class';
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);

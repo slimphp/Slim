@@ -14,6 +14,7 @@ use InvalidArgumentException;
 use LogicException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\ErrorHandler;
@@ -75,11 +76,10 @@ class ErrorMiddlewareTest extends TestCase
         $this->expectOutputString('Oops..');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testSetDefaultErrorHandlerThrowsException()
     {
+        $this->expectException(RuntimeException::class);
+
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
