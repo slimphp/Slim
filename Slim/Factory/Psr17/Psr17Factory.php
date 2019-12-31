@@ -16,8 +16,8 @@ use RuntimeException;
 use Slim\Interfaces\Psr17FactoryInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 
-use function get_called_class;
 use function class_exists;
+use function get_called_class;
 
 abstract class Psr17Factory implements Psr17FactoryInterface
 {

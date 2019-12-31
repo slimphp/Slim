@@ -13,9 +13,9 @@ namespace Slim\Tests\Mocks;
 use Exception;
 use Psr\Http\Message\StreamInterface;
 
-use function usleep;
 use function min;
 use function str_repeat;
+use function usleep;
 
 use const SEEK_SET;
 

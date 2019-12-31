@@ -12,9 +12,9 @@ namespace Slim\Tests\Mocks;
 
 use InvalidArgumentException;
 
+use function compact;
 use function count;
 use function json_encode;
-use function compact;
 
 class MockAction
 {

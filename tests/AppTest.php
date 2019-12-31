@@ -19,6 +19,8 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionClass;
+use ReflectionProperty;
 use RuntimeException;
 use Slim\App;
 use Slim\CallableResolver;
@@ -39,17 +41,15 @@ use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteContext;
 use Slim\Tests\Mocks\MockAction;
 use stdClass;
-use ReflectionProperty;
-use ReflectionClass;
 
-use function ini_set;
-use function tempnam;
-use function sys_get_temp_dir;
-use function strtolower;
-use function array_shift;
-use function json_encode;
 use function array_key_exists;
+use function array_shift;
 use function count;
+use function ini_set;
+use function json_encode;
+use function strtolower;
+use function sys_get_temp_dir;
+use function tempnam;
 
 class AppTest extends TestCase
 {

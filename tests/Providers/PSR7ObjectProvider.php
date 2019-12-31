@@ -19,8 +19,8 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 
 use function array_merge;
-use function time;
 use function microtime;
+use function time;
 
 /**
  * Class PSR7ObjectProvider

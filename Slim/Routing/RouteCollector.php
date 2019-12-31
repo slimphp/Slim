@@ -21,10 +21,10 @@ use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteParserInterface;
 
+use function array_pop;
+use function dirname;
 use function file_exists;
 use function sprintf;
-use function dirname;
-use function array_pop;
 
 /**
  * RouteCollector is used to collect routes and route groups

@@ -29,9 +29,9 @@ use Slim\MiddlewareDispatcher;
 use function array_key_exists;
 use function array_replace;
 use function array_reverse;
-use function is_array;
-use function in_array;
 use function class_implements;
+use function in_array;
+use function is_array;
 
 class Route implements RouteInterface, RequestHandlerInterface
 {

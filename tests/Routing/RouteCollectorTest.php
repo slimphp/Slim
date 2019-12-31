@@ -20,11 +20,11 @@ use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteCollectorProxy;
 use Slim\Tests\TestCase;
 
+use function dirname;
 use function file_exists;
-use function unlink;
 use function file_put_contents;
 use function sprintf;
-use function dirname;
+use function unlink;
 
 class RouteCollectorTest extends TestCase
 {

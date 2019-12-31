@@ -12,11 +12,11 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 
-use function strtolower;
-use function sprintf;
-use function min;
-use function strlen;
 use function in_array;
+use function min;
+use function sprintf;
+use function strlen;
+use function strtolower;
 
 use const CONNECTION_NORMAL;
 

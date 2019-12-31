@@ -17,14 +17,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\AdvancedCallableResolverInterface;
 
-use function is_string;
-use function preg_match;
 use function class_exists;
-use function sprintf;
+use function is_array;
 use function is_callable;
 use function is_object;
+use function is_string;
 use function json_encode;
-use function is_array;
+use function preg_match;
+use function sprintf;
 
 final class CallableResolver implements AdvancedCallableResolverInterface
 {
