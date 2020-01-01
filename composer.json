@@ -54,7 +54,7 @@
         "slim/http": "^0.7",
         "slim/psr7": "^0.3",
         "squizlabs/php_codesniffer": "^3.4.2",
-        "zendframework/zend-diactoros": "^2.1"
+        "laminas/laminas-diactoros": "^2.1"
     },
     "autoload": {
         "psr-4": {
