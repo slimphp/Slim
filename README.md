@@ -23,7 +23,7 @@ Before you can get up and running with Slim you will need to choose a PSR-7 impl
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - This is the Slim Framework PSR-7 implementation
 - [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - This is the fastest, strictest and most lightweight implementation available
 - [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - This is the implementation used by the Guzzle Client, featuring extra functionality for stream and file handling
-- [zend-diactoros](https://github.com/zendframework/zend-diactoros) - This is the Zend PSR-7 implementation
+- [laminas-diactoros](https://github.com/laminas/laminas-diactoros) - This is the Laminas (Zend) PSR-7 implementation
 
 
 ## Slim-Http Decorators
@@ -55,7 +55,7 @@ In order for auto-detection to work and enable you to use `AppFactory::create()`
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - Install using `composer require slim/psr7`
 - [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - Install using `composer require nyholm/psr7 nyholm/psr7-server`
 - [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - Install using `composer require guzzlehttp/psr7 http-interop/http-factory-guzzle`
-- [zend-diactoros](https://github.com/zendframework/zend-diactoros) - Install using `composer require zendframework/zend-diactoros`
+- [laminas-diactoros](https://github.com/laminas/laminas-diactoros) - Install using `composer require laminas/laminas-diactoros`
 
 Then create file _public/index.php_.
 
