@@ -10,10 +10,12 @@ declare(strict_types=1);
 namespace Slim\Tests\Factory;
 
 use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
+use Laminas\Diactoros\ServerRequest as LaminasServerRequest;
 use Nyholm\Psr7\ServerRequest as NyholmServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
+use Slim\Factory\Psr17\LaminasDiactorosPsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
@@ -34,6 +36,7 @@ class ServerRequestCreatorFactoryTest extends TestCase
             [SlimPsr17Factory::class, SlimServerRequest::class],
             [NyholmPsr17Factory::class, NyholmServerRequest::class],
             [GuzzlePsr17Factory::class, GuzzleServerRequest::class],
+            [LaminasDiactorosPsr17Factory::class, LaminasServerRequest::class],
             [ZendDiactorosPsr17Factory::class, ZendServerRequest::class],
         ];
     }
