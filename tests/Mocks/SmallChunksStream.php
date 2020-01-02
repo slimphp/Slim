@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -12,10 +13,15 @@ namespace Slim\Tests\Mocks;
 use Exception;
 use Psr\Http\Message\StreamInterface;
 
+use function min;
+use function str_repeat;
+
+use const SEEK_SET;
+
 class SmallChunksStream implements StreamInterface
 {
-    const CHUNK_SIZE = 10;
-    const SIZE = 40;
+    public const CHUNK_SIZE = 10;
+    public const SIZE = 40;
 
     /**
      * @var int

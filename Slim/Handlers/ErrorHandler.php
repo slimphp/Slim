@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -23,6 +24,18 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Throwable;
+
+use function array_intersect;
+use function array_key_exists;
+use function array_keys;
+use function call_user_func;
+use function count;
+use function current;
+use function error_log;
+use function explode;
+use function implode;
+use function next;
+use function preg_match;
 
 /**
  * Default Slim application error handler

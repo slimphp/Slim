@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Override PHP namespaced functions into the Slim\App namespace.
  *

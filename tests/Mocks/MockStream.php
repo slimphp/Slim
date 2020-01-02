@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -12,6 +13,25 @@ namespace Slim\Tests\Mocks;
 use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
+
+use function clearstatcache;
+use function fclose;
+use function feof;
+use function fopen;
+use function fread;
+use function fseek;
+use function fstat;
+use function ftell;
+use function fwrite;
+use function gettype;
+use function is_resource;
+use function is_string;
+use function stream_get_contents;
+use function stream_get_meta_data;
+use function var_export;
+
+use const SEEK_SET;
 
 class MockStream implements StreamInterface
 {
@@ -55,15 +75,15 @@ class MockStream implements StreamInterface
      */
     public function __construct($body = '')
     {
-        if (\is_string($body)) {
-            $resource = \fopen('php://temp', 'rw+');
-            \fwrite($resource, $body);
+        if (is_string($body)) {
+            $resource = fopen('php://temp', 'rw+');
+            fwrite($resource, $body);
             $body = $resource;
         }
 
-        if ('resource' === \gettype($body)) {
+        if ('resource' === gettype($body)) {
             $this->stream = $body;
-            $meta = \stream_get_meta_data($this->stream);
+            $meta = stream_get_meta_data($this->stream);
             $this->seekable = $meta['seekable'];
             $this->readable = isset(self::$readWriteHash['read'][$meta['mode']]);
             $this->writable = isset(self::$readWriteHash['write'][$meta['mode']]);
@@ -99,8 +119,8 @@ class MockStream implements StreamInterface
     public function close(): void
     {
         if (isset($this->stream)) {
-            if (\is_resource($this->stream)) {
-                \fclose($this->stream);
+            if (is_resource($this->stream)) {
+                fclose($this->stream);
             }
             $this->detach();
         }
@@ -132,10 +152,10 @@ class MockStream implements StreamInterface
 
         // Clear the stat cache if the stream has a URI
         if ($this->uri) {
-            \clearstatcache(true, $this->uri);
+            clearstatcache(true, $this->uri);
         }
 
-        $stats = \fstat($this->stream);
+        $stats = fstat($this->stream);
         if (isset($stats['size'])) {
             $this->size = $stats['size'];
 
@@ -147,8 +167,8 @@ class MockStream implements StreamInterface
 
     public function tell(): int
     {
-        if (false === $result = \ftell($this->stream)) {
-            throw new \RuntimeException('Unable to determine stream position');
+        if (false === $result = ftell($this->stream)) {
+            throw new RuntimeException('Unable to determine stream position');
         }
 
         return $result;
@@ -156,7 +176,7 @@ class MockStream implements StreamInterface
 
     public function eof(): bool
     {
-        return !$this->stream || \feof($this->stream);
+        return !$this->stream || feof($this->stream);
     }
 
     public function isSeekable(): bool
@@ -164,14 +184,14 @@ class MockStream implements StreamInterface
         return $this->seekable;
     }
 
-    public function seek($offset, $whence = \SEEK_SET): void
+    public function seek($offset, $whence = SEEK_SET): void
     {
         if (!$this->seekable) {
-            throw new \RuntimeException('Stream is not seekable');
-        } elseif (\fseek($this->stream, $offset, $whence) === -1) {
-            throw new \RuntimeException(
+            throw new RuntimeException('Stream is not seekable');
+        } elseif (fseek($this->stream, $offset, $whence) === -1) {
+            throw new RuntimeException(
                 'Unable to seek to stream position '
-                .$offset.' with whence '.\var_export($whence, true)
+                . $offset . ' with whence ' . var_export($whence, true)
             );
         }
     }
@@ -189,14 +209,14 @@ class MockStream implements StreamInterface
     public function write($string): int
     {
         if (!$this->writable) {
-            throw new \RuntimeException('Cannot write to a non-writable stream');
+            throw new RuntimeException('Cannot write to a non-writable stream');
         }
 
         // We can't know the size after writing anything
         $this->size = null;
 
-        if (false === $result = \fwrite($this->stream, $string)) {
-            throw new \RuntimeException('Unable to write to stream');
+        if (false === $result = fwrite($this->stream, $string)) {
+            throw new RuntimeException('Unable to write to stream');
         }
 
         return $result;
@@ -210,20 +230,20 @@ class MockStream implements StreamInterface
     public function read($length): string
     {
         if (!$this->readable) {
-            throw new \RuntimeException('Cannot read from non-readable stream');
+            throw new RuntimeException('Cannot read from non-readable stream');
         }
 
-        return \fread($this->stream, $length);
+        return fread($this->stream, $length);
     }
 
     public function getContents(): string
     {
         if (!isset($this->stream)) {
-            throw new \RuntimeException('Unable to read stream contents');
+            throw new RuntimeException('Unable to read stream contents');
         }
 
-        if (false === $contents = \stream_get_contents($this->stream)) {
-            throw new \RuntimeException('Unable to read stream contents');
+        if (false === $contents = stream_get_contents($this->stream)) {
+            throw new RuntimeException('Unable to read stream contents');
         }
 
         return $contents;
@@ -234,10 +254,10 @@ class MockStream implements StreamInterface
         if (!isset($this->stream)) {
             return $key ? null : [];
         } elseif (null === $key) {
-            return \stream_get_meta_data($this->stream);
+            return stream_get_meta_data($this->stream);
         }
 
-        $meta = \stream_get_meta_data($this->stream);
+        $meta = stream_get_meta_data($this->stream);
 
         return isset($meta[$key]) ? $meta[$key] : null;
     }

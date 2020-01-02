@@ -11,7 +11,7 @@ pull request for each branch. This allows me to review and pull in new features 
 
 ## Style Guide
 
-All pull requests must adhere to the [PSR-2 standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md).
+All pull requests must adhere to the [PSR-12 standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-12-extended-coding-style-guide.md).
 
 ## Unit Testing
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -14,6 +15,9 @@ use Psr\Http\Message\StreamFactoryInterface;
 use RuntimeException;
 use Slim\Interfaces\Psr17FactoryInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
+
+use function class_exists;
+use function get_called_class;
 
 abstract class Psr17Factory implements Psr17FactoryInterface
 {
@@ -46,7 +50,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
             throw new RuntimeException(get_called_class() . ' could not instantiate a response factory.');
         }
 
-        return new static::$responseFactoryClass;
+        return new static::$responseFactoryClass();
     }
 
     /**
@@ -58,7 +62,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
             throw new RuntimeException(get_called_class() . ' could not instantiate a stream factory.');
         }
 
-        return new static::$streamFactoryClass;
+        return new static::$streamFactoryClass();
     }
 
     /**
