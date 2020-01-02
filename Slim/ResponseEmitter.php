@@ -12,6 +12,9 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 
+use function connection_status;
+use function header;
+use function headers_sent;
 use function in_array;
 use function min;
 use function sprintf;
