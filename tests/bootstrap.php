@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,7 +8,50 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+use AdrianSuter\Autoload\Override\Override;
+use Slim\ResponseEmitter;
+use Slim\Routing\RouteCollector;
+use Slim\Tests\Assets\HeaderStack;
 
-require __DIR__ . '/Assets/PhpFunctionOverrides.php';
-require __DIR__ . '/Assets/PhpRoutingFunctionOverrides.php';
+$classLoader = require __DIR__ . '/../vendor/autoload.php';
+
+//require __DIR__ . '/Assets/PhpFunctionOverrides.php';
+//require __DIR__ . '/Assets/PhpRoutingFunctionOverrides.php';
+
+Override::apply($classLoader, [
+    ResponseEmitter::class => [
+        'connection_status' => function (): int {
+            if (isset($GLOBALS['connection_status_return'])) {
+                return $GLOBALS['connection_status_return'];
+            }
+
+            return connection_status();
+        },
+        'header' => function (string $string, bool $replace = true, int $statusCode = null): void {
+            HeaderStack::push(
+                [
+                    'header' => $string,
+                    'replace' => $replace,
+                    'status_code' => $statusCode,
+                ]
+            );
+        },
+        'headers_sent' => function (): bool {
+            return false;
+        }
+    ],
+    RouteCollector::class => [
+        'is_readable' => function (string $file): bool {
+            if (stripos($file, 'non-readable.cache') !== false) {
+                return false;
+            }
+            return true;
+        },
+        'is_writable' => function (string $path): bool {
+            if (stripos($path, 'non-writable-directory') !== false) {
+                return false;
+            }
+            return true;
+        }
+    ]
+]);

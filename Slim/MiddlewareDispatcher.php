@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -19,6 +20,13 @@ use RuntimeException;
 use Slim\Interfaces\AdvancedCallableResolverInterface;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\MiddlewareDispatcherInterface;
+
+use function class_exists;
+use function function_exists;
+use function is_callable;
+use function is_string;
+use function preg_match;
+use function sprintf;
 
 class MiddlewareDispatcher implements MiddlewareDispatcherInterface
 {
@@ -116,7 +124,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     public function addMiddleware(MiddlewareInterface $middleware): MiddlewareDispatcherInterface
     {
         $next = $this->tip;
-        $this->tip = new class($middleware, $next) implements RequestHandlerInterface
+        $this->tip = new class ($middleware, $next) implements RequestHandlerInterface
         {
             private $middleware;
             private $next;
@@ -149,7 +157,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     public function addDeferred(string $middleware): self
     {
         $next = $this->tip;
-        $this->tip = new class(
+        $this->tip = new class (
             $middleware,
             $next,
             $this->container,
@@ -259,7 +267,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
             $middleware = $middleware->bindTo($this->container);
         }
 
-        $this->tip = new class($middleware, $next) implements RequestHandlerInterface
+        $this->tip = new class ($middleware, $next) implements RequestHandlerInterface
         {
             private $middleware;
             private $next;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,6 +9,8 @@
 declare(strict_types=1);
 
 namespace Slim\Exception;
+
+use function implode;
 
 class HttpMethodNotAllowedException extends HttpSpecializedException
 {

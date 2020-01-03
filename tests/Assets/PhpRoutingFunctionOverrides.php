@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,6 +9,8 @@
 declare(strict_types=1);
 
 namespace Slim\Routing;
+
+use function stripos;
 
 /**
  * Is a file descriptor writable

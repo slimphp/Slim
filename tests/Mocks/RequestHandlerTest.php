@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -13,6 +14,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Tests\Providers\PSR7ObjectProvider;
+
+use function debug_backtrace;
 
 class RequestHandlerTest implements RequestHandlerInterface
 {

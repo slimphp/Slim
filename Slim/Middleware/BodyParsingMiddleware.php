@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -14,6 +15,21 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+
+use function count;
+use function explode;
+use function is_array;
+use function is_null;
+use function is_object;
+use function is_string;
+use function json_decode;
+use function libxml_clear_errors;
+use function libxml_disable_entity_loader;
+use function libxml_use_internal_errors;
+use function parse_str;
+use function simplexml_load_string;
+use function strtolower;
+use function trim;
 
 class BodyParsingMiddleware implements MiddlewareInterface
 {

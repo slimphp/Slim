@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -10,6 +11,8 @@ declare(strict_types=1);
 namespace Slim\Factory\Psr17;
 
 use Slim\Interfaces\Psr17FactoryProviderInterface;
+
+use function array_unshift;
 
 class Psr17FactoryProvider implements Psr17FactoryProviderInterface
 {

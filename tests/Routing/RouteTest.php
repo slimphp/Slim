@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -33,6 +34,11 @@ use Slim\Tests\Mocks\MockCustomRequestHandlerInvocationStrategy;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 use Slim\Tests\Mocks\RequestHandlerTest;
+
+use function is_callable;
+use function is_string;
+use function ob_end_clean;
+use function ob_start;
 
 class RouteTest extends TestCase
 {

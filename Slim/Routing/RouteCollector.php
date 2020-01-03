@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -19,6 +20,13 @@ use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteParserInterface;
+
+use function array_pop;
+use function dirname;
+use function file_exists;
+use function sprintf;
+use function is_readable;
+use function is_writable;
 
 /**
  * RouteCollector is used to collect routes and route groups

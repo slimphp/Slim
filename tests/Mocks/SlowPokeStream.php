@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -12,10 +13,16 @@ namespace Slim\Tests\Mocks;
 use Exception;
 use Psr\Http\Message\StreamInterface;
 
+use function min;
+use function str_repeat;
+use function usleep;
+
+use const SEEK_SET;
+
 class SlowPokeStream implements StreamInterface
 {
-    const CHUNK_SIZE = 1;
-    const SIZE = 500;
+    public const CHUNK_SIZE = 1;
+    public const SIZE = 500;
 
     /**
      * @var int
@@ -82,7 +89,7 @@ class SlowPokeStream implements StreamInterface
 
     public function read($length)
     {
-        \usleep(1);
+        usleep(1);
         $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
         return str_repeat('.', $size);
