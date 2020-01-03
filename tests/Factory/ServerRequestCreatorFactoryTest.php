@@ -11,10 +11,12 @@ declare(strict_types=1);
 namespace Slim\Tests\Factory;
 
 use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
+use Laminas\Diactoros\ServerRequest as LaminasDiactorosServerRequest;
 use Nyholm\Psr7\ServerRequest as NyholmServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
+use Slim\Factory\Psr17\LaminasDiactorosPsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
@@ -25,7 +27,7 @@ use Slim\Http\ServerRequest;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Psr7\Request as SlimServerRequest;
 use Slim\Tests\TestCase;
-use Zend\Diactoros\ServerRequest as ZendServerRequest;
+use Zend\Diactoros\ServerRequest as ZendDiactorosServerRequest;
 
 class ServerRequestCreatorFactoryTest extends TestCase
 {
@@ -35,7 +37,8 @@ class ServerRequestCreatorFactoryTest extends TestCase
             [SlimPsr17Factory::class, SlimServerRequest::class],
             [NyholmPsr17Factory::class, NyholmServerRequest::class],
             [GuzzlePsr17Factory::class, GuzzleServerRequest::class],
-            [ZendDiactorosPsr17Factory::class, ZendServerRequest::class],
+            [LaminasDiactorosPsr17Factory::class, LaminasDiactorosServerRequest::class],
+            [ZendDiactorosPsr17Factory::class, ZendDiactorosServerRequest::class],
         ];
     }
 
