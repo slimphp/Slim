@@ -44,7 +44,7 @@
     },
     "require-dev": {
         "ext-simplexml": "*",
-        "adriansuter/php-autoload-override": "v0.1-beta",
+        "adriansuter/php-autoload-override": "^1.0",
         "guzzlehttp/psr7": "^1.5",
         "http-interop/http-factory-guzzle": "^1.0",
         "laminas/laminas-diactoros": "^2.1",
