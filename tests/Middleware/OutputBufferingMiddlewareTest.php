@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -15,6 +16,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionProperty;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\Tests\TestCase;
+
+use function ob_get_contents;
 
 class OutputBufferingMiddlewareTest extends TestCase
 {

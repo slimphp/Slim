@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -14,6 +15,7 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
 use Slim\Routing\FastRouteDispatcher;
 use Slim\Tests\TestCase;
+
 use function FastRoute\simpleDispatcher;
 
 class FastRouteDispatcherTest extends TestCase

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -17,6 +18,8 @@ use Slim\Interfaces\RouteInterface;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RoutingResults;
 use Slim\Tests\TestCase;
+
+use function sprintf;
 
 class RouteResolverTest extends TestCase
 {

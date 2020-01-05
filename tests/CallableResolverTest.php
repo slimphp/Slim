@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -88,9 +89,9 @@ class CallableResolverTest extends TestCase
     public function testFunctionName()
     {
         $resolver = new CallableResolver(); // No container injected
-        $callable = $resolver->resolve(__NAMESPACE__.'\testAdvancedCallable');
-        $callableRoute = $resolver->resolveRoute(__NAMESPACE__.'\testAdvancedCallable');
-        $callableMiddleware = $resolver->resolveMiddleware(__NAMESPACE__.'\testAdvancedCallable');
+        $callable = $resolver->resolve(__NAMESPACE__ . '\testAdvancedCallable');
+        $callableRoute = $resolver->resolveRoute(__NAMESPACE__ . '\testAdvancedCallable');
+        $callableMiddleware = $resolver->resolveMiddleware(__NAMESPACE__ . '\testAdvancedCallable');
 
         $this->assertEquals(true, $callable());
         $this->assertEquals(true, $callableRoute());
@@ -315,9 +316,9 @@ class CallableResolverTest extends TestCase
     public function testResolutionToAPsrRequestHandlerClassWithCustomMethod()
     {
         $resolver = new CallableResolver(); // No container injected
-        $callable = $resolver->resolve(RequestHandlerTest::class.':custom');
-        $callableRoute = $resolver->resolveRoute(RequestHandlerTest::class.':custom');
-        $callableMiddleware = $resolver->resolveMiddleware(RequestHandlerTest::class.':custom');
+        $callable = $resolver->resolve(RequestHandlerTest::class . ':custom');
+        $callableRoute = $resolver->resolveRoute(RequestHandlerTest::class . ':custom');
+        $callableMiddleware = $resolver->resolveMiddleware(RequestHandlerTest::class . ':custom');
 
         $this->assertIsArray($callable);
         $this->assertInstanceOf(RequestHandlerTest::class, $callable[0]);

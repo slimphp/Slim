@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -17,6 +18,11 @@ use Slim\Routing\FastRouteDispatcher;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RoutingResults;
 use Slim\Tests\TestCase;
+
+use function dirname;
+use function microtime;
+use function uniqid;
+use function unlink;
 
 class DispatcherTest extends TestCase
 {

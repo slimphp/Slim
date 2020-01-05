@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -16,16 +17,19 @@ use RuntimeException;
 use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Tests\TestCase;
 
+use function is_string;
+use function simplexml_load_string;
+
 class BodyParsingMiddlewareTest extends TestCase
 {
     /**
      * Create a request handler that simply assigns the $request that it receives to a public property
      * of the returned response, so that we can then inspect that request.
      */
-    protected function createRequestHandler() : RequestHandlerInterface
+    protected function createRequestHandler(): RequestHandlerInterface
     {
         $response = $this->createResponse();
-        return new class($response) implements RequestHandlerInterface {
+        return new class ($response) implements RequestHandlerInterface {
             private $response;
 
             public function __construct(ResponseInterface $response)
