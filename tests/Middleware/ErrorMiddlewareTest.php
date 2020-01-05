@@ -205,6 +205,45 @@ class ErrorMiddlewareTest extends TestCase
         $this->expectOutputString('Oops..');
     }
 
+    public function testHandleMultipleExceptionsAddedAsArray()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
+        $callableResolver = $app->getCallableResolver();
+
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+
+        $app->add(function ($request, $handler) {
+            throw new InvalidArgumentException('This is an invalid argument exception...');
+        });
+
+        $handler = (function (ServerRequestInterface $request, $exception) {
+            $response = $this->createResponse();
+            $response->getBody()->write($exception->getMessage());
+            return $response;
+        });
+
+        $mw->setErrorHandler([LogicException::class, InvalidArgumentException::class], $handler->bindTo($this));
+
+        $mw->setDefaultErrorHandler((function () {
+            $response = $this->createResponse();
+            $response->getBody()->write('Oops..');
+            return $response;
+        })->bindTo($this));
+
+        $app->add($mw);
+
+        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('...');
+            return $response;
+        });
+
+        $request = $this->createServerRequest('/foo');
+        $app->run($request);
+
+        $this->expectOutputString('This is an invalid argument exception...');
+    }
+
     public function testErrorHandlerHandlesThrowables()
     {
         $responseFactory = $this->getResponseFactory();
