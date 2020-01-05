@@ -1,5 +1,31 @@
 # Changelog
 
+## 4.4.0 - 2020-01-04
+
+### Added
+- [2862](https://github.com/slimphp/Slim/pull/2862) Optimize error message in error handling if displayErrorDetails was not set
+- [2869](https://github.com/slimphp/Slim/pull/2869) php-di/php-di added in composer suggestion
+- [2874](https://github.com/slimphp/Slim/pull/2874) Add `null` to param type-hints
+- [2889](https://github.com/slimphp/Slim/pull/2889) Make `RouteContext` attributes customizable and change default to use private names
+- [2907](https://github.com/slimphp/Slim/pull/2907) Migrate to PSR-12 convention
+- [2910](https://github.com/slimphp/Slim/pull/2910) Migrate Zend to Laminas
+- [2912](https://github.com/slimphp/Slim/pull/2912) Add Laminas PSR17 Factory
+- [2913](https://github.com/slimphp/Slim/pull/2913) Update php-autoload-override version
+- [2914](https://github.com/slimphp/Slim/pull/2914) Added ability to add handled exceptions as an array
+
+### Fixed
+- [2864](https://github.com/slimphp/Slim/pull/2864) Optimize error message in error handling if displayErrorDetails was not set
+- [2876](https://github.com/slimphp/Slim/pull/2876) Update links from http to https
+- [2877](https://github.com/slimphp/Slim/pull/2877) Fix docblock for `Slim\Routing\RouteCollector::cacheFile`
+- [2878](https://github.com/slimphp/Slim/pull/2878) check body is writable only on ouput buffering append
+- [2896](https://github.com/slimphp/Slim/pull/2896) Render errors uniformly
+- [2902](https://github.com/slimphp/Slim/pull/2902) Fix prophecies
+- [2908](https://github.com/slimphp/Slim/pull/2908) Use autoload-dev for `Slim\Tests` namespace
+
+### Removed
+- [2871](https://github.com/slimphp/Slim/pull/2871) Remove explicit type-hint
+- [2872](https://github.com/slimphp/Slim/pull/2872) Remove type-hint
+
 ## 4.3.0 - 2019-10-05
 
 ### Added
