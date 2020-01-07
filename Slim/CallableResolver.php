@@ -21,7 +21,6 @@ use function class_exists;
 use function is_array;
 use function is_callable;
 use function is_object;
-use function is_string;
 use function json_encode;
 use function preg_match;
 use function sprintf;
@@ -51,16 +50,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolve($toResolve): callable
     {
-        if (is_callable($toResolve)) {
-            return $this->bindToContainer($toResolve);
-        }
-        $resolved = $toResolve;
-        if (is_string($toResolve)) {
-            $resolved = $this->resolveSlimNotation($toResolve);
-            $resolved[1] = $resolved[1] ?? '__invoke';
-        }
-        $callable = $this->assertCallable($resolved, $toResolve);
-        return $this->bindToContainer($callable);
+        return $this->resolveByPredicate($toResolve, 'is_object', '__invoke');
     }
 
     /**
@@ -93,17 +83,13 @@ final class CallableResolver implements AdvancedCallableResolverInterface
         if (is_callable($toResolve)) {
             return $this->bindToContainer($toResolve);
         }
-        $resolved = $toResolve;
-        if ($predicate($toResolve)) {
-            $resolved = [$toResolve, $defaultMethod];
+
+        [$instance, $method] = $this->resolveSlimNotation($toResolve);
+        if ($predicate($instance) && $method === null) {
+            $method = $defaultMethod;
         }
-        if (is_string($toResolve)) {
-            [$instance, $method] = $this->resolveSlimNotation($toResolve);
-            if ($predicate($instance) && $method === null) {
-                $method = $defaultMethod;
-            }
-            $resolved = [$instance, $method ?? '__invoke'];
-        }
+        $resolved = [$instance, $method];
+
         $callable = $this->assertCallable($resolved, $toResolve);
         return $this->bindToContainer($callable);
     }
@@ -117,7 +103,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     {
         return $toResolve instanceof RequestHandlerInterface;
     }
-
     /**
      * @param mixed $toResolve
      *
@@ -130,9 +115,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     /**
      * @param string $toResolve
-     *
-     * @throws RuntimeException
-     *
      * @return array [Instance, Method Name]
      */
     private function resolveSlimNotation(string $toResolve): array
@@ -142,12 +124,12 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
         if ($this->container && $this->container->has($class)) {
             $instance = $this->container->get($class);
-        } else {
-            if (!class_exists($class)) {
-                throw new RuntimeException(sprintf('Callable %s does not exist', $class));
-            }
+        } elseif (class_exists($class)) {
             $instance = new $class($this->container);
+        } else {
+            throw new RuntimeException(sprintf('Callable %s does not exist', $class));
         }
+
         return [$instance, $method];
     }
 
@@ -165,7 +147,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
             throw new RuntimeException(sprintf(
                 '%s is not resolvable',
                 is_callable($toResolve) || is_object($toResolve) || is_array($toResolve) ?
-                    json_encode($toResolve) : $toResolve
+                json_encode($toResolve) : $toResolve
             ));
         }
         return $resolved;
