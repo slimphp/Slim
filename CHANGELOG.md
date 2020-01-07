@@ -3,7 +3,7 @@
 ## 4.4.0 - 2020-01-04
 
 ### Added
-- [2862](https://github.com/slimphp/Slim/pull/2862) Optimize error message in error handling if displayErrorDetails was not set
+- [2862](https://github.com/slimphp/Slim/pull/2862) Optionally handle subclasses of exceptions in custom error handler
 - [2869](https://github.com/slimphp/Slim/pull/2869) php-di/php-di added in composer suggestion
 - [2874](https://github.com/slimphp/Slim/pull/2874) Add `null` to param type-hints
 - [2889](https://github.com/slimphp/Slim/pull/2889) Make `RouteContext` attributes customizable and change default to use private names
