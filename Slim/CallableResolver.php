@@ -108,42 +108,28 @@ final class CallableResolver implements AdvancedCallableResolverInterface
         } elseif (class_exists($class)) {
             $instance = new $class($this->container);
         } else {
-            throw new RuntimeException(sprintf('Callable %s is not resolvable', $class));
+            throw new RuntimeException(sprintf('Callable %s does not exist', $class));
         }
 
         return $instance;
     }
 
     /**
-     * @param mixed $toResolve
-     *
-     * @return bool
+     * @param $resolved
+     * @param $toResolve
+     * @return callable
      */
-    private function isRoute($toResolve): bool
-    {
-        return $toResolve instanceof RequestHandlerInterface;
-    }
-    /**
-     * @param mixed $toResolve
-     *
-     * @return bool
-     */
-    private function isMiddleware($toResolve): bool
-    {
-        return $toResolve instanceof MiddlewareInterface;
-    }
-
     private function assertCallable($resolved, $toResolve): callable
     {
-    if (!is_callable($resolved)) {
-        throw new RuntimeException(sprintf(
-            '%s is not resolvable',
-            is_callable($toResolve) || is_object($toResolve) || is_array($toResolve) ?
-            json_encode($toResolve) : $toResolve
-        ));
+        if (!is_callable($resolved)) {
+            throw new RuntimeException(sprintf(
+                '%s is not resolvable',
+                is_callable($toResolve) || is_object($toResolve) || is_array($toResolve) ?
+                json_encode($toResolve) : $toResolve
+            ));
+        }
+        return $resolved;
     }
-    return $resolved;
-}
 
     /**
      * @param callable $callable
