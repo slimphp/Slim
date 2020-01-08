@@ -70,7 +70,10 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     /**
      * @param callable|string $toResolve
-     * @param string $defaultMethod
+     * @param string          $defaultMethod
+     *
+     * @throws RuntimeException
+     *
      * @return callable
      */
     private function resolveSlimNotation($toResolve, string $defaultMethod = '__invoke'): callable
@@ -100,6 +103,9 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     /**
      * @param string $class
+     *
+     * @throws RuntimeException
+     *
      * @return mixed
      */
     private function resolveClass(string $class)
@@ -116,8 +122,11 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     }
 
     /**
-     * @param $resolved
-     * @param $toResolve
+     * @param mixed $resolved
+     * @param mixed $toResolve
+     *
+     * @throws RuntimeException
+     *
      * @return callable
      */
     private function assertCallable($resolved, $toResolve): callable
