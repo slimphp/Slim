@@ -216,10 +216,10 @@ class CallableResolverTest extends TestCase
     public function testResolutionToAPsrRequestHandlerClass()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(RequestHandlerInterface::class . ' is not resolvable');
+        $this->expectExceptionMessage('Slim\\Tests\\Mocks\\RequestHandlerTest is not resolvable');
 
         $resolver = new CallableResolver(); // No container injected
-        $resolver->resolve(RequestHandlerInterface::class);
+        $resolver->resolve(RequestHandlerTest::class);
     }
 
     public function testRouteResolutionToAPsrRequestHandlerClass()

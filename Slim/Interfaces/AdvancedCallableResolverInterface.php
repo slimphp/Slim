@@ -15,7 +15,8 @@ interface AdvancedCallableResolverInterface extends CallableResolverInterface
     /**
      * Resolve $toResolve into a callable
      *
-     * This callable will be invoked by the InvocationStrategyInterface.
+     * This callable will be invoked by the InvocationStrategyInterface with
+     * an implementation specific signature.
      *
      * @param string|callable $toResolve
      *
