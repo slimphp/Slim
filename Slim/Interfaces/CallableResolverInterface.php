@@ -15,6 +15,10 @@ interface CallableResolverInterface
     /**
      * Resolve $toResolve into a callable
      *
+     * The callable signature is context specific, where a route callable
+     * is passed to the InvocationStrategyInterface for invocation and
+     * middleware are called via MiddlewareInterface::handle() method.
+     *
      * @param string|callable $toResolve
      * @return callable
      */

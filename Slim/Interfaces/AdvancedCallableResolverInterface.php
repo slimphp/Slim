@@ -15,6 +15,8 @@ interface AdvancedCallableResolverInterface extends CallableResolverInterface
     /**
      * Resolve $toResolve into a callable
      *
+     * This callable will be invoked by the InvocationStrategyInterface.
+     *
      * @param string|callable $toResolve
      *
      * @return callable
@@ -23,6 +25,9 @@ interface AdvancedCallableResolverInterface extends CallableResolverInterface
 
     /**
      * Resolve $toResolve into a callable
+     *
+     * This callable will use the same signature as MiddlewareInterface::handle()
+     * but does not need to implement the interface.
      *
      * @param string|callable $toResolve
      *
