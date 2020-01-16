@@ -1,0 +1,70 @@
+name: Run ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        php: [7.2, 7.3, 7.4]
+        os: ['ubuntu-latest']
+        include:
+          - php: 7.3
+            analysis: true
+    name: PHP ${{ matrix.php }} - ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Debug if needed
+        run: if [[ "$DEBUG" == "true" ]]; then env && go env; fi
+        env:
+          DEBUG: ${{ secrets.DEBUG }}
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: json
+          coverage: xdebug
+          tools: pecl
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ matrix.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ matrix.os }}-composer-
+
+      - name: Install composer
+        run: php -v && composer install -n
+
+      - name: Analyze and coverage
+        if: matrix.analysis
+        run: |
+          composer require php-coveralls/php-coveralls:^2.2.0
+          vendor/bin/phpunit --coverage-clover clover.xml
+          vendor/bin/phpcs
+          vendor/bin/phpstan analyse Slim
+          env | grep COVERALLS
+          vendor/bin/php-coveralls --coverage_clover=clover.xml -v
+        env:
+          COVERALLS_RUN_LOCALLY: 1 # Delete if PR https://github.com/php-coveralls/php-coveralls/pull/275 will be merged
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v2
+        if: failure()
+        with:
+          status: ${{ job.status }}
+          author_name: ${{ github.actor }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
