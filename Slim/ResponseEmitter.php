@@ -48,11 +48,6 @@ class ResponseEmitter
     {
         $isEmpty = $this->isResponseEmpty($response);
         if (headers_sent() === false) {
-            if ($isEmpty) {
-                $response = $response
-                    ->withoutHeader('Content-Type')
-                    ->withoutHeader('Content-Length');
-            }
             $this->emitStatusLine($response);
             $this->emitHeaders($response);
         }
