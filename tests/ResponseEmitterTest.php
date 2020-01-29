@@ -58,42 +58,6 @@ class ResponseEmitterTest extends TestCase
         $this->expectOutputString('Hello');
     }
 
-    public function testResposeWithNoContentSkipsContentTypeAndContentLength()
-    {
-        $response = $this
-            ->createResponse()
-            ->withHeader('Content-Type', 'text/html')
-            ->withHeader('Content-Length', '4096')
-            ->withHeader('Cache-Control', 'no-cache');
-
-        $responseEmitter = new ResponseEmitter();
-        $responseEmitter->emit($response);
-
-        $this->assertFalse(HeaderStack::has('Content-Type'));
-        $this->assertFalse(HeaderStack::has('Content-Length'));
-        $this->assertTrue(HeaderStack::has('Cache-Control'));
-        $this->expectOutputString('');
-    }
-
-    public function testNonEmptyResponseDoesNotSkipContentTypeAndContentLength()
-    {
-        $response = $this
-            ->createResponse()
-            ->withHeader('Content-Type', 'text/html')
-            ->withHeader('Content-Length', '4096')
-            ->withHeader('Cache-Control', 'no-cache');
-
-        $response->getBody()->write('foo');
-
-        $responseEmitter = new ResponseEmitter();
-        $responseEmitter->emit($response);
-
-        $this->assertTrue(HeaderStack::has('Content-Type'));
-        $this->assertTrue(HeaderStack::has('Content-Length'));
-        $this->assertTrue(HeaderStack::has('Cache-Control'));
-        $this->expectOutputString('foo');
-    }
-
     public function testRespondWithPaddedStreamFilterOutput()
     {
         $availableFilter = stream_get_filters();
