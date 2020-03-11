@@ -125,9 +125,11 @@ Learn more at these links:
 
 If you discover security related issues, please email security@slimframework.com instead of using the issue tracker.
 
-## Professional support
+## For enterprise
 
-Slim is part of [Tidelift](https://tidelift.com/subscription/pkg/packagist-slim-slim?utm_source=packagist-slim-slim&utm_medium=referral&utm_campaign=readme) which gives software development teams a single source for purchasing and maintaining their software, with professional grade assurances from the experts who know it best, while seamlessly integrating with existing tools.
+Available as part of the Tidelift Subscription.
+
+The maintainers of `Slim` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/packagist-slim-slim?utm_source=packagist-slim-slim&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
 
 ## Contributors
 
