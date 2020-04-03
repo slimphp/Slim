@@ -19,6 +19,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
@@ -724,11 +725,14 @@ class AppTest extends TestCase
         /** @var ResponseFactoryInterface $responseFactory */
         $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
 
+        /** @var LoggerInterface $logger */
+        $logger = $this->createMock(LoggerInterface::class);
+
         // Create the app.
         $app = new App($responseFactory);
 
         // Add the error middleware.
-        $errorMiddleware = $app->addErrorMiddleware(true, true, true);
+        $errorMiddleware = $app->addErrorMiddleware(true, true, true, $logger);
 
         // Check that the error middleware really has been added to the tip of the app middleware stack.
         $middlewareDispatcherProperty = new ReflectionProperty(App::class, 'middlewareDispatcher');

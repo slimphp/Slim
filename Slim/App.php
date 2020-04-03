@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\MiddlewareDispatcherInterface;
@@ -140,23 +141,26 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     /**
      * Add the Slim built-in error middleware to the app middleware stack
      *
-     * @param bool $displayErrorDetails
-     * @param bool $logErrors
-     * @param bool $logErrorDetails
+     * @param bool                 $displayErrorDetails
+     * @param bool                 $logErrors
+     * @param bool                 $logErrorDetails
+     * @param LoggerInterface|null $logger
      *
      * @return ErrorMiddleware
      */
     public function addErrorMiddleware(
         bool $displayErrorDetails,
         bool $logErrors,
-        bool $logErrorDetails
+        bool $logErrorDetails,
+        ?LoggerInterface $logger = null
     ): ErrorMiddleware {
         $errorMiddleware = new ErrorMiddleware(
             $this->getCallableResolver(),
             $this->getResponseFactory(),
             $displayErrorDetails,
             $logErrors,
-            $logErrorDetails
+            $logErrorDetails,
+            $logger
         );
         $this->add($errorMiddleware);
         return $errorMiddleware;

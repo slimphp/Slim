@@ -13,6 +13,7 @@ namespace Slim\Handlers;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
@@ -23,6 +24,7 @@ use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
+use Slim\Logger;
 use Throwable;
 
 use function array_intersect;
@@ -121,14 +123,24 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected $responseFactory;
 
+    /*
+     * @var LoggerInterface
+     */
+    protected $logger;
+
     /**
      * @param CallableResolverInterface $callableResolver
      * @param ResponseFactoryInterface  $responseFactory
+     * @param LoggerInterface|null      $logger
      */
-    public function __construct(CallableResolverInterface $callableResolver, ResponseFactoryInterface $responseFactory)
-    {
+    public function __construct(
+        CallableResolverInterface $callableResolver,
+        ResponseFactoryInterface $responseFactory,
+        ?LoggerInterface $logger = null
+    ) {
         $this->callableResolver = $callableResolver;
         $this->responseFactory = $responseFactory;
+        $this->logger = $logger ?: $this->getDefaultLogger();
     }
 
     /**
@@ -311,7 +323,17 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function logError(string $error): void
     {
-        error_log($error);
+        $this->logger->error($error);
+    }
+
+    /**
+     * Returns a default logger implementation.
+     *
+     * @return LoggerInterface
+     */
+    protected function getDefaultLogger(): LoggerInterface
+    {
+        return new Logger();
     }
 
     /**
