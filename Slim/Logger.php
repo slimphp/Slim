@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Slim;
 
 use Psr\Log\AbstractLogger;
+use Psr\Log\InvalidArgumentException;
 
 class Logger extends AbstractLogger
 {
@@ -21,7 +22,7 @@ class Logger extends AbstractLogger
      *
      * @return void
      *
-     * @throws \Psr\Log\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function log($level, $message, array $context = [])
     {
