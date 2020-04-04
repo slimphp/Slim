@@ -27,6 +27,11 @@ use Slim\Tests\TestCase;
 
 class ErrorMiddlewareTest extends TestCase
 {
+    private function getMockLogger(): LoggerInterface
+    {
+        return $this->createMock(LoggerInterface::class);
+    }
+
     public function testSetErrorHandler()
     {
         $responseFactory = $this->getResponseFactory();
@@ -283,10 +288,5 @@ class ErrorMiddlewareTest extends TestCase
         $app->run($request);
 
         $this->expectOutputString('Oops..');
-    }
-
-    private function getMockLogger(): LoggerInterface
-    {
-        return $this->createMock(LoggerInterface::class);
     }
 }

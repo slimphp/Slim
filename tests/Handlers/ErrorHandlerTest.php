@@ -29,6 +29,11 @@ use Slim\Tests\TestCase;
 
 class ErrorHandlerTest extends TestCase
 {
+    private function getMockLogger(): LoggerInterface
+    {
+        return $this->createMock(LoggerInterface::class);
+    }
+
     public function testDetermineRenderer()
     {
         $handler = $this
@@ -391,10 +396,5 @@ class ErrorHandlerTest extends TestCase
         $writeToErrorLogMethod = new ReflectionMethod($handler, 'writeToErrorLog');
         $writeToErrorLogMethod->setAccessible(true);
         $writeToErrorLogMethod->invoke($handler);
-    }
-
-    private function getMockLogger(): LoggerInterface
-    {
-        return $this->createMock(LoggerInterface::class);
     }
 }
