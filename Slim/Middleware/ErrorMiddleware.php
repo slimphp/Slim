@@ -15,6 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Exception\HttpException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
@@ -52,6 +53,11 @@ class ErrorMiddleware implements MiddlewareInterface
     protected $logErrorDetails;
 
     /**
+     * @var LoggerInterface|null
+     */
+    protected $logger;
+
+    /**
      * @var ErrorHandlerInterface[]|callable[]
      */
     protected $handlers = [];
@@ -72,19 +78,22 @@ class ErrorMiddleware implements MiddlewareInterface
      * @param bool                      $displayErrorDetails
      * @param bool                      $logErrors
      * @param bool                      $logErrorDetails
+     * @param LoggerInterface|null      $logger
      */
     public function __construct(
         CallableResolverInterface $callableResolver,
         ResponseFactoryInterface $responseFactory,
         bool $displayErrorDetails,
         bool $logErrors,
-        bool $logErrorDetails
+        bool $logErrorDetails,
+        ?LoggerInterface $logger = null
     ) {
         $this->callableResolver = $callableResolver;
         $this->responseFactory = $responseFactory;
         $this->displayErrorDetails = $displayErrorDetails;
         $this->logErrors = $logErrors;
         $this->logErrorDetails = $logErrorDetails;
+        $this->logger = $logger;
     }
 
     /**
@@ -150,7 +159,11 @@ class ErrorMiddleware implements MiddlewareInterface
     public function getDefaultErrorHandler()
     {
         if ($this->defaultErrorHandler === null) {
-            $this->defaultErrorHandler = new ErrorHandler($this->callableResolver, $this->responseFactory);
+            $this->defaultErrorHandler = new ErrorHandler(
+                $this->callableResolver,
+                $this->responseFactory,
+                $this->logger
+            );
         }
 
         return $this->callableResolver->resolve($this->defaultErrorHandler);
