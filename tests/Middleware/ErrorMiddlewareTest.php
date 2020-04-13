@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use LogicException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
@@ -26,11 +27,17 @@ use Slim\Tests\TestCase;
 
 class ErrorMiddlewareTest extends TestCase
 {
+    private function getMockLogger(): LoggerInterface
+    {
+        return $this->createMock(LoggerInterface::class);
+    }
+
     public function testSetErrorHandler()
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
         $mw = new RoutingMiddleware($app->getRouteResolver(), $app->getRouteCollector()->getRouteParser());
         $app->add($mw);
@@ -42,7 +49,7 @@ class ErrorMiddlewareTest extends TestCase
             return $response;
         })->bindTo($this);
 
-        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
         $mw2->setErrorHandler($exception, $handler);
         $app->add($mw2);
 
@@ -57,6 +64,7 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
         $mw = new RoutingMiddleware($app->getRouteResolver(), $app->getRouteCollector()->getRouteParser());
         $app->add($mw);
@@ -67,7 +75,7 @@ class ErrorMiddlewareTest extends TestCase
             return $response;
         })->bindTo($this);
 
-        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
         $mw2->setDefaultErrorHandler($handler);
         $app->add($mw2);
 
@@ -84,8 +92,9 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
         $mw->setDefaultErrorHandler('Uncallable');
         $mw->getDefaultErrorHandler();
     }
@@ -95,8 +104,9 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
-        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
         $exception = MockCustomException::class;
         $handler = $middleware->getErrorHandler($exception);
         $this->assertInstanceOf(ErrorHandler::class, $handler);
@@ -107,7 +117,8 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $logger = $this->getMockLogger();
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
         $app->add(function ($request, $handler) {
             throw new LogicException('This is a LogicException...');
         });
@@ -136,8 +147,9 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new InvalidArgumentException('This is a subclass of LogicException...');
@@ -173,8 +185,9 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new InvalidArgumentException('This is a subclass of LogicException...');
@@ -210,8 +223,9 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new InvalidArgumentException('This is an invalid argument exception...');
@@ -249,8 +263,9 @@ class ErrorMiddlewareTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
+        $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new Error('Oops..');

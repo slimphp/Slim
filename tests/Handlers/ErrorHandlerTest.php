@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -28,6 +29,11 @@ use Slim\Tests\TestCase;
 
 class ErrorHandlerTest extends TestCase
 {
+    private function getMockLogger(): LoggerInterface
+    {
+        return $this->createMock(LoggerInterface::class);
+    }
+
     public function testDetermineRenderer()
     {
         $handler = $this
@@ -303,16 +309,16 @@ class ErrorHandlerTest extends TestCase
             ->createServerRequest('/', 'GET')
             ->withHeader('Accept', 'application/json');
 
-        $handler = $this->getMockBuilder(ErrorHandler::class)
-            ->setConstructorArgs([
-                'callableResolver' => $this->getCallableResolver(),
-                'responseFactory' => $this->getResponseFactory(),
-            ])
-            ->setMethods(['logError'])
-            ->getMock();
+        $logger = $this->getMockLogger();
 
-        $handler->expects(self::once())
-            ->method('logError')
+        $handler = new ErrorHandler(
+            $this->getCallableResolver(),
+            $this->getResponseFactory(),
+            $logger
+        );
+
+        $logger->expects(self::once())
+            ->method('error')
             ->willReturnCallback(static function (string $error) {
                 self::assertStringNotContainsString(
                     'set "displayErrorDetails" to true in the ErrorHandler constructor',
@@ -330,16 +336,16 @@ class ErrorHandlerTest extends TestCase
             ->createServerRequest('/', 'GET')
             ->withHeader('Accept', 'application/json');
 
-        $handler = $this->getMockBuilder(ErrorHandler::class)
-            ->setConstructorArgs([
-                'callableResolver' => $this->getCallableResolver(),
-                'responseFactory' => $this->getResponseFactory(),
-            ])
-            ->setMethods(['logError'])
-            ->getMock();
+        $logger = $this->getMockLogger();
 
-        $handler->expects(self::once())
-            ->method('logError')
+        $handler = new ErrorHandler(
+            $this->getCallableResolver(),
+            $this->getResponseFactory(),
+            $logger
+        );
+
+        $logger->expects(self::once())
+            ->method('error')
             ->willReturnCallback(static function (string $error) {
                 self::assertStringContainsString(
                     'set "displayErrorDetails" to true in the ErrorHandler constructor',
