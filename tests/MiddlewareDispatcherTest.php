@@ -283,7 +283,7 @@ class MiddlewareDispatcherTest extends TestCase
     public function testResolveThrowsExceptionWithoutContainerAndUnresolvableClass()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Unresolvable::class does not exist');
+        $this->expectExceptionMessageMatches('/(Middleware|Callable) Unresolvable::class does not exist/');
 
         $handler = new MockRequestHandler();
         $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null);
@@ -296,7 +296,7 @@ class MiddlewareDispatcherTest extends TestCase
     public function testResolveThrowsExceptionWithoutContainerNonAdvancedCallableResolverAndUnresolvableClass()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Unresolvable::class does not exist');
+        $this->expectExceptionMessageMatches('/(Middleware|Callable) Unresolvable::class does not exist/');
 
         $unresolvable = 'Unresolvable::class';
 
