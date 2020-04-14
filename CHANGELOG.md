@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.5.0 - 2020-04-14
+
+### Added
+- [2928](https://github.com/slimphp/Slim/pull/2928) Test against PHP 7.4
+- [2937](https://github.com/slimphp/Slim/pull/2937) Add support for PSR-3
+
+### Fixed
+- [2916](https://github.com/slimphp/Slim/pull/2916) Rename phpcs.xml to phpcs.xml.dist
+- [2917](https://github.com/slimphp/Slim/pull/2917) Update .editorconfig
+- [2925](https://github.com/slimphp/Slim/pull/2925) ResponseEmitter: Don't remove Content-Type and Content-Length when body is empt
+- [2932](https://github.com/slimphp/Slim/pull/2932) Update the Tidelift enterprise language
+- [2938](https://github.com/slimphp/Slim/pull/2938) Modify usage of deprecated expectExceptionMessageRegExp() method
+
 ## 4.4.0 - 2020-01-04
 
 ### Added
