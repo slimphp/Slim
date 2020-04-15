@@ -58,17 +58,17 @@ class ErrorMiddleware implements MiddlewareInterface
     protected $logger;
 
     /**
-     * @var ErrorHandlerInterface[]|callable[]
+     * @var ErrorHandlerInterface[]|callable[]|string[]
      */
     protected $handlers = [];
 
     /**
-     * @var ErrorHandlerInterface[]|callable[]
+     * @var ErrorHandlerInterface[]|callable[]|string[]
      */
     protected $subClassHandlers = [];
 
     /**
-     * @var ErrorHandlerInterface|callable|null
+     * @var ErrorHandlerInterface|callable|string|null
      */
     protected $defaultErrorHandler;
 
@@ -154,7 +154,7 @@ class ErrorMiddleware implements MiddlewareInterface
     /**
      * Get default error handler
      *
-     * @return ErrorHandler|callable
+     * @return ErrorHandler|callable|string
      */
     public function getDefaultErrorHandler()
     {
@@ -185,7 +185,7 @@ class ErrorMiddleware implements MiddlewareInterface
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param callable|ErrorHandler $handler
+     * @param string|callable|ErrorHandler $handler
      * @return self
      */
     public function setDefaultErrorHandler($handler): self
@@ -217,7 +217,7 @@ class ErrorMiddleware implements MiddlewareInterface
      * @param string|string[] $typeOrTypes Exception/Throwable name.
      * ie: RuntimeException::class or an array of classes
      * ie: [HttpNotFoundException::class, HttpMethodNotAllowedException::class]
-     * @param callable|ErrorHandlerInterface $handler
+     * @param string|callable|ErrorHandlerInterface $handler
      * @param bool $handleSubclasses
      * @return self
      */
@@ -237,7 +237,7 @@ class ErrorMiddleware implements MiddlewareInterface
     /**
      * Used internally to avoid code repetition when passing multiple exceptions to setErrorHandler().
      * @param string $type
-     * @param callable|ErrorHandlerInterface $handler
+     * @param string|callable|ErrorHandlerInterface $handler
      * @param bool   $handleSubclasses
      * @return void
      */
