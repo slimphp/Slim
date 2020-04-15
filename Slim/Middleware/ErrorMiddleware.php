@@ -132,7 +132,7 @@ class ErrorMiddleware implements MiddlewareInterface
      * occurs when processing the current request.
      *
      * @param string $type Exception/Throwable name. ie: RuntimeException::class
-     * @return string|callable|ErrorHandler
+     * @return callable|ErrorHandler
      */
     public function getErrorHandler(string $type)
     {
@@ -154,7 +154,7 @@ class ErrorMiddleware implements MiddlewareInterface
     /**
      * Get default error handler
      *
-     * @return ErrorHandler|callable|string
+     * @return ErrorHandler|callable
      */
     public function getDefaultErrorHandler()
     {
