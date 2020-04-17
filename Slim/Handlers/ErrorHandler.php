@@ -33,7 +33,6 @@ use function array_keys;
 use function call_user_func;
 use function count;
 use function current;
-use function error_log;
 use function explode;
 use function implode;
 use function next;
