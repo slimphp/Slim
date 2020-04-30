@@ -32,6 +32,16 @@
             "homepage": "http://gabrielmanricks.com"
         }
     ],
+    "support": {
+        "docs": "https://www.slimframework.com/docs/v4/",
+        "forum": "https://discourse.slimframework.com/",
+        "irc": "irc://irc.freenode.net:6667/slimphp",
+        "issues": "https://github.com/slimphp/Slim/issues",
+        "rss": "https://www.slimframework.com/blog/feed.rss",
+        "slack": "https://slimphp.slack.com/",
+        "source": "https://github.com/slimphp/Slim",
+        "wiki": "https://github.com/slimphp/Slim/wiki"
+    },
     "require": {
         "php": "^7.2",
         "ext-json": "*",
