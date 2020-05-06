@@ -16,9 +16,9 @@ use Psr\Log\InvalidArgumentException;
 class Logger extends AbstractLogger
 {
     /**
-     * @param mixed  $level
-     * @param string $message
-     * @param array  $context
+     * @param mixed        $level
+     * @param string       $message
+     * @param array<mixed> $context
      *
      * @return void
      *

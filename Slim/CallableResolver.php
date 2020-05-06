@@ -133,7 +133,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      *
      * @throws RuntimeException
      *
-     * @return array [Instance, Method Name]
+     * @return array<object|string|null> [Instance, Method Name]
      */
     private function resolveSlimNotation(string $toResolve): array
     {

@@ -45,7 +45,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
 
     /**
      * @param Throwable $exception
-     * @return array
+     * @return array<string|int>
      */
     private function formatExceptionFragment(Throwable $exception): array
     {

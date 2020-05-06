@@ -50,7 +50,7 @@ class RoutingResults
     protected $routeIdentifier;
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $routeArguments;
 
@@ -60,7 +60,7 @@ class RoutingResults
      * @param string              $uri
      * @param int                 $routeStatus
      * @param string|null         $routeIdentifier
-     * @param array               $routeArguments
+     * @param string[]            $routeArguments
      */
     public function __construct(
         DispatcherInterface $dispatcher,
@@ -120,7 +120,7 @@ class RoutingResults
 
     /**
      * @param bool $urlDecode
-     * @return array
+     * @return string[]
      */
     public function getRouteArguments(bool $urlDecode = true): array
     {
@@ -137,7 +137,7 @@ class RoutingResults
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getAllowedMethods(): array
     {

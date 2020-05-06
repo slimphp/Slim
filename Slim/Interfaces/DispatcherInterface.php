@@ -27,7 +27,7 @@ interface DispatcherInterface
      * Get allowed methods for a given uri
      *
      * @param string $uri
-     * @return array
+     * @return string[]
      */
     public function getAllowedMethods(string $uri): array;
 }

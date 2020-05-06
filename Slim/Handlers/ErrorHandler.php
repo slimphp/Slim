@@ -62,7 +62,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $logErrorRenderer = PlainTextErrorRenderer::class;
 
     /**
-     * @var array
+     * @var array<string|callable>
      */
     protected $errorRenderers = [
         'application/json' => JsonErrorRenderer::class,
@@ -122,7 +122,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected $responseFactory;
 
-    /*
+    /**
      * @var LoggerInterface
      */
     protected $logger;

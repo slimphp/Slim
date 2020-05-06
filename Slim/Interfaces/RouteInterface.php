@@ -142,7 +142,7 @@ interface RouteInterface
     /**
      * Prepare the route for use
      *
-     * @param array $arguments
+     * @param string[] $arguments
      * @return RouteInterface
      */
     public function prepare(array $arguments): RouteInterface;
