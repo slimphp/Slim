@@ -138,13 +138,15 @@ class ErrorMiddleware implements MiddlewareInterface
     {
         if (isset($this->handlers[$type])) {
             return $this->callableResolver->resolve($this->handlers[$type]);
-        } elseif (isset($this->subClassHandlers[$type])) {
+        }
+
+        if (isset($this->subClassHandlers[$type])) {
             return $this->callableResolver->resolve($this->subClassHandlers[$type]);
-        } else {
-            foreach ($this->subClassHandlers as $class => $handler) {
-                if (is_subclass_of($type, $class)) {
-                    return $this->callableResolver->resolve($handler);
-                }
+        }
+
+        foreach ($this->subClassHandlers as $class => $handler) {
+            if (is_subclass_of($type, $class)) {
+                return $this->callableResolver->resolve($handler);
             }
         }
 

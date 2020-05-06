@@ -188,7 +188,9 @@ class MockStream implements StreamInterface
     {
         if (!$this->seekable) {
             throw new RuntimeException('Stream is not seekable');
-        } elseif (fseek($this->stream, $offset, $whence) === -1) {
+        }
+
+        if (fseek($this->stream, $offset, $whence) === -1) {
             throw new RuntimeException(
                 'Unable to seek to stream position '
                 . $offset . ' with whence ' . var_export($whence, true)
@@ -253,7 +255,9 @@ class MockStream implements StreamInterface
     {
         if (!isset($this->stream)) {
             return $key ? null : [];
-        } elseif (null === $key) {
+        }
+
+        if (null === $key) {
             return stream_get_meta_data($this->stream);
         }
 
