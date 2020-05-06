@@ -15,17 +15,25 @@ use function implode;
 class HttpMethodNotAllowedException extends HttpSpecializedException
 {
     /**
-     * @var array
+     * @var string[]
      */
     protected $allowedMethods = [];
 
+    /**
+     * @var int
+     */
     protected $code = 405;
+
+    /**
+     * @var string
+     */
     protected $message = 'Method not allowed.';
+
     protected $title = '405 Method Not Allowed';
     protected $description = 'The request method is not supported for the requested resource.';
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getAllowedMethods(): array
     {
@@ -33,7 +41,7 @@ class HttpMethodNotAllowedException extends HttpSpecializedException
     }
 
     /**
-     * @param array $methods
+     * @param string[] $methods
      * @return self
      */
     public function setAllowedMethods(array $methods): HttpMethodNotAllowedException

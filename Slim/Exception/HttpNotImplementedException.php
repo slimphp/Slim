@@ -12,8 +12,16 @@ namespace Slim\Exception;
 
 class HttpNotImplementedException extends HttpSpecializedException
 {
+    /**
+     * @var int
+     */
     protected $code = 501;
+
+    /**
+     * @var string
+     */
     protected $message = 'Not implemented.';
+
     protected $title = '501 Not Implemented';
     protected $description = 'The server does not support the functionality required to fulfill the request.';
 }
