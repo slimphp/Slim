@@ -139,7 +139,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
 
     /**
      * @param ServerRequestInterface $request
-     * @return null|array|object
+     * @return null|array<mixed>|object
      */
     protected function parseBody(ServerRequestInterface $request)
     {
