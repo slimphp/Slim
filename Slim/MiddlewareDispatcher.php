@@ -105,6 +105,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
             return $this->addCallable($middleware);
         }
 
+        /** @phpstan-ignore-next-line */
         throw new RuntimeException(
             'A middleware must be an object/class name referencing an implementation of ' .
             'MiddlewareInterface or a callable with a matching signature.'
