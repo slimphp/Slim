@@ -58,7 +58,7 @@
         "adriansuter/php-autoload-override": "^1.0",
         "guzzlehttp/psr7": "^1.5",
         "http-interop/http-factory-guzzle": "^1.0",
-        "laminas/laminas-diactoros": "^2.1",
+        "laminas/laminas-diactoros": "^2.3",
         "nyholm/psr7": "^1.1",
         "nyholm/psr7-server": "^0.3.0",
         "phpspec/prophecy": "^1.10",
