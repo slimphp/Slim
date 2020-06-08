@@ -60,7 +60,7 @@
         "http-interop/http-factory-guzzle": "^1.0",
         "laminas/laminas-diactoros": "^2.3",
         "nyholm/psr7": "^1.3",
-        "nyholm/psr7-server": "^0.4.1",
+        "nyholm/psr7-server": "^1.0.0",
         "phpspec/prophecy": "^1.10",
         "phpstan/phpstan": "^0.12.25",
         "phpunit/phpunit": "^8.5",
