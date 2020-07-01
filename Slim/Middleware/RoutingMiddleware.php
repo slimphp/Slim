@@ -72,7 +72,7 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function performRouting(ServerRequestInterface $request): ServerRequestInterface
     {
-        $routingResults = $this->resolveRouteFromRequest($request);
+        $routingResults = $this->resolveRoutingResultsFromRequest($request);
         $routeStatus = $routingResults->getRouteStatus();
 
         $request = $request->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
@@ -105,7 +105,7 @@ class RoutingMiddleware implements MiddlewareInterface
      * @param  ServerRequestInterface $request
      * @return RoutingResults
      */
-    protected function resolveRouteFromRequest(ServerRequestInterface $request)
+    protected function resolveRoutingResultsFromRequest(ServerRequestInterface $request): RoutingResults
     {
         return $this->routeResolver->computeRoutingResults(
             $request->getUri()->getPath(),
