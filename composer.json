@@ -61,7 +61,7 @@
         "laminas/laminas-diactoros": "^2.3",
         "nyholm/psr7": "^1.3",
         "nyholm/psr7-server": "^1.0.0",
-        "phpspec/prophecy": "^1.10",
+        "phpspec/prophecy": "^1.11",
         "phpstan/phpstan": "^0.12.32",
         "phpunit/phpunit": "^8.5",
         "slim/http": "^1.0",
