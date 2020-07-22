@@ -189,9 +189,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $methodName = strtolower($method);
@@ -230,9 +229,8 @@ class AppTest extends TestCase
             $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
             $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
             $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-                $clone = clone $this;
-                $clone->getAttribute($args[0])->willReturn($args[1]);
-                return $clone;
+                $this->getAttribute($args[0])->willReturn($args[1]);
+                return $this;
             });
 
             $response = $app->handle($requestProphecy->reveal());
@@ -281,9 +279,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app = new App($responseFactoryProphecy->reveal());
@@ -309,9 +306,8 @@ class AppTest extends TestCase
             Argument::type('string'),
             Argument::type('string')
         )->will(function ($args) {
-            $clone = clone $this;
-            $clone->getHeader($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getHeader($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
@@ -327,9 +323,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app = new App($responseFactoryProphecy->reveal());
@@ -367,9 +362,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
         $response = $app->handle($requestProphecy->reveal());
 
@@ -637,10 +631,10 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
+
 
         $response = $app->handle($requestProphecy->reveal());
         $middlewareProphecy->process(
@@ -854,9 +848,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app->handle($requestProphecy->reveal());
@@ -937,9 +930,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app->handle($requestProphecy->reveal());
@@ -1058,9 +1050,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app->handle($requestProphecy->reveal());
@@ -1102,9 +1093,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app->handle($requestProphecy->reveal());
@@ -1134,9 +1124,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1175,9 +1164,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1216,9 +1204,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1257,9 +1244,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1299,9 +1285,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1340,9 +1325,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1366,9 +1350,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app->handle($requestProphecy->reveal());
@@ -1408,9 +1391,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1448,9 +1430,8 @@ class AppTest extends TestCase
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())
             ->will(function ($args) {
-                $clone = clone $this;
-                $clone->getAttribute($args[0])->willReturn($args[1]);
-                return $clone;
+                $this->getAttribute($args[0])->willReturn($args[1]);
+                return $this;
             });
 
         $app->handle($requestProphecy->reveal());
@@ -1489,9 +1470,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1537,9 +1517,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1578,9 +1557,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal()->withAttribute('greeting', 'Hello'));
@@ -1620,9 +1598,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal()->withAttribute('greeting', 'Hello'));
@@ -1674,9 +1651,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $app->run($requestProphecy->reveal());
@@ -1739,9 +1715,8 @@ class AppTest extends TestCase
         $responseProphecy
             ->withBody(Argument::type(StreamInterface::class))
             ->will(function ($args) use ($streamProphecy) {
-                $clone = clone $this;
-                $clone->getBody()->willReturn($args[0]);
-                return $clone;
+                $this->getBody()->willReturn($args[0]);
+                return $this;
             });
 
         $emptyStreamProphecy = $this->prophesize(StreamInterface::class);
@@ -1771,9 +1746,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1816,9 +1790,8 @@ class AppTest extends TestCase
         $responseFactoryProphecy
             ->createResponse(Argument::type('integer'))
             ->will(function ($args) use ($responseProphecy) {
-                $clone = clone $responseProphecy;
-                $clone->getStatusCode()->willReturn($args[0]);
-                return $clone;
+                $responseProphecy->getStatusCode()->willReturn($args[0]);
+                return $responseProphecy->reveal();
             });
 
         $app = new App($responseFactoryProphecy->reveal());
@@ -1933,9 +1906,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1981,9 +1953,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -1997,9 +1968,8 @@ class AppTest extends TestCase
         $requestProphecy2->getUri()->willReturn($uriProphecy2->reveal());
         $requestProphecy2->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy2->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $streamProphecy->__toString()->willReturn('');
@@ -2037,9 +2007,8 @@ class AppTest extends TestCase
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());
@@ -2053,9 +2022,8 @@ class AppTest extends TestCase
         $requestProphecy2->getUri()->willReturn($uriProphecy2->reveal());
         $requestProphecy2->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy2->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $streamProphecy->__toString()->willReturn('');
@@ -2098,9 +2066,8 @@ class AppTest extends TestCase
         $requestProphecy->getAttribute(RouteContext::ROUTE)->willReturn($route);
         $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
-            $clone = clone $this;
-            $clone->getAttribute($args[0])->willReturn($args[1]);
-            return $clone;
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
         });
 
         $response = $app->handle($requestProphecy->reveal());

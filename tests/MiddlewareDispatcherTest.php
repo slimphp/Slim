@@ -339,34 +339,30 @@ class MiddlewareDispatcherTest extends TestCase
         $requestProphecy->withAddedHeader(Argument::type('string'), Argument::type('string'))->will(function ($args) {
             $headers = $this->reveal()->getHeader($args[0]);
 
-            $clone = clone $this;
             $headers[] = $args[1];
-            $clone->getHeader($args[0])->willReturn($headers);
-            $clone->hasHeader($args[0])->willReturn(true);
-            return $clone;
+            $this->getHeader($args[0])->willReturn($headers);
+            $this->hasHeader($args[0])->willReturn(true);
+            return $this;
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
         $responseProphecy->getHeader(Argument::type('string'))->willReturn([]);
         $responseProphecy->withHeader(Argument::type('string'), Argument::type('array'))->will(function ($args) {
-            $clone = clone $this;
-            $clone->getHeader($args[0])->willReturn($args[1]);
-            $clone->hasHeader($args[0])->willReturn(true);
-            return $clone;
+            $this->getHeader($args[0])->willReturn($args[1]);
+            $this->hasHeader($args[0])->willReturn(true);
+            return $this;
         });
         $responseProphecy->withAddedHeader(Argument::type('string'), Argument::type('string'))->will(function ($args) {
             $headers = $this->reveal()->getHeader($args[0]);
 
-            $clone = clone $this;
             $headers[] = $args[1];
-            $clone->getHeader($args[0])->willReturn($headers);
-            $clone->hasHeader($args[0])->willReturn(true);
-            return $clone;
+            $this->getHeader($args[0])->willReturn($headers);
+            $this->hasHeader($args[0])->willReturn(true);
+            return $this;
         });
         $responseProphecy->withStatus(Argument::type('int'))->will(function ($args) {
-            $clone = clone $this;
-            $clone->getStatusCode()->willReturn($args[0]);
-            return $clone;
+            $this->getStatusCode()->willReturn($args[0]);
+            return $this;
         });
 
         $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
@@ -495,20 +491,18 @@ class MiddlewareDispatcherTest extends TestCase
 
         $requestProphecy->hasHeader('X-NESTED')->willReturn(false);
         $requestProphecy->withAddedHeader('X-NESTED', '1')->will(function () {
-            $clone = clone $this;
-            $clone->hasHeader('X-NESTED')->willReturn(true);
-            return $clone;
+            $this->hasHeader('X-NESTED')->willReturn(true);
+            return $this;
         });
 
         $responseProphecy->getHeader(Argument::type('string'))->willReturn([]);
         $responseProphecy->withAddedHeader(Argument::type('string'), Argument::type('string'))->will(function ($args) {
             $headers = $this->reveal()->getHeader($args[0]);
 
-            $clone = clone $this;
             $headers[] = $args[1];
-            $clone->getHeader($args[0])->willReturn($headers);
-            $clone->hasHeader($args[0])->willReturn(true);
-            return $clone;
+            $this->getHeader($args[0])->willReturn($headers);
+            $this->hasHeader($args[0])->willReturn(true);
+            return $this;
         });
 
         /** @var RequestHandlerInterface $kernel */
