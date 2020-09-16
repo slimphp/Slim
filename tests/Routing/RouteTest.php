@@ -458,7 +458,6 @@ class RouteTest extends TestCase
         $response = $route->run($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
     /**
