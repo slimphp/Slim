@@ -749,6 +749,7 @@ class RouteTest extends TestCase
             ->shouldBeCalledOnce();
 
         $callableResolver = new CallableResolver();
+        $strategy = new InvocationStrategyTest();
 
         $deferred = 'NonExistent:toCall';
         $route = new Route(
@@ -756,7 +757,9 @@ class RouteTest extends TestCase
             '/',
             $deferred,
             $responseFactoryProphecy->reveal(),
-            $callableResolver
+            $callableResolver,
+            null,
+            $strategy
         );
         $route->setCallable('\Slim\Tests\Mocks\CallableTest:toCall'); //Then we fix it here.
 
