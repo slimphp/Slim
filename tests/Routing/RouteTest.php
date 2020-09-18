@@ -419,7 +419,7 @@ class RouteTest extends TestCase
         $responseProphecy = $this->prophesize(ResponseInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $callable = 'CallableTest:toCall';
+        $callable = 'callable';
 
         $callableResolverProphecy
             ->resolve(Argument::is($callable))
@@ -458,7 +458,6 @@ class RouteTest extends TestCase
         $response = $route->run($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
     /**
