@@ -31,6 +31,8 @@ use function simplexml_load_string;
 use function strtolower;
 use function trim;
 
+use const LIBXML_VERSION;
+
 class BodyParsingMiddleware implements MiddlewareInterface
 {
     /**
@@ -118,11 +120,11 @@ class BodyParsingMiddleware implements MiddlewareInterface
         });
 
         $xmlCallable = static function ($input) {
-            $backup = libxml_disable_entity_loader(true);
+            $backup = self::disableXmlEntityLoader(true);
             $backup_errors = libxml_use_internal_errors(true);
             $result = simplexml_load_string($input);
 
-            libxml_disable_entity_loader($backup);
+            self::disableXmlEntityLoader($backup);
             libxml_clear_errors();
             libxml_use_internal_errors($backup_errors);
 
@@ -187,5 +189,18 @@ class BodyParsingMiddleware implements MiddlewareInterface
         }
 
         return null;
+    }
+
+    protected static function disableXmlEntityLoader(bool $disable): bool
+    {
+        if (LIBXML_VERSION >= 20900) {
+            // libxml >= 2.9.0 disables entity loading by default, so it is
+            // safe to skip the real call (deprecated in PHP 8).
+            return true;
+        }
+
+        // @codeCoverageIgnoreStart
+        return libxml_disable_entity_loader($disable);
+        // @codeCoverageIgnoreEnd
     }
 }
