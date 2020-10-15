@@ -57,7 +57,11 @@ class Util
      */
     public static function stripSlashesIfMagicQuotes($rawData, $overrideStripSlashes = null)
     {
-        $strip = is_null($overrideStripSlashes) ? get_magic_quotes_gpc() : $overrideStripSlashes;
+        if (version_compare(PHP_VERSION, '7.3', '>')) {
+            $strip = true;
+        } else {
+            $strip = is_null($overrideStripSlashes) ? get_magic_quotes_gpc() : $overrideStripSlashes;
+        }
         if ($strip) {
             return self::stripSlashes($rawData);
         }
