@@ -33,7 +33,10 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new HtmlErrorRenderer();
         $output = $renderer->__invoke($exception, true);
 
-        $this->assertRegExp('/.*The application could not run because of the following error:.*/', $output);
+        $this->assertMatchesRegularExpression(
+            '/.*The application could not run because of the following error:.*/',
+            $output
+        );
         $this->assertStringContainsString('Oops..', $output);
     }
 
@@ -43,7 +46,10 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new HtmlErrorRenderer();
         $output = $renderer->__invoke($exception, false);
 
-        $this->assertRegExp('/.*A website error has occurred. Sorry for the temporary inconvenience.*/', $output);
+        $this->assertMatchesRegularExpression(
+            '/.*A website error has occurred. Sorry for the temporary inconvenience.*/',
+            $output
+        );
         $this->assertStringNotContainsString('Oops..', $output);
     }
 
@@ -57,11 +63,11 @@ class AbstractErrorRendererTest extends TestCase
         $method->setAccessible(true);
         $output = $method->invoke($renderer, $exception);
 
-        $this->assertRegExp('/.*Type:*/', $output);
-        $this->assertRegExp('/.*Code:*/', $output);
-        $this->assertRegExp('/.*Message*/', $output);
-        $this->assertRegExp('/.*File*/', $output);
-        $this->assertRegExp('/.*Line*/', $output);
+        $this->assertMatchesRegularExpression('/.*Type:*/', $output);
+        $this->assertMatchesRegularExpression('/.*Code:*/', $output);
+        $this->assertMatchesRegularExpression('/.*Message*/', $output);
+        $this->assertMatchesRegularExpression('/.*File*/', $output);
+        $this->assertMatchesRegularExpression('/.*Line*/', $output);
     }
 
     public function testHTMLErrorRendererRenderHttpException()
@@ -204,11 +210,11 @@ class AbstractErrorRendererTest extends TestCase
         $method->setAccessible(true);
         $output = $method->invoke($renderer, $exception);
 
-        $this->assertRegExp('/.*Type:*/', $output);
-        $this->assertRegExp('/.*Code:*/', $output);
-        $this->assertRegExp('/.*Message*/', $output);
-        $this->assertRegExp('/.*File*/', $output);
-        $this->assertRegExp('/.*Line*/', $output);
+        $this->assertMatchesRegularExpression('/.*Type:*/', $output);
+        $this->assertMatchesRegularExpression('/.*Code:*/', $output);
+        $this->assertMatchesRegularExpression('/.*Message*/', $output);
+        $this->assertMatchesRegularExpression('/.*File*/', $output);
+        $this->assertMatchesRegularExpression('/.*Line*/', $output);
     }
 
     public function testPlainTextErrorRendererDisplaysErrorDetails()
@@ -219,7 +225,7 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new PlainTextErrorRenderer();
         $output = $renderer->__invoke($exception, true);
 
-        $this->assertRegExp('/Ooops.../', $output);
+        $this->assertMatchesRegularExpression('/Ooops.../', $output);
     }
 
     public function testPlainTextErrorRendererNotDisplaysErrorDetails()
