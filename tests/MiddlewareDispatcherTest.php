@@ -118,6 +118,26 @@ class MiddlewareDispatcherTest extends TestCase
         $this->assertEquals(1, $handler->getCalledCount());
     }
 
+    public function testDeferredResolvedCallableWithDirectConstructorCall()
+    {
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $callableResolverProphecy
+            ->resolve(MockMiddlewareWithoutConstructor::class)
+            ->willThrow(new RuntimeException('Callable not available from resolver'))
+            ->shouldBeCalledOnce();
+
+        $handler = new MockRequestHandler();
+
+        $middlewareDispatcher = $this->createMiddlewareDispatcher($handler, null, $callableResolverProphecy->reveal());
+        $middlewareDispatcher->addDeferred(MockMiddlewareWithoutConstructor::class);
+
+        $request = $this->createServerRequest('/');
+        $middlewareDispatcher->handle($request);
+
+        $this->assertEquals(1, $handler->getCalledCount());
+    }
+
     public function deferredCallableProvider()
     {
         return [
