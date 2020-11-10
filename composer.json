@@ -65,7 +65,7 @@
         "phpstan/phpstan": "^0.12.54",
         "phpunit/phpunit": "^8.5",
         "slim/http": "^1.1",
-        "slim/psr7": "^1.1",
+        "slim/psr7": "^1.2",
         "squizlabs/php_codesniffer": "^3.5"
     },
     "autoload": {
