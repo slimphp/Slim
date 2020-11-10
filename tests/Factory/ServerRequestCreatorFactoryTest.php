@@ -90,8 +90,9 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $this->assertInstanceOf(SlimServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
     }
 
-    public function testSetServerRequestCreator()
+    public function testSetServerRequestCreatorWithoutDecorators()
     {
+        ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
         $serverRequestProphecy = $this->prophesize(ServerRequestInterface::class);
 
         $serverRequestCreatorProphecy = $this->prophesize(ServerRequestCreatorInterface::class);
@@ -105,5 +106,23 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $serverRequestCreator = ServerRequestCreatorFactory::create();
 
         $this->assertSame($serverRequestProphecy->reveal(), $serverRequestCreator->createServerRequestFromGlobals());
+    }
+
+    public function testSetServerRequestCreatorWithDecorators()
+    {
+        ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(true);
+        $serverRequestProphecy = $this->prophesize(ServerRequestInterface::class);
+
+        $serverRequestCreatorProphecy = $this->prophesize(ServerRequestCreatorInterface::class);
+        $serverRequestCreatorProphecy
+            ->createServerRequestFromGlobals()
+            ->willReturn($serverRequestProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        ServerRequestCreatorFactory::setServerRequestCreator($serverRequestCreatorProphecy->reveal());
+
+        $serverRequestCreator = ServerRequestCreatorFactory::create();
+
+        $this->assertInstanceOf(ServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
     }
 }
