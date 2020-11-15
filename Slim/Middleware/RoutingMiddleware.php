@@ -55,7 +55,6 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $request = $request->withAttribute(RouteContext::ROUTE_PARSER, $this->routeParser);
         $request = $this->performRouting($request);
         return $handler->handle($request);
     }
@@ -72,6 +71,8 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function performRouting(ServerRequestInterface $request): ServerRequestInterface
     {
+        $request = $request->withAttribute(RouteContext::ROUTE_PARSER, $this->routeParser);
+
         $routingResults = $this->resolveRoutingResultsFromRequest($request);
         $routeStatus = $routingResults->getRouteStatus();
 
