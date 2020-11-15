@@ -212,7 +212,7 @@ class ErrorHandler implements ErrorHandlerInterface
      * as willdurand/negotiation for any other situation.
      *
      * @param ServerRequestInterface $request
-     * @return string
+     * @return string|null
      */
     protected function determineContentType(ServerRequestInterface $request): ?string
     {
@@ -231,10 +231,15 @@ class ErrorHandler implements ErrorHandlerInterface
              * when multiple content types are provided via Accept header.
              */
             if ($current === 'text/plain' && $count > 1) {
-                return next($selectedContentTypes);
+                $next = next($selectedContentTypes);
+                if (is_string($next)) {
+                    return $next;
+                }
             }
 
-            return $current;
+            if (is_string($current)) {
+                return $current;
+            }
         }
 
         if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
