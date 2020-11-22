@@ -175,6 +175,10 @@ class AppFactoryTest extends TestCase
         );
     }
 
+    /**
+     * @runInSeparateProcess - AppFactory::create saves $responseFactory into static::$responseFactory,
+     *                         this breaks other tests
+     */
     public function testAppIsCreatedWithInjectedInstancesFromFunctionArguments()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
