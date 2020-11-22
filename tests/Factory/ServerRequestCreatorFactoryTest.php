@@ -93,6 +93,9 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $this->assertInstanceOf(SlimServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
     }
 
+    /**
+     * @runInSeparateProcess - ServerRequestCreatorFactory::setServerRequestCreator breaks other tests
+     */
     public function testSetServerRequestCreatorWithoutDecorators()
     {
         ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
@@ -111,6 +114,9 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $this->assertSame($serverRequestProphecy->reveal(), $serverRequestCreator->createServerRequestFromGlobals());
     }
 
+    /**
+     * @runInSeparateProcess - ServerRequestCreatorFactory::setServerRequestCreator breaks other tests
+     */
     public function testSetServerRequestCreatorWithDecorators()
     {
         ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(true);
