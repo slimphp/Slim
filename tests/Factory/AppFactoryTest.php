@@ -84,6 +84,9 @@ class AppFactoryTest extends TestCase
         $this->assertInstanceOf(DecoratedResponseFactory::class, $app->getResponseFactory());
     }
 
+    /**
+     * @runInSeparateProcess - Psr17FactoryProvider::setFactories breaks other tests
+     */
     public function testDetermineResponseFactoryThrowsRuntimeException()
     {
         $this->expectException(RuntimeException::class);
@@ -103,6 +106,9 @@ class AppFactoryTest extends TestCase
         $this->assertInstanceOf(SlimResponseFactory::class, AppFactory::determineResponseFactory());
     }
 
+    /**
+     * @runInSeparateProcess - Psr17FactoryProvider::setFactories breaks other tests
+     */
     public function testResponseFactoryIsStillReturnedIfStreamFactoryIsNotAvailable()
     {
         Psr17FactoryProvider::setFactories([MockPsr17FactoryWithoutStreamFactory::class]);

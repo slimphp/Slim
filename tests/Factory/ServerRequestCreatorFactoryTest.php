@@ -69,6 +69,9 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $this->assertInstanceOf(ServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
     }
 
+    /**
+     * @runInSeparateProcess - Psr17FactoryProvider::setFactories breaks other tests
+     */
     public function testDetermineServerRequestCreatorThrowsRuntimeException()
     {
         $this->expectException(RuntimeException::class);
