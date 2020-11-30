@@ -369,10 +369,13 @@ class Route implements RouteInterface, RequestHandlerInterface
         }
         $strategy = $this->invocationStrategy;
 
+        /** @var string[] $strategyImplements */
+        $strategyImplements = class_implements($strategy);
+
         if (
             is_array($callable)
             && $callable[0] instanceof RequestHandlerInterface
-            && !in_array(RequestHandlerInvocationStrategyInterface::class, class_implements($strategy))
+            && !in_array(RequestHandlerInvocationStrategyInterface::class, $strategyImplements)
         ) {
             $strategy = new RequestHandler();
         }
