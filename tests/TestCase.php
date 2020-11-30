@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -26,6 +27,9 @@ use Slim\Tests\Providers\PSR7ObjectProvider;
 
 abstract class TestCase extends PhpUnitTestCase
 {
+    use MigratePhpUnitDeprecations;
+    use ProphecyTrait;
+
     /**
      * @return ServerRequestFactoryInterface
      */
