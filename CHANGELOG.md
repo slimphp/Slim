@@ -1,5 +1,67 @@
 # Changelog
 
+# 4.7.0 - 2020-11-30
+
+### Fixed
+- [3027: Fix: FastRoute dispatcher and data generator should match](https://github.com/slimphp/Slim/pull/3027) thanks to @edudobay
+
+### Added
+- [3015: PHP 8 support](https://github.com/slimphp/Slim/pull/3015) thanks to @edudobay
+
+### Optimizations
+- [3024: Randomize tests](https://github.com/slimphp/Slim/pull/3024) thanks to @pawel-slowik
+
+## 4.6.0 - 2020-11-15
+
+### Fixed
+- [2942: Fix PHPdoc for error handlers in ErrorMiddleware ](https://github.com/slimphp/Slim/pull/2942) thanks to @TiMESPLiNTER
+- [2944: Remove unused function in ErrorHandler](https://github.com/slimphp/Slim/pull/2944) thanks to @l0gicgate
+- [2960: Fix phpstan 0.12 errors](https://github.com/slimphp/Slim/pull/2960) thanks to @adriansuter
+- [2982: Removing cloning statements in tests](https://github.com/slimphp/Slim/pull/2982) thanks to @l0gicgate
+- [3017: Fix request creator factory test](https://github.com/slimphp/Slim/pull/3017) thanks to @pawel-slowik
+- [3022: Ensure RouteParser Always Present After Routing](https://github.com/slimphp/Slim/pull/3022) thanks to @l0gicgate
+
+### Added
+- [2949: Add the support in composer.json](https://github.com/slimphp/Slim/pull/2949) thanks to @ddrv
+- [2958: Strict empty string content type checking in BodyParsingMiddleware::getMediaType](https://github.com/slimphp/Slim/pull/2958) thanks to @Ayesh
+- [2997: Add hints to methods](https://github.com/slimphp/Slim/pull/2997) thanks to @evgsavosin - [3000: Fix route controller test](https://github.com/slimphp/Slim/pull/3000) thanks to @pawel-slowik
+- [3001: Add missing `$strategy` parameter in a Route test](https://github.com/slimphp/Slim/pull/3001) thanks to @pawel-slowik
+
+### Optimizations
+- [2951: Minor optimizations in if() blocks](https://github.com/slimphp/Slim/pull/2951) thanks to @Ayesh
+- [2959: Micro optimization: Declare closures in BodyParsingMiddleware as static](https://github.com/slimphp/Slim/pull/2959) thanks to @Ayesh
+- [2978: Split the routing results to its own function.](https://github.com/slimphp/Slim/pull/2978) thanks to @dlundgren
+
+### Dependencies Updated
+- [2953: Update nyholm/psr7-server requirement from ^0.4.1](https://github.com/slimphp/Slim/pull/2953) thanks to @dependabot-preview[bot]
+- [2954: Update laminas/laminas-diactoros requirement from ^2.1 to ^2.3](https://github.com/slimphp/Slim/pull/2954) thanks to @dependabot-preview[bot]
+- [2955: Update guzzlehttp/psr7 requirement from ^1.5 to ^1.6](https://github.com/slimphp/Slim/pull/2955) thanks to @dependabot-preview[bot]
+- [2956: Update slim/psr7 requirement from ^1.0 to ^1.1](https://github.com/slimphp/Slim/pull/2956) thanks to @dependabot-preview[bot]
+- [2957: Update nyholm/psr7 requirement from ^1.1 to ^1.2](https://github.com/slimphp/Slim/pull/2957) thanks to @dependabot-preview[bot]
+- [2963: Update phpstan/phpstan requirement from ^0.12.23 to ^0.12.25](https://github.com/slimphp/Slim/pull/2963) thanks to @dependabot-preview[bot]
+- [2965: Update adriansuter/php-autoload-override requirement from ^1.0 to ^1.1](https://github.com/slimphp/Slim/pull/2965) thanks to @dependabot-preview[bot]
+- [2967: Update nyholm/psr7 requirement from ^1.2 to ^1.3](https://github.com/slimphp/Slim/pull/2967) thanks to @dependabot-preview[bot]
+- [2969: Update nyholm/psr7-server requirement from ^0.4.1 to ^1.0.0](https://github.com/slimphp/Slim/pull/2969) thanks to @dependabot-preview[bot]
+- [2970: Update phpstan/phpstan requirement from ^0.12.25 to ^0.12.26](https://github.com/slimphp/Slim/pull/2970) thanks to @dependabot-preview[bot]
+- [2971: Update phpstan/phpstan requirement from ^0.12.26 to ^0.12.27](https://github.com/slimphp/Slim/pull/2971) thanks to @dependabot-preview[bot]
+- [2972: Update phpstan/phpstan requirement from ^0.12.27 to ^0.12.28](https://github.com/slimphp/Slim/pull/2972) thanks to @dependabot-preview[bot]
+- [2973: Update phpstan/phpstan requirement from ^0.12.28 to ^0.12.29](https://github.com/slimphp/Slim/pull/2973) thanks to @dependabot-preview[bot]
+- [2975: Update phpstan/phpstan requirement from ^0.12.29 to ^0.12.30](https://github.com/slimphp/Slim/pull/2975) thanks to @dependabot-preview[bot]
+- [2976: Update phpstan/phpstan requirement from ^0.12.30 to ^0.12.31](https://github.com/slimphp/Slim/pull/2976) thanks to @dependabot-preview[bot]
+- [2980: Update phpstan/phpstan requirement from ^0.12.31 to ^0.12.32](https://github.com/slimphp/Slim/pull/2980) thanks to @dependabot-preview[bot]
+- [2981: Update phpspec/prophecy requirement from ^1.10 to ^1.11](https://github.com/slimphp/Slim/pull/2981) thanks to @dependabot-preview[bot]
+- [2986: Update phpstan/phpstan requirement from ^0.12.32 to ^0.12.33](https://github.com/slimphp/Slim/pull/2986) thanks to @dependabot-preview[bot]
+- [2990: Update phpstan/phpstan requirement from ^0.12.33 to ^0.12.34](https://github.com/slimphp/Slim/pull/2990) thanks to @dependabot-preview[bot]
+- [2991: Update phpstan/phpstan requirement from ^0.12.34 to ^0.12.35](https://github.com/slimphp/Slim/pull/2991) thanks to @dependabot-preview[bot]
+- [2993: Update phpstan/phpstan requirement from ^0.12.35 to ^0.12.36](https://github.com/slimphp/Slim/pull/2993) thanks to @dependabot-preview[bot]
+- [2995: Update phpstan/phpstan requirement from ^0.12.36 to ^0.12.37](https://github.com/slimphp/Slim/pull/2995) thanks to @dependabot-preview[bot]
+- [3010: Update guzzlehttp/psr7 requirement from ^1.6 to ^1.7](https://github.com/slimphp/Slim/pull/3010) thanks to @dependabot-preview[bot]
+- [3011: Update phpspec/prophecy requirement from ^1.11 to ^1.12](https://github.com/slimphp/Slim/pull/3011) thanks to @dependabot-preview[bot]
+- [3012: Update slim/http requirement from ^1.0 to ^1.1](https://github.com/slimphp/Slim/pull/3012) thanks to @dependabot-preview[bot]
+- [3013: Update slim/psr7 requirement from ^1.1 to ^1.2](https://github.com/slimphp/Slim/pull/3013) thanks to @dependabot-preview[bot]
+- [3014: Update laminas/laminas-diactoros requirement from ^2.3 to ^2.4](https://github.com/slimphp/Slim/pull/3014) thanks to @dependabot-preview[bot]
+- [3018: Update phpstan/phpstan requirement from ^0.12.37 to ^0.12.54](https://github.com/slimphp/Slim/pull/3018) thanks to @dependabot-preview[bot]
+
 ## 4.5.0 - 2020-04-14
 
 ### Added
