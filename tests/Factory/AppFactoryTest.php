@@ -333,4 +333,37 @@ class AppFactoryTest extends TestCase
         $this->assertSame($app->getRouteResolver(), $routeResolverProphecy->reveal());
         $this->assertSame($app->getMiddlewareDispatcher(), $middlewareDispatcherProphecy->reveal());
     }
+
+    public function testCreateAppWithEmptyContainer()
+    {
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+
+        $containerProphecy
+            ->has(ResponseFactoryInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(CallableResolverInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(RouteCollectorInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(RouteResolverInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        $containerProphecy
+            ->has(MiddlewareDispatcherInterface::class)
+            ->willReturn(false)
+            ->shouldBeCalledOnce();
+
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+        AppFactory::createFromContainer($containerProphecy->reveal());
+    }
 }
