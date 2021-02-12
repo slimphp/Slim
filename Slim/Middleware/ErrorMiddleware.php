@@ -180,7 +180,7 @@ class ErrorMiddleware implements MiddlewareInterface
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Throwable
-     * 3. Boolean displayErrorDetails
+     * 3. Boolean $displayErrorDetails
      * 4. Boolean $logErrors
      * 5. Boolean $logErrorDetails
      *
@@ -209,7 +209,7 @@ class ErrorMiddleware implements MiddlewareInterface
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Throwable
-     * 3. Boolean displayErrorDetails
+     * 3. Boolean $displayErrorDetails
      * 4. Boolean $logErrors
      * 5. Boolean $logErrorDetails
      *
