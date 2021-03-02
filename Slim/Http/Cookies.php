@@ -135,7 +135,10 @@ class Cookies implements CookiesInterface
             $result .= '; HttpOnly';
         }
 
-        if (isset($properties['samesite']) && in_array(strtolower($properties['samesite']), ['lax', 'strict', 'none'], true)) {
+        if (
+            isset($properties['samesite']) 
+            && in_array(strtolower($properties['samesite']), ['lax', 'strict', 'none'], true)
+        ) {
             // While strtolower is needed for correct comparison, the RFC doesn't care about case
             $result .= '; SameSite=' . $properties['samesite'];
         }
