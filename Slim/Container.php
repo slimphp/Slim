@@ -100,7 +100,7 @@ class Container extends PimpleContainer implements ContainerInterface
      * @throws ContainerValueNotFoundException  No entry was found for this identifier.
      * @throws ContainerExceptionInterface      Error while retrieving the entry.
      */
-    public function get($id)
+    public function get(string $id)
     {
         if (!$this->offsetExists($id)) {
             throw new ContainerValueNotFoundException(sprintf('Identifier "%s" is not defined.', $id));
@@ -143,7 +143,7 @@ class Container extends PimpleContainer implements ContainerInterface
      *
      * @return boolean
      */
-    public function has($id)
+    public function has(string $id)
     {
         return $this->offsetExists($id);
     }
