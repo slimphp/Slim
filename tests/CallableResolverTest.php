@@ -61,6 +61,21 @@ class CallableResolverTest extends TestCase
         $this->assertEquals(true, $callableMiddleware());
     }
 
+    public function testStaticClosure()
+    {
+        $test = static function () {
+            return true;
+        };
+        $resolver = new CallableResolver(); // No container injected
+        $callable = $resolver->resolve($test);
+        $callableRoute = $resolver->resolveRoute($test);
+        $callableMiddleware = $resolver->resolveMiddleware($test);
+
+        $this->assertEquals(true, $callable());
+        $this->assertEquals(true, $callableRoute());
+        $this->assertEquals(true, $callableMiddleware());
+    }
+
     public function testClosureContainer()
     {
         $this->containerProphecy->has('ultimateAnswer')->willReturn(true);
@@ -72,6 +87,55 @@ class CallableResolverTest extends TestCase
 
             /** @var ContainerInterface $this */
             return $this->get('ultimateAnswer');
+        };
+
+        /** @var ContainerInterface $container */
+        $container = $this->containerProphecy->reveal();
+        $resolver = new CallableResolver($container);
+        $callable = $resolver->resolve($test);
+        $callableRoute = $resolver->resolveRoute($test);
+        $callableMiddleware = $resolver->resolveMiddleware($test);
+
+        $this->assertEquals(42, $callable());
+        $this->assertEquals(42, $callableRoute());
+        $this->assertEquals(42, $callableMiddleware());
+    }
+
+    public function testClosureInNonObjectScopeContainer()
+    {
+        $this->containerProphecy->has('ultimateAnswer')->willReturn(true);
+        $this->containerProphecy->get('ultimateAnswer')->willReturn(42);
+
+        $that = $this;
+        $nonObjectScopeFactory = static function () use ($that) {
+            return function () use ($that) {
+                $that->assertInstanceOf(ContainerInterface::class, $this);
+
+                /** @var ContainerInterface $this */
+                return $this->get('ultimateAnswer');
+            };
+        };
+
+        $test = $nonObjectScopeFactory();
+
+        /** @var ContainerInterface $container */
+        $container = $this->containerProphecy->reveal();
+        $resolver = new CallableResolver($container);
+        $callable = $resolver->resolve($test);
+        $callableRoute = $resolver->resolveRoute($test);
+        $callableMiddleware = $resolver->resolveMiddleware($test);
+
+        $this->assertEquals(42, $callable());
+        $this->assertEquals(42, $callableRoute());
+        $this->assertEquals(42, $callableMiddleware());
+    }
+
+    public function testStaticClosureContainer()
+    {
+        $this->markTestIncomplete('Waiting for fixing error with PHP Warning');
+
+        $test = static function () {
+            return 42;
         };
 
         /** @var ContainerInterface $container */
