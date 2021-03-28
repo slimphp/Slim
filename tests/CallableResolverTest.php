@@ -132,8 +132,6 @@ class CallableResolverTest extends TestCase
 
     public function testStaticClosureContainer()
     {
-        $this->markTestIncomplete('Waiting for fixing error with PHP Warning');
-
         $test = static function () {
             return 42;
         };
