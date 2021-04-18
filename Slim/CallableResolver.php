@@ -199,9 +199,9 @@ final class CallableResolver implements AdvancedCallableResolverInterface
         if (!is_array($toResolve)) {
             return $toResolve;
         }
-        $array = $toResolve;
-        $class = array_shift($array);
-        $method = array_shift($array);
+        $candidate = $toResolve;
+        $class = array_shift($candidate);
+        $method = array_shift($candidate);
         if (is_string($class) && is_string($method)) {
             return $class . ':' . $method;
         }
