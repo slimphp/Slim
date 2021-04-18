@@ -146,6 +146,9 @@ final class CallableResolver implements AdvancedCallableResolverInterface
             $instance = $this->container->get($class);
         } else {
             if (!class_exists($class)) {
+                if ($method) {
+                    $class .= '::' . $method . '()';
+                }
                 throw new RuntimeException(sprintf('Callable %s does not exist', $class));
             }
             $instance = new $class($this->container);

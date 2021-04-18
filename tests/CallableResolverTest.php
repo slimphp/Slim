@@ -475,7 +475,7 @@ class CallableResolverTest extends TestCase
     public function testClassNotFoundThrowException()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Callable Unknown does not exist');
+        $this->expectExceptionMessage('Callable Unknown::notFound() does not exist');
 
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
@@ -486,7 +486,7 @@ class CallableResolverTest extends TestCase
     public function testRouteClassNotFoundThrowException()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Callable Unknown does not exist');
+        $this->expectExceptionMessage('Callable Unknown::notFound() does not exist');
 
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
@@ -497,7 +497,7 @@ class CallableResolverTest extends TestCase
     public function testMiddlewareClassNotFoundThrowException()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Callable Unknown does not exist');
+        $this->expectExceptionMessage('Callable Unknown::notFound() does not exist');
 
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
@@ -508,7 +508,7 @@ class CallableResolverTest extends TestCase
     public function testCallableClassNotFoundThrowException()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Callable Unknown does not exist');
+        $this->expectExceptionMessage('Callable Unknown::notFound() does not exist');
 
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
@@ -519,7 +519,7 @@ class CallableResolverTest extends TestCase
     public function testRouteCallableClassNotFoundThrowException()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Callable Unknown does not exist');
+        $this->expectExceptionMessage('Callable Unknown::notFound() does not exist');
 
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
@@ -530,7 +530,7 @@ class CallableResolverTest extends TestCase
     public function testMiddlewareCallableClassNotFoundThrowException()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Callable Unknown does not exist');
+        $this->expectExceptionMessage('Callable Unknown::notFound() does not exist');
 
         /** @var ContainerInterface $container */
         $container = $this->containerProphecy->reveal();
