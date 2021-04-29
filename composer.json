@@ -46,7 +46,7 @@
         "php": "^7.2 || ^8.0",
         "ext-json": "*",
         "nikic/fast-route": "^1.3",
-        "psr/container": "^1.0 || ^2.0",
+        "psr/container": "^2.0.1",
         "psr/http-factory": "^1.0",
         "psr/http-message": "^1.0",
         "psr/http-server-handler": "^1.0",
