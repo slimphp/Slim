@@ -63,7 +63,7 @@
         "nyholm/psr7-server": "^1.0",
         "phpspec/prophecy": "^1.13",
         "phpstan/phpstan": "^0.12.94",
-        "phpunit/phpunit": "^8.5 || ^9.5",
+        "phpunit/phpunit": "^9.5.8",
         "slim/http": "^1.2",
         "slim/psr7": "^1.4",
         "squizlabs/php_codesniffer": "^3.6",
