@@ -57,7 +57,7 @@
         "ext-simplexml": "*",
         "adriansuter/php-autoload-override": "^1.2",
         "guzzlehttp/psr7": "^2.0",
-        "http-interop/http-factory-guzzle": "^1.1",
+        "http-interop/http-factory-guzzle": "^1.2",
         "laminas/laminas-diactoros": "^2.4",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
