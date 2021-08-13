@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Factory;
 
-use Http\Factory\Guzzle\ResponseFactory as GuzzleResponseFactory;
+use GuzzleHttp\Psr7\HttpFactory;
 use Laminas\Diactoros\ResponseFactory as LaminasDiactorosResponseFactory;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
@@ -46,7 +46,7 @@ class AppFactoryTest extends TestCase
         return [
             [SlimPsr17Factory::class, SlimResponseFactory::class],
             [NyholmPsr17Factory::class, Psr17Factory::class],
-            [GuzzlePsr17Factory::class, GuzzleResponseFactory::class],
+            [GuzzlePsr17Factory::class, HttpFactory::class],
             [LaminasDiactorosPsr17Factory::class, LaminasDiactorosResponseFactory::class],
             [ZendDiactorosPsr17Factory::class, ZendDiactorosResponseFactory::class],
         ];
