@@ -12,17 +12,17 @@ Slim is a PHP micro-framework that helps you quickly write simple yet powerful w
 It's recommended that you use [Composer](https://getcomposer.org/) to install Slim.
 
 ```bash
-$ composer require slim/slim:^4.0
+$ composer require slim/slim
 ```
 
-This will install Slim and all required dependencies. Slim requires PHP 7.2 or newer.
+This will install Slim and all required dependencies. Slim requires PHP 7.3 or newer.
 
 ## Choose a PSR-7 Implementation & ServerRequest Creator
 
 Before you can get up and running with Slim you will need to choose a PSR-7 implementation that best fits your application. A few notable ones:
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - This is the Slim Framework PSR-7 implementation
 - [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - This is the fastest, strictest and most lightweight implementation available
-- [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - This is the implementation used by the Guzzle Client, featuring extra functionality for stream and file handling
+- [Guzzle/psr7](https://github.com/guzzle/psr7) - This is the implementation used by the Guzzle Client, featuring extra functionality for stream and file handling
 - [laminas-diactoros](https://github.com/laminas/laminas-diactoros) - This is the Laminas (Zend) PSR-7 implementation
 
 
@@ -54,7 +54,7 @@ $app = AppFactory::create();
 In order for auto-detection to work and enable you to use `AppFactory::create()` and `App::run()` without having to manually create a `ServerRequest` you need to install one of the following implementations:
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - Install using `composer require slim/psr7`
 - [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - Install using `composer require nyholm/psr7 nyholm/psr7-server`
-- [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - Install using `composer require guzzlehttp/psr7 http-interop/http-factory-guzzle`
+- [Guzzle/psr7](https://github.com/guzzle/psr7) - Install using `composer require guzzlehttp/psr7`
 - [laminas-diactoros](https://github.com/laminas/laminas-diactoros) - Install using `composer require laminas/laminas-diactoros`
 
 Then create file _public/index.php_.
