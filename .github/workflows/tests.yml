@@ -1,0 +1,51 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+    tests:
+        name: Tests PHP ${{ matrix.php }}
+        runs-on: ubuntu-latest
+        continue-on-error: ${{ matrix.experimental }}
+        strategy:
+            fail-fast: false
+            matrix:
+                php: [7.3, 7.4, 8.0]
+                experimental: [false]
+                include:
+                    - php: 8.0
+                      analysis: true
+                    - php: 8.1
+                      experimental: true
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Set up PHP ${{ matrix.php }}
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: xdebug
+
+            - name: Install dependencies with Composer
+              uses: ramsey/composer-install@v1
+
+            - name: Coding standards
+              if: matrix.analysis
+              run: vendor/bin/phpcs
+
+            - name: Static analysis
+              if: matrix.analysis
+              run: vendor/bin/phpstan
+
+            - name: Tests
+              run: vendor/bin/phpunit --coverage-clover clover.xml
+
+            - name: Upload coverage results to Coveralls
+              if: matrix.analysis
+              env:
+                  COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  composer require php-coveralls/php-coveralls -n -W
+                  vendor/bin/php-coveralls --coverage_clover=clover.xml -v
