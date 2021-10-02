@@ -51,6 +51,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     public function resolve($toResolve): callable
     {
+        $toResolve = $this->prepareToResolve($toResolve);
         if (is_callable($toResolve)) {
             return $this->bindToContainer($toResolve);
         }
@@ -90,6 +91,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      */
     private function resolveByPredicate($toResolve, callable $predicate, string $defaultMethod): callable
     {
+        $toResolve = $this->prepareToResolve($toResolve);
         if (is_callable($toResolve)) {
             return $this->bindToContainer($toResolve);
         }
@@ -144,6 +146,9 @@ final class CallableResolver implements AdvancedCallableResolverInterface
             $instance = $this->container->get($class);
         } else {
             if (!class_exists($class)) {
+                if ($method) {
+                    $class .= '::' . $method . '()';
+                }
                 throw new RuntimeException(sprintf('Callable %s does not exist', $class));
             }
             $instance = new $class($this->container);
@@ -186,5 +191,23 @@ final class CallableResolver implements AdvancedCallableResolverInterface
             $callable = $callable->bindTo($this->container);
         }
         return $callable;
+    }
+
+    /**
+     * @param string|callable $toResolve
+     * @return string|callable
+     */
+    private function prepareToResolve($toResolve)
+    {
+        if (!is_array($toResolve)) {
+            return $toResolve;
+        }
+        $candidate = $toResolve;
+        $class = array_shift($candidate);
+        $method = array_shift($candidate);
+        if (is_string($class) && is_string($method)) {
+            return $class . ':' . $method;
+        }
+        return $toResolve;
     }
 }

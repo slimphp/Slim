@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Factory;
 
-use Http\Factory\Guzzle\ResponseFactory as GuzzleResponseFactory;
+use GuzzleHttp\Psr7\HttpFactory;
 use Laminas\Diactoros\ResponseFactory as LaminasDiactorosResponseFactory;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
@@ -25,7 +25,6 @@ use Slim\Factory\Psr17\LaminasDiactorosPsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimPsr17Factory;
-use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
 use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Http\Response as DecoratedResponse;
 use Slim\Interfaces\CallableResolverInterface;
@@ -37,7 +36,6 @@ use Slim\Psr7\Factory\ResponseFactory as SlimResponseFactory;
 use Slim\Routing\RouteCollector;
 use Slim\Tests\Mocks\MockPsr17FactoryWithoutStreamFactory;
 use Slim\Tests\TestCase;
-use Zend\Diactoros\ResponseFactory as ZendDiactorosResponseFactory;
 
 class AppFactoryTest extends TestCase
 {
@@ -46,9 +44,8 @@ class AppFactoryTest extends TestCase
         return [
             [SlimPsr17Factory::class, SlimResponseFactory::class],
             [NyholmPsr17Factory::class, Psr17Factory::class],
-            [GuzzlePsr17Factory::class, GuzzleResponseFactory::class],
+            [GuzzlePsr17Factory::class, HttpFactory::class],
             [LaminasDiactorosPsr17Factory::class, LaminasDiactorosResponseFactory::class],
-            [ZendDiactorosPsr17Factory::class, ZendDiactorosResponseFactory::class],
         ];
     }
 

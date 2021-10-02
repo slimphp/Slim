@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.2, 7.3, 7.4, 8.0]
+        php: [7.3, 7.4, 8.0]
         experimental: [false]
         include:
           - php: 8.0
@@ -37,7 +37,7 @@ jobs:
 
       - name: Static analysis
         if: matrix.analysis
-        run: vendor/bin/phpstan analyse Slim
+        run: vendor/bin/phpstan
 
       - name: Tests
         run: vendor/bin/phpunit --coverage-clover clover.xml
@@ -47,5 +47,5 @@ jobs:
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          composer require php-coveralls/php-coveralls -n
+          composer require php-coveralls/php-coveralls -n -W
           vendor/bin/php-coveralls --coverage_clover=clover.xml -v

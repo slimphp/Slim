@@ -1,3 +1,4 @@
 parameters:
-  level: max
-  inferPrivatePropertyTypeFromConstructor: true
+    level: max
+    paths:
+        - Slim
