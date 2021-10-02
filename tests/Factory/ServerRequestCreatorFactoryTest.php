@@ -21,13 +21,11 @@ use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
 use Slim\Factory\Psr17\SlimPsr17Factory;
-use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Http\ServerRequest;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Psr7\Request as SlimServerRequest;
 use Slim\Tests\TestCase;
-use Zend\Diactoros\ServerRequest as ZendDiactorosServerRequest;
 
 class ServerRequestCreatorFactoryTest extends TestCase
 {
@@ -38,7 +36,6 @@ class ServerRequestCreatorFactoryTest extends TestCase
             [NyholmPsr17Factory::class, NyholmServerRequest::class],
             [GuzzlePsr17Factory::class, GuzzleServerRequest::class],
             [LaminasDiactorosPsr17Factory::class, LaminasDiactorosServerRequest::class],
-            [ZendDiactorosPsr17Factory::class, ZendDiactorosServerRequest::class],
         ];
     }
 
