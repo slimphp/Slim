@@ -12,6 +12,7 @@ namespace Slim\Tests\Factory;
 
 use GuzzleHttp\Psr7\HttpFactory;
 use Laminas\Diactoros\ResponseFactory as LaminasDiactorosResponseFactory;
+use HttpSoft\Message\ResponseFactory as HttpSoftResponseFactory;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -21,6 +22,7 @@ use ReflectionProperty;
 use RuntimeException;
 use Slim\Factory\AppFactory;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
+use Slim\Factory\Psr17\HttpSoftPsr17Factory;
 use Slim\Factory\Psr17\LaminasDiactorosPsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
@@ -43,6 +45,7 @@ class AppFactoryTest extends TestCase
     {
         return [
             [SlimPsr17Factory::class, SlimResponseFactory::class],
+            [HttpSoftPsr17Factory::class, HttpSoftResponseFactory::class],
             [NyholmPsr17Factory::class, Psr17Factory::class],
             [GuzzlePsr17Factory::class, HttpFactory::class],
             [LaminasDiactorosPsr17Factory::class, LaminasDiactorosResponseFactory::class],
