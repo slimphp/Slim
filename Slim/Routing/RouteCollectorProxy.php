@@ -206,4 +206,12 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
 
         return $this->get($from, $handler);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fallback($callable): RouteInterface
+    {
+        return $this->map(['*'], '/{routes:.+}', $callable);
+    }
 }

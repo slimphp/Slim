@@ -455,4 +455,37 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProxy->group($pattern, $callable);
     }
+
+    public function testFallback()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $pattern = '/{routes:.+}';
+        $callable = function () {
+        };
+
+        $routeProphecy = $this->prophesize(RouteInterface::class);
+        $routeProphecy
+            ->getPattern()
+            ->willReturn($pattern)
+            ->shouldBeCalledOnce();
+
+        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeCollectorProphecy
+            ->map(['*'], $pattern, Argument::is($callable))
+            ->willReturn($routeProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $routeCollectorProxy = new RouteCollectorProxy(
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal(),
+            null,
+            $routeCollectorProphecy->reveal()
+        );
+
+        $route = $routeCollectorProxy->fallback($callable);
+
+        $this->assertEquals($pattern, $route->getPattern());
+    }
 }

@@ -157,4 +157,13 @@ interface RouteCollectorProxyInterface
      * @return RouteInterface
      */
     public function redirect(string $from, $to, int $status = 302): RouteInterface;
+
+    /**
+     * Add a route that will be executed when no other route matches the incoming request
+     *
+     * @param  callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function fallback($callable): RouteInterface;
 }
