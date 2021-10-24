@@ -112,7 +112,7 @@ class ResponseEmitterTest extends TestCase
         $body = $this
             ->getMockBuilder(MockStream::class)
             ->setConstructorArgs([$stream])
-            ->setMethods(['getSize'])
+            ->onlyMethods(['getSize'])
             ->getMock();
         $body->method('getSize')->willReturn(null);
 
