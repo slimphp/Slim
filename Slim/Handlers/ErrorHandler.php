@@ -359,7 +359,10 @@ class ErrorHandler implements ErrorHandlerInterface
 
         $renderer = $this->determineRenderer();
         $body = call_user_func($renderer, $this->exception, $this->displayErrorDetails);
-        $response->getBody()->write($body);
+        if ($body !== false) {
+            /** @var string $body */
+            $response->getBody()->write($body);
+        }
 
         return $response;
     }

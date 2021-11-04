@@ -50,6 +50,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
 
         $code = $exception->getCode();
         if ($code !== null) {
+            /** @var int|string $code */
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
 
