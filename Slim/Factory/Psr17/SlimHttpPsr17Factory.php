@@ -22,6 +22,8 @@ class SlimHttpPsr17Factory extends Psr17Factory
      * @param ResponseFactoryInterface $responseFactory
      * @param StreamFactoryInterface   $streamFactory
      * @return ResponseFactoryInterface
+     *
+     * @throws RuntimeException when the factory could not be instantiated
      */
     public static function createDecoratedResponseFactory(
         ResponseFactoryInterface $responseFactory,
