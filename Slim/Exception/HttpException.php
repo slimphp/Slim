@@ -14,6 +14,9 @@ use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
+/**
+ * @method int getCode()
+ */
 class HttpException extends Exception
 {
     /**

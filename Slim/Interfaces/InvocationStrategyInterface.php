@@ -24,7 +24,7 @@ interface InvocationStrategyInterface
      * @param callable               $callable       The callable to invoke using the strategy.
      * @param ServerRequestInterface $request        The request object.
      * @param ResponseInterface      $response       The response object.
-     * @param array<mixed>           $routeArguments The route's placeholder arguments
+     * @param array<string, string>  $routeArguments The route's placeholder arguments
      *
      * @return ResponseInterface The response from the callable.
      */

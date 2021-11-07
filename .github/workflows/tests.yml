@@ -10,13 +10,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.3, 7.4, 8.0]
+        php: [7.3, 7.4, 8.0, 8.1]
         experimental: [false]
         include:
-          - php: 8.0
-            analysis: true
           - php: 8.1
-            experimental: true
+            analysis: true
 
     steps:
       - name: Checkout

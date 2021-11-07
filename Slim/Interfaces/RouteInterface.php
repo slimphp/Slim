@@ -104,7 +104,7 @@ interface RouteInterface
     /**
      * Get route arguments
      *
-     * @return string[]
+     * @return array<string, string>
      */
     public function getArguments(): array;
 
@@ -121,7 +121,7 @@ interface RouteInterface
     /**
      * Replace route arguments
      *
-     * @param string[] $arguments
+     * @param array<string, string> $arguments
      *
      * @return self
      */
@@ -142,7 +142,7 @@ interface RouteInterface
     /**
      * Prepare the route for use
      *
-     * @param string[] $arguments
+     * @param array<string, string> $arguments
      * @return RouteInterface
      */
     public function prepare(array $arguments): RouteInterface;
