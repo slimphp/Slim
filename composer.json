@@ -56,7 +56,7 @@
     "require-dev": {
         "ext-simplexml": "*",
         "adriansuter/php-autoload-override": "^1.2",
-        "guzzlehttp/psr7": "^2.0",
+        "guzzlehttp/psr7": "^2.1",
         "httpsoft/http-message": "^1.0",
         "httpsoft/http-server-request": "^1.0",
         "laminas/laminas-diactoros": "^2.8",
@@ -64,7 +64,7 @@
         "nyholm/psr7-server": "^1.0",
         "phpspec/prophecy": "^1.14",
         "phpspec/prophecy-phpunit": "^2.0",
-        "phpstan/phpstan": "^0.12.99",
+        "phpstan/phpstan": "^1.0",
         "phpunit/phpunit": "^9.5",
         "slim/http": "^1.2",
         "slim/psr7": "^1.5",

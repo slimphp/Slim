@@ -17,6 +17,7 @@ use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
 use Slim\Http\ServerRequest;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Tests\TestCase;
+use stdClass;
 
 class SlimHttpServerRequestCreatorTest extends TestCase
 {
@@ -69,6 +70,33 @@ class SlimHttpServerRequestCreatorTest extends TestCase
         );
         $serverRequestDecoratorClassProperty->setAccessible(true);
         $serverRequestDecoratorClassProperty->setValue($slimHttpServerRequestCreator, '');
+
+        $slimHttpServerRequestCreator->createServerRequestFromGlobals();
+    }
+
+    public function testCreateServerRequestFromGlobalsThrowsRuntimeExceptionIfNotInstanceOfServerRequestInterface()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Slim\\Factory\\Psr17\\SlimHttpServerRequestCreator could not instantiate a decorated server request.'
+        );
+
+        $serverRequestProphecy = $this->prophesize(ServerRequestInterface::class);
+
+        $serverRequestCreatorProphecy = $this->prophesize(ServerRequestCreatorInterface::class);
+        $serverRequestCreatorProphecy
+            ->createServerRequestFromGlobals()
+            ->willReturn($serverRequestProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $slimHttpServerRequestCreator = new SlimHttpServerRequestCreator($serverRequestCreatorProphecy->reveal());
+
+        $serverRequestDecoratorClassProperty = new ReflectionProperty(
+            SlimHttpServerRequestCreator::class,
+            'serverRequestDecoratorClass'
+        );
+        $serverRequestDecoratorClassProperty->setAccessible(true);
+        $serverRequestDecoratorClassProperty->setValue(stdClass::class);
 
         $slimHttpServerRequestCreator->createServerRequestFromGlobals();
     }

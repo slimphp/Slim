@@ -26,6 +26,7 @@ use Slim\Factory\Psr17\HttpSoftPsr17Factory;
 use Slim\Factory\Psr17\LaminasDiactorosPsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
+use Slim\Factory\Psr17\SlimHttpPsr17Factory;
 use Slim\Factory\Psr17\SlimPsr17Factory;
 use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Http\Response as DecoratedResponse;
@@ -38,9 +39,20 @@ use Slim\Psr7\Factory\ResponseFactory as SlimResponseFactory;
 use Slim\Routing\RouteCollector;
 use Slim\Tests\Mocks\MockPsr17FactoryWithoutStreamFactory;
 use Slim\Tests\TestCase;
+use stdClass;
 
 class AppFactoryTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        $responseFactoryDecoratorClassProperty = new ReflectionProperty(
+            SlimHttpPsr17Factory::class,
+            'responseFactoryClass'
+        );
+        $responseFactoryDecoratorClassProperty->setAccessible(true);
+        $responseFactoryDecoratorClassProperty->setValue(DecoratedResponseFactory::class);
+    }
+
     public function provideImplementations()
     {
         return [
@@ -82,6 +94,26 @@ class AppFactoryTest extends TestCase
         $app = AppFactory::create();
 
         $this->assertInstanceOf(DecoratedResponseFactory::class, $app->getResponseFactory());
+    }
+
+    public function testDetermineResponseFactoryThrowsRuntimeExceptionIfDecoratedNotInstanceOfResponseInterface()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Slim\\Factory\\Psr17\\SlimHttpPsr17Factory could not instantiate a decorated response factory.'
+        );
+
+        $responseFactoryDecoratorClassProperty = new ReflectionProperty(
+            SlimHttpPsr17Factory::class,
+            'responseFactoryClass'
+        );
+        $responseFactoryDecoratorClassProperty->setAccessible(true);
+        $responseFactoryDecoratorClassProperty->setValue(stdClass::class);
+
+        Psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(true);
+
+        AppFactory::create();
     }
 
     /**
