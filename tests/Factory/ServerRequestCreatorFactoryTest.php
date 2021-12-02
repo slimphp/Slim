@@ -13,9 +13,11 @@ namespace Slim\Tests\Factory;
 use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
 use Laminas\Diactoros\ServerRequest as LaminasDiactorosServerRequest;
 use Nyholm\Psr7\ServerRequest as NyholmServerRequest;
+use HttpSoft\Message\ServerRequest as HttpSoftServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
+use Slim\Factory\Psr17\HttpSoftPsr17Factory;
 use Slim\Factory\Psr17\LaminasDiactorosPsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
@@ -33,6 +35,7 @@ class ServerRequestCreatorFactoryTest extends TestCase
     {
         return [
             [SlimPsr17Factory::class, SlimServerRequest::class],
+            [HttpSoftPsr17Factory::class, HttpSoftServerRequest::class],
             [NyholmPsr17Factory::class, NyholmServerRequest::class],
             [GuzzlePsr17Factory::class, GuzzleServerRequest::class],
             [LaminasDiactorosPsr17Factory::class, LaminasDiactorosServerRequest::class],
