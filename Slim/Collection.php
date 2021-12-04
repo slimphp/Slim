@@ -109,7 +109,8 @@ class Collection implements CollectionInterface
      *
      * @return bool
      */
-    public function offsetExists($key)
+    #[\ReturnTypeWillChange]
+    public function offsetExists($key): bool
     {
         return $this->has($key);
     }
@@ -132,6 +133,7 @@ class Collection implements CollectionInterface
      * @param string $key   The data key
      * @param mixed  $value The data value
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         $this->set($key, $value);
@@ -142,6 +144,7 @@ class Collection implements CollectionInterface
      *
      * @param string $key The data key
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($key)
     {
         $this->remove($key);
@@ -152,6 +155,7 @@ class Collection implements CollectionInterface
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->data);
@@ -162,6 +166,7 @@ class Collection implements CollectionInterface
      *
      * @return ArrayIterator
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->data);
