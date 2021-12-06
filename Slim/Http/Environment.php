@@ -51,6 +51,6 @@ class Environment extends Collection implements EnvironmentInterface
             'REQUEST_TIME_FLOAT'   => microtime(true),
         ], $settings);
 
-        return new static($data);
+        return new self($data);
     }
 }

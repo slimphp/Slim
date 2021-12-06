@@ -57,7 +57,7 @@ class Headers extends Collection implements HeadersInterface
             }
         }
 
-        return new static($data);
+        return new self($data);
     }
 
     /**

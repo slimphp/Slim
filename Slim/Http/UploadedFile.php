@@ -120,7 +120,7 @@ class UploadedFile implements UploadedFileInterface
 
             $parsed[$field] = [];
             if (!is_array($uploadedFile['error'])) {
-                $parsed[$field] = new static(
+                $parsed[$field] = new self(
                     $uploadedFile['tmp_name'],
                     isset($uploadedFile['name']) ? $uploadedFile['name'] : null,
                     isset($uploadedFile['type']) ? $uploadedFile['type'] : null,

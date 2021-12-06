@@ -141,7 +141,7 @@ class Request extends Message implements ServerRequestInterface
         $body = new RequestBody();
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
-        $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+        $request = new self($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
         if ($method === 'POST' &&
             in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])

@@ -148,7 +148,7 @@ class Uri implements UriInterface
         $query = isset($parts['query']) ? $parts['query'] : '';
         $fragment = isset($parts['fragment']) ? $parts['fragment'] : '';
 
-        return new static($scheme, $host, $port, $path, $query, $fragment, $user, $pass);
+        return new self($scheme, $host, $port, $path, $query, $fragment, $user, $pass);
     }
 
     /**
@@ -225,7 +225,7 @@ class Uri implements UriInterface
         $fragment = '';
 
         // Build Uri
-        $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
+        $uri = new self($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
         if ($basePath) {
             $uri = $uri->withBasePath($basePath);
         }
