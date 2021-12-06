@@ -1,2 +1,4 @@
 parameters:
     level: 1
+    paths:
+        - Slim
