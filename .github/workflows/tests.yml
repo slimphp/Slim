@@ -40,10 +40,12 @@ jobs:
               run: vendor/bin/phpstan
 
             - name: Tests
+              id: tests
+              if: matrix.php < 8 || !('3.x' == github.event.pull_request.base.ref || 'refs/heads/3.x' == github.ref)
               run: vendor/bin/phpunit --coverage-clover clover.xml
 
             - name: Upload coverage results to Coveralls
-              if: matrix.analysis
+              if: matrix.analysis && steps.tests.outcome == 'success'
               env:
                   COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
