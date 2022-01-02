@@ -19,9 +19,9 @@ interface RouteParserInterface
     /**
      * Build the path for a named route excluding the base path
      *
-     * @param string   $routeName   Route name
-     * @param string[] $data        Named argument replacement data
-     * @param string[] $queryParams Optional query string parameters
+     * @param string                $routeName   Route name
+     * @param array<string, string> $data        Named argument replacement data
+     * @param array<string, string> $queryParams Optional query string parameters
      *
      * @return string
      *
@@ -33,9 +33,9 @@ interface RouteParserInterface
     /**
      * Build the path for a named route including the base path
      *
-     * @param string   $routeName   Route name
-     * @param string[] $data        Named argument replacement data
-     * @param string[] $queryParams Optional query string parameters
+     * @param string                $routeName   Route name
+     * @param array<string, string> $data        Named argument replacement data
+     * @param array<string, string> $queryParams Optional query string parameters
      *
      * @return string
      *
@@ -47,10 +47,10 @@ interface RouteParserInterface
     /**
      * Get fully qualified URL for named route
      *
-     * @param UriInterface $uri
-     * @param string       $routeName   Route name
-     * @param string[]     $data        Named argument replacement data
-     * @param string[]     $queryParams Optional query string parameters
+     * @param UriInterface              $uri
+     * @param string                    $routeName   Route name
+     * @param array<string, string>     $data        Named argument replacement data
+     * @param array<string, string>     $queryParams Optional query string parameters
      *
      * @return string
      */
