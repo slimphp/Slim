@@ -16,7 +16,6 @@ use Slim\Tests\TestCase;
 
 class ContentLengthMiddlewareTest extends TestCase
 {
-
     public function testAddsContentLength()
     {
         $request = $this->createServerRequest('/');
