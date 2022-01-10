@@ -48,8 +48,12 @@ class ResponseEmitter
     {
         $isEmpty = $this->isResponseEmpty($response);
         if (headers_sent() === false) {
-            $this->emitStatusLine($response);
             $this->emitHeaders($response);
+
+            // Set the status _after_ the headers, because of PHP's "helpful" behavior with location headers.
+            // See https://github.com/slimphp/Slim/issues/1730
+
+            $this->emitStatusLine($response);
         }
 
         if (!$isEmpty) {
