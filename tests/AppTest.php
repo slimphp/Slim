@@ -28,6 +28,7 @@ use Slim\CallableResolver;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\Handlers\Strategies\RequestResponseNamedArgs;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\MiddlewareDispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
@@ -1214,7 +1215,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithMatchingRouteWithNamedParameter()
+    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseStrategy()
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1276,6 +1277,54 @@ class AppTest extends TestCase
             $response->getBody()->write("Hello {$name}");
             return $response;
         });
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello World', (string) $response->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseNamedArgsStrategy()
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Named arguments are not supported in PHP versions prior to 8.0');
+        }
+
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->getRouteCollector()->setDefaultInvocationStrategy(new RequestResponseNamedArgs());
+        $app->get(
+            '/{greeting}/{name}',
+            function (ServerRequestInterface $request, ResponseInterface $response, $name, $greeting) {
+                $response->getBody()->write("{$greeting} {$name}");
+                return $response;
+            }
+        );
 
         $uriProphecy = $this->prophesize(UriInterface::class);
         $uriProphecy->getPath()->willReturn('/Hello/World');
