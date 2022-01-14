@@ -20,9 +20,6 @@ use RuntimeException;
  */
 class RequestResponseNamedArgs implements InvocationStrategyInterface
 {
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         if (PHP_VERSION_ID < 80000) {
