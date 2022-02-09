@@ -73,7 +73,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
     {
         return sprintf(
             '<!doctype html>' .
-            '<html>' .
+            '<html lang="en">' .
             '   <head>' .
             "       <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .
             '       <title>%s</title>' .
