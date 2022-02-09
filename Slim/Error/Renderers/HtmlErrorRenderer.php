@@ -72,6 +72,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
     public function renderHtmlBody(string $title = '', string $html = ''): string
     {
         return sprintf(
+            '<!doctype html>' .
             '<html>' .
             '   <head>' .
             "       <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .
