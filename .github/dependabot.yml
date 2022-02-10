@@ -1,8 +1,0 @@
-version: 2
-updates:
-- package-ecosystem: composer
-  directory: "/"
-  schedule:
-    interval: monthly
-  open-pull-requests-limit: 10
-  versioning-strategy: increase
