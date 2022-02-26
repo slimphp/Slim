@@ -1,5 +1,19 @@
 # Changelog
 
+# 4.9.0 - 2021-10-05
+- [3058: Implement exception class for Gone Http error](https://github.com/slimphp/Slim/pull/3058) thanks to @TheKernelPanic
+- [3086: Update slim/psr7 requirement from ^1.3 to ^1.4](https://github.com/slimphp/Slim/pull/3086) thanks to @dependabot[bot]
+- [3087: Update nyholm/psr7-server requirement from ^1.0.1 to ^1.0.2](https://github.com/slimphp/Slim/pull/3087) thanks to @dependabot[bot]
+- [3093: Update phpstan/phpstan requirement from ^0.12.85 to ^0.12.90](https://github.com/slimphp/Slim/pull/3093) thanks to @dependabot[bot]
+- [3099: Allow updated psr log](https://github.com/slimphp/Slim/pull/3099) thanks to @t0mmy742
+- [3104: Drop php7.2](https://github.com/slimphp/Slim/pull/3104) thanks to @t0mmy742
+- [3106: Use PSR-17 factory from Guzzle/psr7 2.0](https://github.com/slimphp/Slim/pull/3106) thanks to @t0mmy742
+- [3108: Update README file](https://github.com/slimphp/Slim/pull/3108) thanks to @t0mmy742
+- [3112: Update laminas/laminas-diactoros requirement from ^2.6 to ^2.8](https://github.com/slimphp/Slim/pull/3112) thanks to @dependabot[bot]
+- [3114: Update slim/psr7 requirement from ^1.4 to ^1.5](https://github.com/slimphp/Slim/pull/3114) thanks to @dependabot[bot]
+- [3115: Update phpstan/phpstan requirement from ^0.12.96 to ^0.12.99](https://github.com/slimphp/Slim/pull/3115) thanks to @dependabot[bot]
+- [3116: Remove Zend Diactoros references](https://github.com/slimphp/Slim/pull/3116) thanks to @l0gicgate
+
 # 4.8.0 - 2021-05-19
 - [3034: Fix phpunit dependency version](https://github.com/slimphp/Slim/pull/3034) thanks to @l0gicgate
 - [3037: Replace Travis by GitHub Actions](https://github.com/slimphp/Slim/pull/3037) thanks to @t0mmy742
