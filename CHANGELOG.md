@@ -1,5 +1,24 @@
 # Changelog
 
+# 4.10.0 - 2022-03-14
+- [3120: Add a new PSR-17 factory to Psr17FactoryProvider](https://github.com/slimphp/Slim/pull/3120) thanks to @solventt
+- [3123: Replace deprecated setMethods() in tests](https://github.com/slimphp/Slim/pull/3123) thanks to @solventt
+- [3126: Update guzzlehttp/psr7 requirement from ^2.0 to ^2.1](https://github.com/slimphp/Slim/pull/3126) thanks to @dependabot[bot]
+- [3127: PHPStan v1.0](https://github.com/slimphp/Slim/pull/3127) thanks to @t0mmy742
+- [3128: Update phpstan/phpstan requirement from ^1.0 to ^1.2](https://github.com/slimphp/Slim/pull/3128) thanks to @dependabot[bot]
+- [3129: Deprecate PHP 7.3](https://github.com/slimphp/Slim/pull/3129) thanks to @l0gicgate
+- [3130: Removed double defined PHP 7.4](https://github.com/slimphp/Slim/pull/3130) thanks to @flangofas
+- [3132: Add new `RequestResponseNamedArgs` route strategy](https://github.com/slimphp/Slim/pull/3132) thanks to @adoy
+- [3133: Improve typehinting for `RouteParserInterface`](https://github.com/slimphp/Slim/pull/3133) thanks to @jerowork
+- [3135: Update phpstan/phpstan requirement from ^1.2 to ^1.3](https://github.com/slimphp/Slim/pull/3135) thanks to @dependabot[bot]
+- [3137: Update phpspec/prophecy requirement from ^1.14 to ^1.15](https://github.com/slimphp/Slim/pull/3137) thanks to @dependabot[bot]
+- [3138: Update license year](https://github.com/slimphp/Slim/pull/3138) thanks to @Awilum
+- [3139: Fixed #1730 (reintroduced in 4.x)](https://github.com/slimphp/Slim/pull/3139) thanks to @adoy
+- [3145: Update phpstan/phpstan requirement from ^1.3 to ^1.4](https://github.com/slimphp/Slim/pull/3145) thanks to @dependabot[bot]
+- [3146: Inherit HttpException from RuntimeException](https://github.com/slimphp/Slim/pull/3146) thanks to @nbayramberdiyev
+- [3148: Upgrade to HTML5](https://github.com/slimphp/Slim/pull/3148) thanks to @nbayramberdiyev
+- [3172: Update nyholm/psr7 requirement from ^1.4 to ^1.5](https://github.com/slimphp/Slim/pull/3172) thanks to @dependabot[bot]
+
 # 4.9.0 - 2021-10-05
 - [3058: Implement exception class for Gone Http error](https://github.com/slimphp/Slim/pull/3058) thanks to @TheKernelPanic
 - [3086: Update slim/psr7 requirement from ^1.3 to ^1.4](https://github.com/slimphp/Slim/pull/3086) thanks to @dependabot[bot]
