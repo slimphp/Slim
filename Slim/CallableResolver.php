@@ -28,15 +28,9 @@ use function sprintf;
 
 final class CallableResolver implements AdvancedCallableResolverInterface
 {
-    /**
-     * @var string
-     */
-    public static $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
+    public static string $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
 
-    /**
-     * @var ContainerInterface|null
-     */
-    private $container;
+    private ?ContainerInterface $container;
 
     /**
      * @param ContainerInterface|null $container

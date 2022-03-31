@@ -25,10 +25,7 @@ use const CONNECTION_NORMAL;
 
 class ResponseEmitter
 {
-    /**
-     * @var int
-     */
-    private $responseChunkSize;
+    private int $responseChunkSize;
 
     /**
      * @param int $responseChunkSize

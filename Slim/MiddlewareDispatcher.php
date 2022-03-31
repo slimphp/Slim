@@ -32,20 +32,12 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
 {
     /**
      * Tip of the middleware call stack
-     *
-     * @var RequestHandlerInterface
      */
-    protected $tip;
+    protected RequestHandlerInterface $tip;
 
-    /**
-     * @var CallableResolverInterface|null
-     */
-    protected $callableResolver;
+    protected ?CallableResolverInterface $callableResolver;
 
-    /**
-     * @var ContainerInterface|null
-     */
-    protected $container;
+    protected ?ContainerInterface $container;
 
     /**
      * @param RequestHandlerInterface        $kernel
@@ -170,25 +162,13 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
             $this->container,
             $this->callableResolver
         ) implements RequestHandlerInterface {
-            /**
-             * @var string
-             */
-            private $middleware;
+            private string $middleware;
 
-            /**
-             * @var RequestHandlerInterface
-             */
-            private $next;
+            private RequestHandlerInterface $next;
 
-            /**
-             * @var ContainerInterface|null
-             */
-            private $container;
+            private ?ContainerInterface $container;
 
-            /**
-             * @var CallableResolverInterface|null
-             */
-            private $callableResolver;
+            private ?CallableResolverInterface $callableResolver;
 
             public function __construct(
                 string $middleware,

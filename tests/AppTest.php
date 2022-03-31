@@ -60,7 +60,7 @@ class AppTest extends TestCase
         ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
     }
 
-    public function testDoesNotUseContainerAsServiceLocator()
+    public function testDoesNotUseContainerAsServiceLocator(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
@@ -74,7 +74,7 @@ class AppTest extends TestCase
      * Getter methods
      *******************************************************************************/
 
-    public function testGetContainer()
+    public function testGetContainer(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
@@ -83,7 +83,7 @@ class AppTest extends TestCase
         $this->assertSame($containerProphecy->reveal(), $app->getContainer());
     }
 
-    public function testGetCallableResolverReturnsInjectedInstance()
+    public function testGetCallableResolverReturnsInjectedInstance(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
@@ -92,7 +92,7 @@ class AppTest extends TestCase
         $this->assertSame($callableResolverProphecy->reveal(), $app->getCallableResolver());
     }
 
-    public function testCreatesCallableResolverWhenNull()
+    public function testCreatesCallableResolverWhenNull(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
@@ -102,7 +102,7 @@ class AppTest extends TestCase
         $this->assertEquals($callableResolver, $app->getCallableResolver());
     }
 
-    public function testGetRouteCollectorReturnsInjectedInstance()
+    public function testGetRouteCollectorReturnsInjectedInstance(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
@@ -115,7 +115,7 @@ class AppTest extends TestCase
         $this->assertSame($routeCollectorProphecy->reveal(), $app->getRouteCollector());
     }
 
-    public function testCreatesRouteCollectorWhenNullWithInjectedContainer()
+    public function testCreatesRouteCollectorWhenNullWithInjectedContainer(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
@@ -134,7 +134,7 @@ class AppTest extends TestCase
         $this->assertEquals($routeCollector, $app->getRouteCollector());
     }
 
-    public function testGetMiddlewareDispatcherGetsSeededAndReturnsInjectedInstance()
+    public function testGetMiddlewareDispatcherGetsSeededAndReturnsInjectedInstance(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
 
@@ -155,7 +155,7 @@ class AppTest extends TestCase
         $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
     }
 
-    public function lowerCaseRequestMethodsProvider()
+    public function lowerCaseRequestMethodsProvider(): array
     {
         return [
             ['get'],
@@ -171,7 +171,7 @@ class AppTest extends TestCase
      * @param string $method
      * @dataProvider upperCaseRequestMethodsProvider()
      */
-    public function testGetPostPutPatchDeleteOptionsMethods(string $method)
+    public function testGetPostPutPatchDeleteOptionsMethods(string $method): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -204,7 +204,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testAnyRoute()
+    public function testAnyRoute(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -244,7 +244,7 @@ class AppTest extends TestCase
      * Route collector proxy methods
      *******************************************************************************/
 
-    public function upperCaseRequestMethodsProvider()
+    public function upperCaseRequestMethodsProvider(): array
     {
         return [
             ['GET'],
@@ -261,7 +261,7 @@ class AppTest extends TestCase
      * @dataProvider lowerCaseRequestMethodsProvider
      * @dataProvider upperCaseRequestMethodsProvider
      */
-    public function testMapRoute(string $method)
+    public function testMapRoute(string $method): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -293,7 +293,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testRedirectRoute()
+    public function testRedirectRoute(): void
     {
         $from = '/from';
         $to = '/to';
@@ -337,7 +337,7 @@ class AppTest extends TestCase
         $this->assertEquals($to, $response->getHeaderLine('Location'));
     }
 
-    public function testRouteWithInternationalCharacters()
+    public function testRouteWithInternationalCharacters(): void
     {
         $path = '/новости';
 
@@ -376,7 +376,7 @@ class AppTest extends TestCase
      * Route Patterns
      *******************************************************************************/
 
-    public function routePatternsProvider()
+    public function routePatternsProvider(): array
     {
         return [
             [''], // Empty Route
@@ -391,7 +391,7 @@ class AppTest extends TestCase
      * @param string $pattern
      * @dataProvider routePatternsProvider
      */
-    public function testRoutePatterns(string $pattern)
+    public function testRoutePatterns(string $pattern): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
 
@@ -409,7 +409,7 @@ class AppTest extends TestCase
      * Route Groups
      *******************************************************************************/
 
-    public function routeGroupsDataProvider()
+    public function routeGroupsDataProvider(): array
     {
         return [
             'empty group with empty route' => [
@@ -523,7 +523,7 @@ class AppTest extends TestCase
         ];
     }
 
-    public function testGroupClosureIsBoundToThisClass()
+    public function testGroupClosureIsBoundToThisClass(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $app = new App($responseFactoryProphecy->reveal());
@@ -539,7 +539,7 @@ class AppTest extends TestCase
      * @param array  $sequence
      * @param string $expectedPath
      */
-    public function testRouteGroupCombinations(array $sequence, string $expectedPath)
+    public function testRouteGroupCombinations(array $sequence, string $expectedPath): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $app = new App($responseFactoryProphecy->reveal());
@@ -569,7 +569,7 @@ class AppTest extends TestCase
         $this->assertEquals($expectedPath, $route->getPattern());
     }
 
-    public function testRouteGroupPattern()
+    public function testRouteGroupPattern(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
 
@@ -586,7 +586,7 @@ class AppTest extends TestCase
      * Middleware
      *******************************************************************************/
 
-    public function testAddMiddleware()
+    public function testAddMiddleware(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -650,7 +650,7 @@ class AppTest extends TestCase
         $this->assertSame($responseProphecy->reveal(), $response);
     }
 
-    public function testAddMiddlewareUsingDeferredResolution()
+    public function testAddMiddlewareUsingDeferredResolution(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -685,7 +685,7 @@ class AppTest extends TestCase
         $this->assertSame('Hello World', (string) $response->getBody());
     }
 
-    public function testAddRoutingMiddleware()
+    public function testAddRoutingMiddleware(): void
     {
         /** @var ResponseFactoryInterface $responseFactory */
         $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
@@ -715,7 +715,7 @@ class AppTest extends TestCase
         $this->assertInstanceOf(RoutingMiddleware::class, $routingMiddleware);
     }
 
-    public function testAddErrorMiddleware()
+    public function testAddErrorMiddleware(): void
     {
         /** @var ResponseFactoryInterface $responseFactory */
         $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
@@ -748,7 +748,7 @@ class AppTest extends TestCase
         $this->assertInstanceOf(ErrorMiddleware::class, $errorMiddleware);
     }
 
-    public function testAddBodyParsingMiddleware()
+    public function testAddBodyParsingMiddleware(): void
     {
         /** @var ResponseFactoryInterface $responseFactory */
         $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
@@ -778,7 +778,7 @@ class AppTest extends TestCase
         $this->assertInstanceOf(BodyParsingMiddleware::class, $bodyParsingMiddleware);
     }
 
-    public function testAddMiddlewareOnRoute()
+    public function testAddMiddlewareOnRoute(): void
     {
         $output = '';
 
@@ -858,7 +858,7 @@ class AppTest extends TestCase
         $this->assertEquals('In2In1CenterOut1Out2', $output);
     }
 
-    public function testAddMiddlewareOnRouteGroup()
+    public function testAddMiddlewareOnRouteGroup(): void
     {
         $output = '';
 
@@ -940,7 +940,7 @@ class AppTest extends TestCase
         $this->assertEquals('In2In1CenterOut1Out2', $output);
     }
 
-    public function testAddMiddlewareOnTwoRouteGroup()
+    public function testAddMiddlewareOnTwoRouteGroup(): void
     {
         $output = '';
 
@@ -1060,7 +1060,7 @@ class AppTest extends TestCase
         $this->assertEquals('In1In2In3CenterOut3Out2Out1', $output);
     }
 
-    public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
+    public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(
@@ -1077,7 +1077,7 @@ class AppTest extends TestCase
      * Runner
      *******************************************************************************/
 
-    public function testInvokeReturnMethodNotAllowed()
+    public function testInvokeReturnMethodNotAllowed(): void
     {
         $this->expectException(HttpMethodNotAllowedException::class);
 
@@ -1101,7 +1101,7 @@ class AppTest extends TestCase
         $app->handle($requestProphecy->reveal());
     }
 
-    public function testInvokeWithMatchingRoute()
+    public function testInvokeWithMatchingRoute(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -1135,7 +1135,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithMatchingRouteWithSetArgument()
+    public function testInvokeWithMatchingRouteWithSetArgument(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1175,7 +1175,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithMatchingRouteWithSetArguments()
+    public function testInvokeWithMatchingRouteWithSetArguments(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1215,7 +1215,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseStrategy()
+    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseStrategy(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1255,7 +1255,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
+    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1296,7 +1296,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseNamedArgsStrategy()
+    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseNamedArgsStrategy(): void
     {
         if (PHP_VERSION_ID < 80000) {
             $this->markTestSkipped('Named arguments are not supported in PHP versions prior to 8.0');
@@ -1344,7 +1344,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
+    public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1384,7 +1384,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithoutMatchingRoute()
+    public function testInvokeWithoutMatchingRoute(): void
     {
         $this->expectException(HttpNotFoundException::class);
 
@@ -1406,7 +1406,7 @@ class AppTest extends TestCase
         $app->handle($requestProphecy->reveal());
     }
 
-    public function testInvokeWithCallableRegisteredInContainer()
+    public function testInvokeWithCallableRegisteredInContainer(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -1450,7 +1450,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
+    public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer(): void
     {
         $this->expectException(RuntimeException::class);
 
@@ -1486,7 +1486,7 @@ class AppTest extends TestCase
         $app->handle($requestProphecy->reveal());
     }
 
-    public function testInvokeWithCallableInContainerViaCallMagicMethod()
+    public function testInvokeWithCallableInContainerViaCallMagicMethod(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1530,7 +1530,7 @@ class AppTest extends TestCase
         $this->assertEquals($expectedPayload, (string) $response->getBody());
     }
 
-    public function testInvokeFunctionName()
+    public function testInvokeFunctionName(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1576,7 +1576,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
+    public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1616,7 +1616,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
+    public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1657,7 +1657,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testRun()
+    public function testRun(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1709,7 +1709,7 @@ class AppTest extends TestCase
         $this->expectOutputString('Hello World');
     }
 
-    public function testRunWithoutPassingInServerRequest()
+    public function testRunWithoutPassingInServerRequest(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1749,7 +1749,7 @@ class AppTest extends TestCase
         $this->expectOutputString('Hello World');
     }
 
-    public function testHandleReturnsEmptyResponseBodyWithHeadRequestMethod()
+    public function testHandleReturnsEmptyResponseBodyWithHeadRequestMethod(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1805,7 +1805,7 @@ class AppTest extends TestCase
         $this->assertEmpty((string) $response->getBody());
     }
 
-    public function testCanBeReExecutedRecursivelyDuringDispatch()
+    public function testCanBeReExecutedRecursivelyDuringDispatch(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -1926,7 +1926,7 @@ class AppTest extends TestCase
 
     // TODO: Re-add testUnsupportedMethodWithRoute
 
-    public function testContainerSetToRoute()
+    public function testContainerSetToRoute(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -1964,7 +1964,7 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    public function testAppIsARequestHandler()
+    public function testAppIsARequestHandler(): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $app = new App($responseFactoryProphecy->reveal());
@@ -1972,7 +1972,7 @@ class AppTest extends TestCase
         $this->assertInstanceOf(RequestHandlerInterface::class, $app);
     }
 
-    public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs()
+    public function testInvokeSequentialProcessToAPathWithOptionalArgsAndWithoutOptionalArgs(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -2026,7 +2026,7 @@ class AppTest extends TestCase
         $this->assertEquals('0', (string) $response->getBody());
     }
 
-    public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs()
+    public function testInvokeSequentialProcessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
@@ -2080,7 +2080,7 @@ class AppTest extends TestCase
         $this->assertEquals('1', (string) $response->getBody());
     }
 
-    public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument()
+    public function testInvokeSequentialProcessAfterAddingAnotherRouteArgument(): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('');
