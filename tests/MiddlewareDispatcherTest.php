@@ -138,7 +138,7 @@ class MiddlewareDispatcherTest extends TestCase
         $this->assertEquals(1, $handler->getCalledCount());
     }
 
-    public function deferredCallableProvider()
+    public function deferredCallableProvider(): array
     {
         return [
             [MockMiddlewareSlimCallable::class . ':custom', new MockMiddlewareSlimCallable()],
