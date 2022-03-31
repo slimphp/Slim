@@ -23,10 +23,7 @@ use Slim\Tests\Mocks\RequestHandlerTest;
 
 class CallableResolverTest extends TestCase
 {
-    /**
-     * @var ObjectProphecy
-     */
-    private $containerProphecy;
+    private ObjectProphecy $containerProphecy;
 
     public static function setUpBeforeClass(): void
     {
