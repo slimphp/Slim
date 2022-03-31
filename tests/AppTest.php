@@ -155,7 +155,7 @@ class AppTest extends TestCase
         $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
     }
 
-    public function lowerCaseRequestMethodsProvider()
+    public function lowerCaseRequestMethodsProvider(): array
     {
         return [
             ['get'],
@@ -244,7 +244,7 @@ class AppTest extends TestCase
      * Route collector proxy methods
      *******************************************************************************/
 
-    public function upperCaseRequestMethodsProvider()
+    public function upperCaseRequestMethodsProvider(): array
     {
         return [
             ['GET'],
@@ -376,7 +376,7 @@ class AppTest extends TestCase
      * Route Patterns
      *******************************************************************************/
 
-    public function routePatternsProvider()
+    public function routePatternsProvider(): array
     {
         return [
             [''], // Empty Route
