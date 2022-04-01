@@ -59,7 +59,7 @@
         "guzzlehttp/psr7": "^2.2",
         "httpsoft/http-message": "^1.0",
         "httpsoft/http-server-request": "^1.0",
-        "laminas/laminas-diactoros": "^2.8",
+        "laminas/laminas-diactoros": "^2.9",
         "nyholm/psr7": "^1.5",
         "nyholm/psr7-server": "^1.0",
         "phpspec/prophecy": "^1.15",
