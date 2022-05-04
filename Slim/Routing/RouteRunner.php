@@ -22,20 +22,11 @@ use Slim\Middleware\RoutingMiddleware;
 
 class RouteRunner implements RequestHandlerInterface
 {
-    /**
-     * @var RouteResolverInterface
-     */
-    private $routeResolver;
+    private RouteResolverInterface $routeResolver;
 
-    /**
-     * @var RouteParserInterface
-     */
-    private $routeParser;
+    private RouteParserInterface $routeParser;
 
-    /**
-     * @var RouteCollectorProxyInterface|null
-     */
-    private $routeCollectorProxy;
+    private ?RouteCollectorProxyInterface $routeCollectorProxy;
 
     /**
      * @param RouteResolverInterface            $routeResolver
