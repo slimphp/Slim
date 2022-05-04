@@ -34,65 +34,44 @@ use function is_writable;
  */
 class RouteCollector implements RouteCollectorInterface
 {
-    /**
-     * @var RouteParserInterface
-     */
-    protected $routeParser;
+    protected RouteParserInterface $routeParser;
 
-    /**
-     * @var CallableResolverInterface
-     */
-    protected $callableResolver;
+    protected CallableResolverInterface $callableResolver;
 
-    /**
-     * @var ContainerInterface|null
-     */
-    protected $container;
+    protected ?ContainerInterface $container = null;
 
-    /**
-     * @var InvocationStrategyInterface
-     */
-    protected $defaultInvocationStrategy;
+    protected InvocationStrategyInterface $defaultInvocationStrategy;
 
     /**
      * Base path used in pathFor()
-     *
-     * @var string
      */
-    protected $basePath = '';
+    protected string $basePath = '';
 
     /**
      * Path to fast route cache file. Set to null to disable route caching
-     *
-     * @var string|null
      */
-    protected $cacheFile;
+    protected ?string $cacheFile = null;
 
     /**
      * Routes
      *
      * @var RouteInterface[]
      */
-    protected $routes = [];
+    protected array $routes = [];
 
     /**
      * Route groups
      *
      * @var RouteGroup[]
      */
-    protected $routeGroups = [];
+    protected array $routeGroups = [];
 
     /**
      * Route counter incrementer
-     *
-     * @var int
      */
-    protected $routeCounter = 0;
+    protected int $routeCounter = 0;
 
-    /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
+    protected ResponseFactoryInterface $responseFactory;
 
     /**
      * @param ResponseFactoryInterface         $responseFactory
