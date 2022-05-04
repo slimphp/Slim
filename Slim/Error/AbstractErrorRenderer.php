@@ -22,15 +22,9 @@ use Throwable;
  */
 abstract class AbstractErrorRenderer implements ErrorRendererInterface
 {
-    /**
-     * @var string
-     */
-    protected $defaultErrorTitle = 'Slim Application Error';
+    protected string $defaultErrorTitle = 'Slim Application Error';
 
-    /**
-     * @var string
-     */
-    protected $defaultErrorDescription = 'A website error has occurred. Sorry for the temporary inconvenience.';
+    protected string $defaultErrorDescription = 'A website error has occurred. Sorry for the temporary inconvenience.';
 
     /**
      * @param Throwable $exception
