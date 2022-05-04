@@ -26,50 +26,23 @@ use Slim\Interfaces\RouteResolverInterface;
 
 class AppFactory
 {
-    /**
-     * @var Psr17FactoryProviderInterface|null
-     */
-    protected static $psr17FactoryProvider;
+    protected static ?Psr17FactoryProviderInterface $psr17FactoryProvider = null;
 
-    /**
-     * @var ResponseFactoryInterface|null
-     */
-    protected static $responseFactory;
+    protected static ?ResponseFactoryInterface $responseFactory = null;
 
-    /**
-     * @var StreamFactoryInterface|null
-     */
-    protected static $streamFactory;
+    protected static ?StreamFactoryInterface $streamFactory = null;
 
-    /**
-     * @var ContainerInterface|null
-     */
-    protected static $container;
+    protected static ?ContainerInterface $container = null;
 
-    /**
-     * @var CallableResolverInterface|null
-     */
-    protected static $callableResolver;
+    protected static ?CallableResolverInterface $callableResolver = null;
 
-    /**
-     * @var RouteCollectorInterface|null
-     */
-    protected static $routeCollector;
+    protected static ?RouteCollectorInterface $routeCollector = null;
 
-    /**
-     * @var RouteResolverInterface|null
-     */
-    protected static $routeResolver;
+    protected static ?RouteResolverInterface $routeResolver = null;
 
-    /**
-     * @var MiddlewareDispatcherInterface|null
-     */
-    protected static $middlewareDispatcher;
+    protected static ?MiddlewareDispatcherInterface $middlewareDispatcher = null;
 
-    /**
-     * @var bool
-     */
-    protected static $slimHttpDecoratorsAutomaticDetectionEnabled = true;
+    protected static bool $slimHttpDecoratorsAutomaticDetectionEnabled = true;
 
     /**
      * @param ResponseFactoryInterface|null         $responseFactory
