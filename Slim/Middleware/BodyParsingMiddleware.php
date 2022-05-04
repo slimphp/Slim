@@ -38,7 +38,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
     /**
      * @var callable[]
      */
-    protected $bodyParsers;
+    protected array $bodyParsers;
 
     /**
      * @param callable[] $bodyParsers list of body parsers as an associative array of mediaType => callable
