@@ -61,7 +61,7 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * @var array<string|callable>
      */
-    protected $errorRenderers = [
+    protected array $errorRenderers = [
         'application/json' => JsonErrorRenderer::class,
         'application/xml' => XmlErrorRenderer::class,
         'text/xml' => XmlErrorRenderer::class,
