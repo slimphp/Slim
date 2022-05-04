@@ -24,10 +24,7 @@ use function rawurldecode;
  */
 class RouteResolver implements RouteResolverInterface
 {
-    /**
-     * @var RouteCollectorInterface
-     */
-    protected $routeCollector;
+    protected RouteCollectorInterface $routeCollector;
 
     /**
      * @var DispatcherInterface
