@@ -19,10 +19,7 @@ use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
  */
 class RequestHandler implements RequestHandlerInvocationStrategyInterface
 {
-    /**
-     * @var bool
-     */
-    protected $appendRouteArgumentsToRequestAttributes;
+    protected bool $appendRouteArgumentsToRequestAttributes;
 
     /**
      * @param bool $appendRouteArgumentsToRequestAttributes
