@@ -16,7 +16,7 @@ use RuntimeException;
 
 class SlimHttpPsr17Factory extends Psr17Factory
 {
-    protected static $responseFactoryClass = 'Slim\Http\Factory\DecoratedResponseFactory';
+    protected static string $responseFactoryClass = 'Slim\Http\Factory\DecoratedResponseFactory';
 
     /**
      * @param ResponseFactoryInterface $responseFactory
