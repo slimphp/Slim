@@ -46,10 +46,7 @@ use function preg_match;
  */
 class ErrorHandler implements ErrorHandlerInterface
 {
-    /**
-     * @var string
-     */
-    protected $defaultErrorRendererContentType = 'text/html';
+    protected string $defaultErrorRendererContentType = 'text/html';
 
     /**
      * @var ErrorRendererInterface|string|callable
@@ -72,60 +69,27 @@ class ErrorHandler implements ErrorHandlerInterface
         'text/plain' => PlainTextErrorRenderer::class,
     ];
 
-    /**
-     * @var bool
-     */
-    protected $displayErrorDetails;
+    protected bool $displayErrorDetails = false;
 
-    /**
-     * @var bool
-     */
-    protected $logErrors;
+    protected bool $logErrors;
 
-    /**
-     * @var bool
-     */
-    protected $logErrorDetails;
+    protected bool $logErrorDetails = false;
 
-    /**
-     * @var string|null
-     */
-    protected $contentType;
+    protected ?string $contentType = null;
 
-    /**
-     * @var string
-     */
-    protected $method;
+    protected ?string $method = null;
 
-    /**
-     * @var ServerRequestInterface
-     */
-    protected $request;
+    protected ServerRequestInterface $request;
 
-    /**
-     * @var Throwable
-     */
-    protected $exception;
+    protected Throwable $exception;
 
-    /**
-     * @var int
-     */
-    protected $statusCode;
+    protected int $statusCode;
 
-    /**
-     * @var CallableResolverInterface
-     */
-    protected $callableResolver;
+    protected CallableResolverInterface $callableResolver;
 
-    /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
+    protected ResponseFactoryInterface $responseFactory;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /**
      * @param CallableResolverInterface $callableResolver
