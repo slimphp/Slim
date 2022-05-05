@@ -12,8 +12,8 @@ namespace Slim\Factory\Psr17;
 
 class LaminasDiactorosPsr17Factory extends Psr17Factory
 {
-    protected static $responseFactoryClass = 'Laminas\Diactoros\ResponseFactory';
-    protected static $streamFactoryClass = 'Laminas\Diactoros\StreamFactory';
-    protected static $serverRequestCreatorClass = 'Laminas\Diactoros\ServerRequestFactory';
-    protected static $serverRequestCreatorMethod = 'fromGlobals';
+    protected static string $responseFactoryClass = 'Laminas\Diactoros\ResponseFactory';
+    protected static string $streamFactoryClass = 'Laminas\Diactoros\StreamFactory';
+    protected static string $serverRequestCreatorClass = 'Laminas\Diactoros\ServerRequestFactory';
+    protected static string $serverRequestCreatorMethod = 'fromGlobals';
 }

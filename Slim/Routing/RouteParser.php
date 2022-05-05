@@ -24,15 +24,9 @@ use function is_string;
 
 class RouteParser implements RouteParserInterface
 {
-    /**
-     * @var RouteCollectorInterface
-     */
-    private $routeCollector;
+    private RouteCollectorInterface $routeCollector;
 
-    /**
-     * @var Std
-     */
-    private $routeParser;
+    private Std $routeParser;
 
     /**
      * @param RouteCollectorInterface $routeCollector

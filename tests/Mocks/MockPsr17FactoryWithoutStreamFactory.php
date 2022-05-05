@@ -14,8 +14,8 @@ use Slim\Factory\Psr17\Psr17Factory;
 
 class MockPsr17FactoryWithoutStreamFactory extends Psr17Factory
 {
-    protected static $responseFactoryClass = 'Slim\Psr7\Factory\ResponseFactory';
-    protected static $streamFactoryClass = '';
-    protected static $serverRequestCreatorClass = '';
-    protected static $serverRequestCreatorMethod = '';
+    protected static string $responseFactoryClass = 'Slim\Psr7\Factory\ResponseFactory';
+    protected static string $streamFactoryClass = '';
+    protected static string $serverRequestCreatorClass = '';
+    protected static string $serverRequestCreatorMethod = '';
 }

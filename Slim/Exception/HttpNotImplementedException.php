@@ -22,6 +22,6 @@ class HttpNotImplementedException extends HttpSpecializedException
      */
     protected $message = 'Not implemented.';
 
-    protected $title = '501 Not Implemented';
-    protected $description = 'The server does not support the functionality required to fulfill the request.';
+    protected string $title = '501 Not Implemented';
+    protected string $description = 'The server does not support the functionality required to fulfill the request.';
 }

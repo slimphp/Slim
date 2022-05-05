@@ -19,20 +19,11 @@ use Slim\Interfaces\ServerRequestCreatorInterface;
 
 class ServerRequestCreatorFactory
 {
-    /**
-     * @var Psr17FactoryProviderInterface|null
-     */
-    protected static $psr17FactoryProvider;
+    protected static ?Psr17FactoryProviderInterface $psr17FactoryProvider = null;
 
-    /**
-     * @var ServerRequestCreatorInterface|null
-     */
-    protected static $serverRequestCreator;
+    protected static ?ServerRequestCreatorInterface $serverRequestCreator = null;
 
-    /**
-     * @var bool
-     */
-    protected static $slimHttpDecoratorsAutomaticDetectionEnabled = true;
+    protected static bool $slimHttpDecoratorsAutomaticDetectionEnabled = true;
 
     /**
      * @return ServerRequestCreatorInterface
