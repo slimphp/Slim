@@ -20,39 +20,26 @@ class RoutingResults
     public const FOUND = 1;
     public const METHOD_NOT_ALLOWED = 2;
 
-    /**
-     * @var DispatcherInterface
-     */
-    protected $dispatcher;
+    protected DispatcherInterface $dispatcher;
+
+    protected string $method;
+
+    protected string $uri;
 
     /**
-     * @var string
-     */
-    protected $method;
-
-    /**
-     * @var string
-     */
-    protected $uri;
-
-    /**
-     * @var int
      * The status is one of the constants shown above
      * NOT_FOUND = 0
      * FOUND = 1
      * METHOD_NOT_ALLOWED = 2
      */
-    protected $routeStatus;
+    protected int $routeStatus;
 
-    /**
-     * @var null|string
-     */
-    protected $routeIdentifier;
+    protected ?string $routeIdentifier = null;
 
     /**
      * @var array<string, string>
      */
-    protected $routeArguments;
+    protected array $routeArguments;
 
     /**
      * @param DispatcherInterface   $dispatcher
