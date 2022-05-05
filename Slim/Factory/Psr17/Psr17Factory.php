@@ -21,25 +21,13 @@ use function get_called_class;
 
 abstract class Psr17Factory implements Psr17FactoryInterface
 {
-    /**
-     * @var string
-     */
-    protected static $responseFactoryClass;
+    protected static string $responseFactoryClass;
 
-    /**
-     * @var string
-     */
-    protected static $streamFactoryClass;
+    protected static string $streamFactoryClass;
 
-    /**
-     * @var string
-     */
-    protected static $serverRequestCreatorClass;
+    protected static string $serverRequestCreatorClass;
 
-    /**
-     * @var string
-     */
-    protected static $serverRequestCreatorMethod;
+    protected static string $serverRequestCreatorMethod;
 
     /**
      * {@inheritdoc}

@@ -12,8 +12,8 @@ namespace Slim\Factory\Psr17;
 
 class HttpSoftPsr17Factory extends Psr17Factory
 {
-    protected static $responseFactoryClass = 'HttpSoft\Message\ResponseFactory';
-    protected static $streamFactoryClass = 'HttpSoft\Message\StreamFactory';
-    protected static $serverRequestCreatorClass = 'HttpSoft\ServerRequest\ServerRequestCreator';
-    protected static $serverRequestCreatorMethod = 'createFromGlobals';
+    protected static string $responseFactoryClass = 'HttpSoft\Message\ResponseFactory';
+    protected static string $streamFactoryClass = 'HttpSoft\Message\StreamFactory';
+    protected static string $serverRequestCreatorClass = 'HttpSoft\ServerRequest\ServerRequestCreator';
+    protected static string $serverRequestCreatorMethod = 'createFromGlobals';
 }

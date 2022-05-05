@@ -21,10 +21,7 @@ class ServerRequestCreator implements ServerRequestCreatorInterface
      */
     protected $serverRequestCreator;
 
-    /**
-     * @var string
-     */
-    protected $serverRequestCreatorMethod;
+    protected string $serverRequestCreatorMethod;
 
     /**
      * @param object|string $serverRequestCreator
