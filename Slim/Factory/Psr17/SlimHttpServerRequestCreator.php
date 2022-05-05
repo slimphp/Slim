@@ -18,15 +18,9 @@ use function class_exists;
 
 class SlimHttpServerRequestCreator implements ServerRequestCreatorInterface
 {
-    /**
-     * @var ServerRequestCreatorInterface
-     */
-    protected $serverRequestCreator;
+    protected ServerRequestCreatorInterface $serverRequestCreator;
 
-    /**
-     * @var string
-     */
-    protected static $serverRequestDecoratorClass = 'Slim\Http\ServerRequest';
+    protected static string $serverRequestDecoratorClass = 'Slim\Http\ServerRequest';
 
     /**
      * @param ServerRequestCreatorInterface $serverRequestCreator
