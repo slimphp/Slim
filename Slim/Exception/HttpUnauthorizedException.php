@@ -22,6 +22,6 @@ class HttpUnauthorizedException extends HttpSpecializedException
      */
     protected $message = 'Unauthorized.';
 
-    protected $title = '401 Unauthorized';
-    protected $description = 'The request requires valid user authentication.';
+    protected string $title = '401 Unauthorized';
+    protected string $description = 'The request requires valid user authentication.';
 }

@@ -12,15 +12,9 @@ use Slim\Interfaces\RouteCollectorInterface;
 
 class Dispatcher implements DispatcherInterface
 {
-    /**
-     * @var RouteCollectorInterface
-     */
-    private $routeCollector;
+    private RouteCollectorInterface $routeCollector;
 
-    /**
-     * @var FastRouteDispatcher|null
-     */
-    private $dispatcher;
+    private ?FastRouteDispatcher $dispatcher = null;
 
     /**
      * @param RouteCollectorInterface $routeCollector

@@ -40,59 +40,52 @@ class Route implements RouteInterface, RequestHandlerInterface
      *
      * @var string[]
      */
-    protected $methods = [];
+    protected array $methods = [];
 
     /**
      * Route identifier
-     *
-     * @var string
      */
-    protected $identifier;
+    protected string $identifier;
 
     /**
      * Route name
-     *
-     * @var null|string
      */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * Parent route groups
      *
      * @var RouteGroupInterface[]
      */
-    protected $groups;
+    protected array $groups;
 
-    /**
-     * @var InvocationStrategyInterface
-     */
-    protected $invocationStrategy;
+    protected InvocationStrategyInterface $invocationStrategy;
 
     /**
      * Route parameters
      *
      * @var array<string, string>
      */
-    protected $arguments = [];
+    protected array $arguments = [];
 
     /**
      * Route arguments parameters
      *
      * @var string[]
      */
-    protected $savedArguments = [];
+    protected array $savedArguments = [];
 
     /**
      * Container
      *
      * @var ContainerInterface|null
      */
-    protected $container;
+    protected ?ContainerInterface $container = null;
 
     /**
      * @var MiddlewareDispatcher
      */
-    protected $middlewareDispatcher;
+    protected MiddlewareDispatcher $middlewareDispatcher;
 
     /**
      * Route callable
@@ -101,27 +94,16 @@ class Route implements RouteInterface, RequestHandlerInterface
      */
     protected $callable;
 
-    /**
-     * @var CallableResolverInterface
-     */
-    protected $callableResolver;
+    protected CallableResolverInterface $callableResolver;
 
-    /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
+    protected ResponseFactoryInterface $responseFactory;
 
     /**
      * Route pattern
-     *
-     * @var string
      */
-    protected $pattern;
+    protected string $pattern;
 
-    /**
-     * @var bool
-     */
-    protected $groupMiddlewareAppended = false;
+    protected bool $groupMiddlewareAppended = false;
 
     /**
      * @param string[]                         $methods    The route HTTP methods
