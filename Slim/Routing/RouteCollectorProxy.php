@@ -30,13 +30,6 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
 
     protected string $groupPattern;
 
-    /**
-     * @param ResponseFactoryInterface     $responseFactory
-     * @param CallableResolverInterface    $callableResolver
-     * @param RouteCollectorInterface|null $routeCollector
-     * @param ContainerInterface|null      $container
-     * @param string                       $groupPattern
-     */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver,

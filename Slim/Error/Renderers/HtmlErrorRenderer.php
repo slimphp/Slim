@@ -22,11 +22,6 @@ use function sprintf;
  */
 class HtmlErrorRenderer extends AbstractErrorRenderer
 {
-    /**
-     * @param Throwable $exception
-     * @param bool      $displayErrorDetails
-     * @return string
-     */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         if ($displayErrorDetails) {
@@ -40,10 +35,6 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
         return $this->renderHtmlBody($this->getErrorTitle($exception), $html);
     }
 
-    /**
-     * @param Throwable $exception
-     * @return string
-     */
     private function renderExceptionFragment(Throwable $exception): string
     {
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
@@ -64,11 +55,6 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
         return $html;
     }
 
-    /**
-     * @param string $title
-     * @param string $html
-     * @return string
-     */
     public function renderHtmlBody(string $title = '', string $html = ''): string
     {
         return sprintf(

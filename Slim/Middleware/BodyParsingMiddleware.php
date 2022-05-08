@@ -52,11 +52,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
         }
     }
 
-    /**
-     * @param ServerRequestInterface  $request
-     * @param RequestHandlerInterface $handler
-     * @return ResponseInterface
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $parsedBody = $request->getParsedBody();
@@ -71,7 +66,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     /**
      * @param string   $mediaType A HTTP media type (excluding content-type params).
      * @param callable $callable  A callable that returns parsed contents for media type.
-     * @return self
      */
     public function registerBodyParser(string $mediaType, callable $callable): self
     {
@@ -81,7 +75,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
 
     /**
      * @param string   $mediaType A HTTP media type (excluding content-type params).
-     * @return boolean
      */
     public function hasBodyParser(string $mediaType): bool
     {
@@ -90,7 +83,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
 
     /**
      * @param string    $mediaType A HTTP media type (excluding content-type params).
-     * @return callable
      * @throws RuntimeException
      */
     public function getBodyParser(string $mediaType): callable
@@ -100,7 +92,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
         }
         return $this->bodyParsers[$mediaType];
     }
-
 
     protected function registerDefaultBodyParsers(): void
     {
@@ -140,7 +131,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
      * @return null|array<mixed>|object
      */
     protected function parseBody(ServerRequestInterface $request)
@@ -176,7 +166,6 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
      * @return string|null The serverRequest media type, minus content-type params
      */
     protected function getMediaType(ServerRequestInterface $request): ?string
