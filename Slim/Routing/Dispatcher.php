@@ -16,17 +16,11 @@ class Dispatcher implements DispatcherInterface
 
     private ?FastRouteDispatcher $dispatcher = null;
 
-    /**
-     * @param RouteCollectorInterface $routeCollector
-     */
     public function __construct(RouteCollectorInterface $routeCollector)
     {
         $this->routeCollector = $routeCollector;
     }
 
-    /**
-     * @return FastRouteDispatcher
-     */
     protected function createDispatcher(): FastRouteDispatcher
     {
         if ($this->dispatcher) {

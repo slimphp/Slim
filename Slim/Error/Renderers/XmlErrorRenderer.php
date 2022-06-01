@@ -22,11 +22,6 @@ use function str_replace;
  */
 class XmlErrorRenderer extends AbstractErrorRenderer
 {
-    /**
-     * @param Throwable $exception
-     * @param bool      $displayErrorDetails
-     * @return string
-     */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         $xml = '<' . '?xml version="1.0" encoding="UTF-8" standalone="yes"?' . ">\n";
@@ -51,9 +46,6 @@ class XmlErrorRenderer extends AbstractErrorRenderer
 
     /**
      * Returns a CDATA section with the given content.
-     *
-     * @param  string $content
-     * @return string
      */
     private function createCdataSection(string $content): string
     {

@@ -73,14 +73,6 @@ class RouteCollector implements RouteCollectorInterface
 
     protected ResponseFactoryInterface $responseFactory;
 
-    /**
-     * @param ResponseFactoryInterface         $responseFactory
-     * @param CallableResolverInterface        $callableResolver
-     * @param ContainerInterface|null          $container
-     * @param InvocationStrategyInterface|null $defaultInvocationStrategy
-     * @param RouteParserInterface|null        $routeParser
-     * @param string|null                      $cacheFile
-     */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver,
@@ -100,9 +92,6 @@ class RouteCollector implements RouteCollectorInterface
         }
     }
 
-    /**
-     * @return RouteParserInterface
-     */
     public function getRouteParser(): RouteParserInterface
     {
         return $this->routeParser;
@@ -110,18 +99,12 @@ class RouteCollector implements RouteCollectorInterface
 
     /**
      * Get default route invocation strategy
-     *
-     * @return InvocationStrategyInterface
      */
     public function getDefaultInvocationStrategy(): InvocationStrategyInterface
     {
         return $this->defaultInvocationStrategy;
     }
 
-    /**
-     * @param InvocationStrategyInterface $strategy
-     * @return self
-     */
     public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy): RouteCollectorInterface
     {
         $this->defaultInvocationStrategy = $strategy;
@@ -167,10 +150,6 @@ class RouteCollector implements RouteCollectorInterface
 
     /**
      * Set the base path used in urlFor()
-     *
-     * @param string $basePath
-     *
-     * @return self
      */
     public function setBasePath(string $basePath): RouteCollectorInterface
     {
@@ -257,10 +236,7 @@ class RouteCollector implements RouteCollectorInterface
 
     /**
      * @param string[]        $methods
-     * @param string          $pattern
      * @param callable|string $callable
-     *
-     * @return RouteInterface
      */
     protected function createRoute(array $methods, string $pattern, $callable): RouteInterface
     {

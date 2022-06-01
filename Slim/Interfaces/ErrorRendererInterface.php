@@ -14,10 +14,5 @@ use Throwable;
 
 interface ErrorRendererInterface
 {
-    /**
-     * @param Throwable $exception
-     * @param bool      $displayErrorDetails
-     * @return string
-     */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string;
 }

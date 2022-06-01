@@ -77,14 +77,9 @@ class Route implements RouteInterface, RequestHandlerInterface
 
     /**
      * Container
-     *
-     * @var ContainerInterface|null
      */
     protected ?ContainerInterface $container = null;
 
-    /**
-     * @var MiddlewareDispatcher
-     */
     protected MiddlewareDispatcher $middlewareDispatcher;
 
     /**
@@ -139,9 +134,6 @@ class Route implements RouteInterface, RequestHandlerInterface
         $this->middlewareDispatcher = new MiddlewareDispatcher($this, $callableResolver, $container);
     }
 
-    /**
-     * @return CallableResolverInterface
-     */
     public function getCallableResolver(): CallableResolverInterface
     {
         return $this->callableResolver;

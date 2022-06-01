@@ -24,11 +24,6 @@ use const JSON_UNESCAPED_SLASHES;
  */
 class JsonErrorRenderer extends AbstractErrorRenderer
 {
-    /**
-     * @param Throwable $exception
-     * @param bool      $displayErrorDetails
-     * @return string
-     */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         $error = ['message' => $this->getErrorTitle($exception)];
@@ -44,7 +39,6 @@ class JsonErrorRenderer extends AbstractErrorRenderer
     }
 
     /**
-     * @param Throwable $exception
      * @return array<string|int>
      */
     private function formatExceptionFragment(Throwable $exception): array

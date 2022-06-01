@@ -19,10 +19,6 @@ class SlimHttpPsr17Factory extends Psr17Factory
     protected static string $responseFactoryClass = 'Slim\Http\Factory\DecoratedResponseFactory';
 
     /**
-     * @param ResponseFactoryInterface $responseFactory
-     * @param StreamFactoryInterface   $streamFactory
-     * @return ResponseFactoryInterface
-     *
      * @throws RuntimeException when the factory could not be instantiated
      */
     public static function createDecoratedResponseFactory(

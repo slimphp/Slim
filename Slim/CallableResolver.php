@@ -32,9 +32,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     private ?ContainerInterface $container;
 
-    /**
-     * @param ContainerInterface|null $container
-     */
     public function __construct(?ContainerInterface $container = null)
     {
         $this->container = $container;
@@ -76,12 +73,8 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     /**
      * @param string|callable $toResolve
-     * @param callable        $predicate
-     * @param string          $defaultMethod
      *
      * @throws RuntimeException
-     *
-     * @return callable
      */
     private function resolveByPredicate($toResolve, callable $predicate, string $defaultMethod): callable
     {
@@ -106,8 +99,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     /**
      * @param mixed $toResolve
-     *
-     * @return bool
      */
     private function isRoute($toResolve): bool
     {
@@ -116,8 +107,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     /**
      * @param mixed $toResolve
-     *
-     * @return bool
      */
     private function isMiddleware($toResolve): bool
     {
@@ -125,8 +114,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     }
 
     /**
-     * @param string $toResolve
-     *
      * @throws RuntimeException
      *
      * @return array{object, string|null} [Instance, Method Name]
@@ -160,8 +147,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
      * @param mixed $toResolve
      *
      * @throws RuntimeException
-     *
-     * @return callable
      */
     private function assertCallable($resolved, $toResolve): callable
     {
@@ -176,11 +161,6 @@ final class CallableResolver implements AdvancedCallableResolverInterface
         return $resolved;
     }
 
-    /**
-     * @param callable $callable
-     *
-     * @return callable
-     */
     private function bindToContainer(callable $callable): callable
     {
         if (is_array($callable) && $callable[0] instanceof Closure) {

@@ -25,16 +25,12 @@ class ServerRequestCreatorFactory
 
     protected static bool $slimHttpDecoratorsAutomaticDetectionEnabled = true;
 
-    /**
-     * @return ServerRequestCreatorInterface
-     */
     public static function create(): ServerRequestCreatorInterface
     {
         return static::determineServerRequestCreator();
     }
 
     /**
-     * @return ServerRequestCreatorInterface
      * @throws RuntimeException
      */
     public static function determineServerRequestCreator(): ServerRequestCreatorInterface
@@ -61,10 +57,6 @@ class ServerRequestCreatorFactory
         );
     }
 
-    /**
-     * @param ServerRequestCreatorInterface $serverRequestCreator
-     * @return ServerRequestCreatorInterface
-     */
     protected static function attemptServerRequestCreatorDecoration(
         ServerRequestCreatorInterface $serverRequestCreator
     ): ServerRequestCreatorInterface {
@@ -78,25 +70,16 @@ class ServerRequestCreatorFactory
         return $serverRequestCreator;
     }
 
-    /**
-     * @param Psr17FactoryProviderInterface $psr17FactoryProvider
-     */
     public static function setPsr17FactoryProvider(Psr17FactoryProviderInterface $psr17FactoryProvider): void
     {
         static::$psr17FactoryProvider = $psr17FactoryProvider;
     }
 
-    /**
-     * @param ServerRequestCreatorInterface $serverRequestCreator
-     */
     public static function setServerRequestCreator(ServerRequestCreatorInterface $serverRequestCreator): void
     {
         self::$serverRequestCreator = $serverRequestCreator;
     }
 
-    /**
-     * @param bool $enabled
-     */
     public static function setSlimHttpDecoratorsAutomaticDetection(bool $enabled): void
     {
         static::$slimHttpDecoratorsAutomaticDetectionEnabled = $enabled;

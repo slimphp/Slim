@@ -23,8 +23,6 @@ interface RouteParserInterface
      * @param array<string, string> $data        Named argument replacement data
      * @param array<string, string> $queryParams Optional query string parameters
      *
-     * @return string
-     *
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
@@ -36,8 +34,6 @@ interface RouteParserInterface
      * @param string                $routeName   Route name
      * @param array<string, string> $data        Named argument replacement data
      * @param array<string, string> $queryParams Optional query string parameters
-     *
-     * @return string
      *
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
@@ -51,8 +47,6 @@ interface RouteParserInterface
      * @param string                    $routeName   Route name
      * @param array<string, string>     $data        Named argument replacement data
      * @param array<string, string>     $queryParams Optional query string parameters
-     *
-     * @return string
      */
     public function fullUrlFor(UriInterface $uri, string $routeName, array $data = [], array $queryParams = []): string;
 }

@@ -22,11 +22,6 @@ use function sprintf;
  */
 class PlainTextErrorRenderer extends AbstractErrorRenderer
 {
-    /**
-     * @param Throwable $exception
-     * @param bool      $displayErrorDetails
-     * @return string
-     */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         $text = "{$this->getErrorTitle($exception)}\n";
@@ -43,10 +38,6 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
         return $text;
     }
 
-    /**
-     * @param Throwable $exception
-     * @return string
-     */
     private function formatExceptionFragment(Throwable $exception): string
     {
         $text = sprintf("Type: %s\n", get_class($exception));

@@ -42,11 +42,6 @@ class RoutingResults
     protected array $routeArguments;
 
     /**
-     * @param DispatcherInterface   $dispatcher
-     * @param string                $method
-     * @param string                $uri
-     * @param int                   $routeStatus
-     * @param string|null           $routeIdentifier
      * @param array<string, string> $routeArguments
      */
     public function __construct(
@@ -65,48 +60,32 @@ class RoutingResults
         $this->routeArguments = $routeArguments;
     }
 
-    /**
-     * @return DispatcherInterface
-     */
     public function getDispatcher(): DispatcherInterface
     {
         return $this->dispatcher;
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    /**
-     * @return string
-     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
-    /**
-     * @return int
-     */
     public function getRouteStatus(): int
     {
         return $this->routeStatus;
     }
 
-    /**
-     * @return null|string
-     */
     public function getRouteIdentifier(): ?string
     {
         return $this->routeIdentifier;
     }
 
     /**
-     * @param bool $urlDecode
      * @return array<string, string>
      */
     public function getRouteArguments(bool $urlDecode = true): array

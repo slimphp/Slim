@@ -28,11 +28,6 @@ class RouteRunner implements RequestHandlerInterface
 
     private ?RouteCollectorProxyInterface $routeCollectorProxy;
 
-    /**
-     * @param RouteResolverInterface            $routeResolver
-     * @param RouteParserInterface              $routeParser
-     * @param RouteCollectorProxyInterface|null $routeCollectorProxy
-     */
     public function __construct(
         RouteResolverInterface $routeResolver,
         RouteParserInterface $routeParser,
@@ -50,8 +45,6 @@ class RouteRunner implements RequestHandlerInterface
      * defined middleware stack. In the event that the user did not perform routing
      * it is done here
      *
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      */
