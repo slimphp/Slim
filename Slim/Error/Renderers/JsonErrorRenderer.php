@@ -46,7 +46,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
         /** @var int|string $code */
         $code = $exception->getCode();
         return [
-            'type' => get_class($exception),
+            'type' => $exception::class,
             'code' => $code,
             'message' => $exception->getMessage(),
             'file' => $exception->getFile(),

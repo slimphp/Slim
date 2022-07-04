@@ -40,7 +40,7 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
 
     private function formatExceptionFragment(Throwable $exception): string
     {
-        $text = sprintf("Type: %s\n", get_class($exception));
+        $text = sprintf("Type: %s\n", $exception::class);
 
         $code = $exception->getCode();
         /** @var int|string $code */
