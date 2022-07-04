@@ -32,7 +32,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public static function getResponseFactory(): ResponseFactoryInterface
+    final public static function getResponseFactory(): ResponseFactoryInterface
     {
         if (
             !static::isResponseFactoryAvailable()
@@ -47,7 +47,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public static function getStreamFactory(): StreamFactoryInterface
+    final public static function getStreamFactory(): StreamFactoryInterface
     {
         if (
             !static::isStreamFactoryAvailable()
@@ -62,7 +62,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public static function getServerRequestCreator(): ServerRequestCreatorInterface
+    final public static function getServerRequestCreator(): ServerRequestCreatorInterface
     {
         if (!static::isServerRequestCreatorAvailable()) {
             throw new RuntimeException(get_called_class() . ' could not instantiate a server request creator.');
@@ -74,7 +74,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public static function isResponseFactoryAvailable(): bool
+    final public static function isResponseFactoryAvailable(): bool
     {
         return static::$responseFactoryClass && class_exists(static::$responseFactoryClass);
     }
@@ -82,7 +82,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public static function isStreamFactoryAvailable(): bool
+    final public static function isStreamFactoryAvailable(): bool
     {
         return static::$streamFactoryClass && class_exists(static::$streamFactoryClass);
     }
@@ -90,7 +90,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public static function isServerRequestCreatorAvailable(): bool
+    final public static function isServerRequestCreatorAvailable(): bool
     {
         return (
             static::$serverRequestCreatorClass
