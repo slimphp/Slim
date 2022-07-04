@@ -147,7 +147,7 @@ class RouteTest extends TestCase
     {
         $route = $this->createRoute();
 
-        $this->assertTrue(is_callable($route->getCallable()));
+        $this->assertInternalType('callable', $route->getCallable());
     }
 
     public function testGetCallableResolver()
