@@ -48,7 +48,7 @@ class RouteResolverTest extends TestCase
         $dispatcherProphecy = $this->prophesize(DispatcherInterface::class);
         $dispatcherProphecy
             ->dispatch(Argument::type('string'), Argument::type('string'))
-            ->will(function ($args) use ($routingResultsProphecy, $method, $expectedUri) {
+            ->will(function ($args) use ($routingResultsProphecy, $expectedUri) {
                 if ($args[1] !== $expectedUri) {
                     throw new Error(sprintf(
                         "URI transformation failed.\n  Received: '%s'\n  Expected: '%s'",
