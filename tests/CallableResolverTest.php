@@ -53,9 +53,9 @@ class CallableResolverTest extends TestCase
         $callableRoute = $resolver->resolveRoute($test);
         $callableMiddleware = $resolver->resolveMiddleware($test);
 
-        $this->assertEquals(true, $callable());
-        $this->assertEquals(true, $callableRoute());
-        $this->assertEquals(true, $callableMiddleware());
+        $this->assertTrue($callable());
+        $this->assertTrue($callableRoute());
+        $this->assertTrue($callableMiddleware());
     }
 
     public function testClosureContainer(): void
@@ -90,9 +90,9 @@ class CallableResolverTest extends TestCase
         $callableRoute = $resolver->resolveRoute(__NAMESPACE__ . '\testAdvancedCallable');
         $callableMiddleware = $resolver->resolveMiddleware(__NAMESPACE__ . '\testAdvancedCallable');
 
-        $this->assertEquals(true, $callable());
-        $this->assertEquals(true, $callableRoute());
-        $this->assertEquals(true, $callableMiddleware());
+        $this->assertTrue($callable());
+        $this->assertTrue($callableRoute());
+        $this->assertTrue($callableMiddleware());
     }
 
     public function testObjMethodArray(): void
