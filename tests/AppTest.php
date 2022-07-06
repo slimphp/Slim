@@ -194,7 +194,7 @@ class AppTest extends TestCase
             return $this;
         });
 
-        $methodName = strtolower($method);
+        $methodName = mb_strtolower($method);
         $app = new App($responseFactoryProphecy->reveal());
         $app->$methodName('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;

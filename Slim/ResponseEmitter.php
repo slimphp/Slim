@@ -58,7 +58,7 @@ class ResponseEmitter
     private function emitHeaders(ResponseInterface $response): void
     {
         foreach ($response->getHeaders() as $name => $values) {
-            $first = strtolower($name) !== 'set-cookie';
+            $first = mb_strtolower($name) !== 'set-cookie';
             foreach ($values as $value) {
                 $header = sprintf('%s: %s', $name, $value);
                 header($header, $first);
@@ -102,7 +102,7 @@ class ResponseEmitter
                 $data = $body->read($length);
                 echo $data;
 
-                $amountToRead -= strlen($data);
+                $amountToRead -= mb_strlen($data);
 
                 if (connection_status() !== CONNECTION_NORMAL) {
                     break;

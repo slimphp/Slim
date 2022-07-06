@@ -175,7 +175,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
 
         if (is_string($contentType) && trim($contentType) !== '') {
             $contentTypeParts = explode(';', $contentType);
-            return strtolower(trim($contentTypeParts[0]));
+            return mb_strtolower(trim($contentTypeParts[0]));
         }
 
         return null;

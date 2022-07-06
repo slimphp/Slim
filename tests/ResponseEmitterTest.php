@@ -72,7 +72,7 @@ class ResponseEmitterTest extends TestCase
             $iv = base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
 
             $data = 'Hello';
-            $length = strlen($data);
+            $length = mb_strlen($data);
 
             $stream = fopen('php://temp', 'r+');
             $filter = stream_filter_append($stream, $specificFilterName, STREAM_FILTER_WRITE, [
