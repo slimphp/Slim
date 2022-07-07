@@ -39,16 +39,10 @@ Override::apply($classLoader, [
     ],
     RouteCollector::class => [
         'is_readable' => function (string $file): bool {
-            if (mb_stripos($file, 'non-readable.cache') !== false) {
-                return false;
-            }
-            return true;
+            return mb_stripos($file, 'non-readable.cache') === false;
         },
         'is_writable' => function (string $path): bool {
-            if (mb_stripos($path, 'non-writable-directory') !== false) {
-                return false;
-            }
-            return true;
+            return mb_stripos($path, 'non-writable-directory') === false;
         }
     ]
 ]);

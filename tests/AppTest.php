@@ -1862,9 +1862,7 @@ class AppTest extends TestCase
 
             /** @var ResponseInterface $response */
             $response = $app->handle($request->withAddedHeader('X-NESTED', '1'));
-            $response = $response->withAddedHeader('X-TRACE', 'outer');
-
-            return $response;
+            return $response->withAddedHeader('X-TRACE', 'outer');
         });
 
         $middlewareProphecy2 = $this->prophesize(MiddlewareInterface::class);
