@@ -53,7 +53,7 @@ class DispatcherTest extends TestCase
         });
         $route->setName('foo');
 
-        $cacheFile = dirname(__FILE__) . '/' . uniqid((string) microtime(true));
+        $cacheFile = __DIR__ . '/' . uniqid((string) microtime(true));
         $routeCollector->setCacheFile($cacheFile);
 
         $method = new ReflectionMethod(Dispatcher::class, 'createDispatcher');

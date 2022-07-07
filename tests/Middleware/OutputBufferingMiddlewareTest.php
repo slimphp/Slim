@@ -103,7 +103,7 @@ class OutputBufferingMiddlewareTest extends TestCase
     public function testOutputBufferIsCleanedWhenThrowableIsCaught()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = (function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) {
             echo "Test";
             $this->assertEquals('Test', ob_get_contents());
             throw new Exception('Oops...');
