@@ -1763,7 +1763,7 @@ class AppTest extends TestCase
         $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
         $responseProphecy
             ->withBody(Argument::type(StreamInterface::class))
-            ->will(function ($args) use ($streamProphecy) {
+            ->will(function ($args) {
                 $this->getBody()->willReturn($args[0]);
                 return $this;
             });
@@ -1869,7 +1869,7 @@ class AppTest extends TestCase
         $middlewareProphecy2->process(
             Argument::type(ServerRequestInterface::class),
             Argument::type(RequestHandlerInterface::class)
-        )->will(function ($args) use ($app) {
+        )->will(function ($args) {
             /** @var ServerRequestInterface $request */
             $request = $args[0];
 
