@@ -263,6 +263,6 @@ class MockStream implements StreamInterface
 
         $meta = stream_get_meta_data($this->stream);
 
-        return isset($meta[$key]) ? $meta[$key] : null;
+        return $meta[$key] ?? null;
     }
 }

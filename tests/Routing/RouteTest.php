@@ -50,7 +50,7 @@ class RouteTest extends TestCase
      */
     public function createRoute($methods = 'GET', string $pattern = '/', $callable = null): Route
     {
-        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response) {
+        $callable ??= function (ServerRequestInterface $request, ResponseInterface $response) {
                 return $response;
         };
 
