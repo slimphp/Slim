@@ -140,7 +140,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
 
             // Virtual path
-            $env['PATH_INFO'] = $requestUri;
+			 $env['PATH_INFO'] = $requestUri;
             if (substr($requestUri, 0, strlen($physicalPath)) == $physicalPath) {
                 $env['PATH_INFO'] = substr($requestUri, strlen($physicalPath)); // <-- Remove physical path
             }
