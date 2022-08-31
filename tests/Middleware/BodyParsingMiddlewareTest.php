@@ -169,7 +169,7 @@ class BodyParsingMiddlewareTest extends TestCase
         $middleware = new BodyParsingMiddleware($parsers);
         $response = $middleware->process($request, $this->createRequestHandler());
 
-        $this->assertEquals(['data' => '{"foo":"bar"}'], $response->request->getParsedBody());
+        $this->assertSame(['data' => '{"foo":"bar"}'], $response->request->getParsedBody());
     }
 
     public function testParsingFailsWhenAnInvalidTypeIsReturned()

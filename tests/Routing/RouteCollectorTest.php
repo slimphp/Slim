@@ -50,7 +50,7 @@ class RouteCollectorTest extends TestCase
         $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
         $routeCollector->setBasePath($basePath);
 
-        $this->assertEquals($basePath, $routeCollector->getBasePath());
+        $this->assertSame($basePath, $routeCollector->getBasePath());
     }
 
     public function testMap()
@@ -76,7 +76,7 @@ class RouteCollectorTest extends TestCase
             $route = $proxy->get('/test', function () {
             });
 
-            $self->assertEquals('/prefix/test', $route->getPattern());
+            $self->assertSame('/prefix/test', $route->getPattern());
         };
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
@@ -201,6 +201,6 @@ class RouteCollectorTest extends TestCase
             null,
             $cacheFile
         );
-        $this->assertEquals($cacheFile, $routeCollector->getCacheFile());
+        $this->assertSame($cacheFile, $routeCollector->getCacheFile());
     }
 }

@@ -79,7 +79,7 @@ class RouteParserTest extends TestCase
         $routeParser = $routeCollector->getRouteParser();
         $results = $routeParser->relativeUrlFor('test', ['first' => 'hello', 'second' => 'world']);
 
-        $this->assertEquals('/hello/world', $results);
+        $this->assertSame('/hello/world', $results);
     }
 
     public function testBasePathIsIgnoreInRelativePathFor()
@@ -97,7 +97,7 @@ class RouteParserTest extends TestCase
         $routeParser = $routeCollector->getRouteParser();
         $results = $routeParser->relativeUrlFor('test', ['first' => 'hello', 'second' => 'world']);
 
-        $this->assertEquals('/hello/world', $results);
+        $this->assertSame('/hello/world', $results);
     }
 
     /**
@@ -126,7 +126,7 @@ class RouteParserTest extends TestCase
         $routeParser = $routeCollector->getRouteParser();
         $results = $routeParser->urlFor('test', $arguments, $queryParams);
 
-        $this->assertEquals($expectedResult, $results);
+        $this->assertSame($expectedResult, $results);
     }
 
     public function testUrlForWithMissingSegmentData()
@@ -193,6 +193,6 @@ class RouteParserTest extends TestCase
         $result = $routeParser->fullUrlFor($uriProphecy->reveal(), 'test', ['token' => '123']);
 
         $expectedResult = 'http://example.com:8080/app/123';
-        $this->assertEquals($expectedResult, $result);
+        $this->assertSame($expectedResult, $result);
     }
 }

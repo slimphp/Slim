@@ -33,8 +33,8 @@ class HttpExceptionTest extends TestCase
         $exception->setTitle('Title');
         $exception->setDescription('Description');
 
-        $this->assertEquals('Title', $exception->getTitle());
-        $this->assertEquals('Description', $exception->getDescription());
+        $this->assertSame('Title', $exception->getTitle());
+        $this->assertSame('Description', $exception->getDescription());
     }
 
     public function testHttpNotAllowedExceptionGetAllowedMethods()
@@ -43,11 +43,11 @@ class HttpExceptionTest extends TestCase
 
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);
-        $this->assertEquals(['GET'], $exception->getAllowedMethods());
-        $this->assertEquals('Method not allowed. Must be one of: GET', $exception->getMessage());
+        $this->assertSame(['GET'], $exception->getAllowedMethods());
+        $this->assertSame('Method not allowed. Must be one of: GET', $exception->getMessage());
 
         $exception = new HttpMethodNotAllowedException($request);
-        $this->assertEquals([], $exception->getAllowedMethods());
-        $this->assertEquals('Method not allowed.', $exception->getMessage());
+        $this->assertSame([], $exception->getAllowedMethods());
+        $this->assertSame('Method not allowed.', $exception->getMessage());
     }
 }

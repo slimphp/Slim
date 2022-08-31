@@ -22,7 +22,7 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertEquals('PUT', $request->getMethod());
+            $this->assertSame('PUT', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
         $mw2 = new MethodOverrideMiddleware();
@@ -44,7 +44,7 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertEquals('PUT', $request->getMethod());
+            $this->assertSame('PUT', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
@@ -67,7 +67,7 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertEquals('DELETE', $request->getMethod());
+            $this->assertSame('DELETE', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
@@ -91,7 +91,7 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertEquals('POST', $request->getMethod());
+            $this->assertSame('POST', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
@@ -112,7 +112,7 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertEquals('POST', $request->getMethod());
+            $this->assertSame('POST', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
