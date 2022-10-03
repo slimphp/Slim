@@ -10,6 +10,9 @@ use FastRoute\RouteParser\Std;
 use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 
+use function FastRoute\cachedDispatcher;
+use function FastRoute\simpleDispatcher;
+
 class Dispatcher implements DispatcherInterface
 {
     private RouteCollectorInterface $routeCollector;
@@ -38,7 +41,7 @@ class Dispatcher implements DispatcherInterface
         $cacheFile = $this->routeCollector->getCacheFile();
         if ($cacheFile) {
             /** @var FastRouteDispatcher $dispatcher */
-            $dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
+            $dispatcher = cachedDispatcher($routeDefinitionCallback, [
                 'dataGenerator' => GroupCountBased::class,
                 'dispatcher' => FastRouteDispatcher::class,
                 'routeParser' => new Std(),
@@ -46,7 +49,7 @@ class Dispatcher implements DispatcherInterface
             ]);
         } else {
             /** @var FastRouteDispatcher $dispatcher */
-            $dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+            $dispatcher = simpleDispatcher($routeDefinitionCallback, [
                 'dataGenerator' => GroupCountBased::class,
                 'dispatcher' => FastRouteDispatcher::class,
                 'routeParser' => new Std(),
@@ -72,7 +75,6 @@ class Dispatcher implements DispatcherInterface
      */
     public function getAllowedMethods(string $uri): array
     {
-        $dispatcher = $this->createDispatcher();
-        return $dispatcher->getAllowedMethods($uri);
+        return $this->createDispatcher()->getAllowedMethods($uri);
     }
 }

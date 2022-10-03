@@ -15,6 +15,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\Container\ContainerExceptionInterface;
 use Slim\Interfaces\AdvancedCallableResolverInterface;
 
 use function class_exists;
@@ -73,8 +75,12 @@ final class CallableResolver implements AdvancedCallableResolverInterface
 
     /**
      * @param string|callable $toResolve
+     * @param callable        $predicate
+     * @param string          $defaultMethod
      *
-     * @throws RuntimeException
+     * @return callable
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     private function resolveByPredicate($toResolve, callable $predicate, string $defaultMethod): callable
     {
@@ -114,13 +120,15 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     }
 
     /**
-     * @throws RuntimeException
+     * @param string $toResolve
      *
      * @return array{object, string|null} [Instance, Method Name]
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     private function resolveSlimNotation(string $toResolve): array
     {
-        preg_match(CallableResolver::$callablePattern, $toResolve, $matches);
+        preg_match(self::$callablePattern, $toResolve, $matches);
         [$class, $method] = $matches ? [$matches[1], $matches[2]] : [$toResolve, null];
 
         /** @var string $class */

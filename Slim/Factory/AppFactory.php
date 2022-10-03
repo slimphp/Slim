@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Slim\Factory;
 
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use RuntimeException;
@@ -19,6 +20,7 @@ use Slim\Factory\Psr17\Psr17Factory;
 use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimHttpPsr17Factory;
 use Slim\Interfaces\CallableResolverInterface;
+use Psr\Container\ContainerExceptionInterface;
 use Slim\Interfaces\MiddlewareDispatcherInterface;
 use Slim\Interfaces\Psr17FactoryProviderInterface;
 use Slim\Interfaces\RouteCollectorInterface;
@@ -63,6 +65,13 @@ class AppFactory
         );
     }
 
+    /**
+     * @param ContainerInterface $container
+     *
+     * @return App
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public static function createFromContainer(ContainerInterface $container): App
     {
         $responseFactory = $container->has(ResponseFactoryInterface::class)

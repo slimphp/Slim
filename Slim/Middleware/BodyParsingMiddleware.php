@@ -65,7 +65,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param string   $mediaType A HTTP media type (excluding content-type params).
+     * @param string   $mediaType An HTTP media type (excluding content-type params).
      * @param callable $callable  A callable that returns parsed contents for media type.
      */
     public function registerBodyParser(string $mediaType, callable $callable): self
@@ -75,7 +75,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param string   $mediaType A HTTP media type (excluding content-type params).
+     * @param string   $mediaType An HTTP media type (excluding content-type params).
      */
     public function hasBodyParser(string $mediaType): bool
     {
@@ -83,7 +83,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param string    $mediaType A HTTP media type (excluding content-type params).
+     * @param string    $mediaType An HTTP media type (excluding content-type params).
      * @throws RuntimeException
      */
     public function getBodyParser(string $mediaType): callable

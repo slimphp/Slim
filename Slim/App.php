@@ -98,6 +98,8 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
 
     /**
      * @param MiddlewareInterface $middleware
+     *
+     * @return App
      */
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
