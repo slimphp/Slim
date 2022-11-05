@@ -111,12 +111,12 @@ class RouteCollectorProxyTest extends TestCase
 
         $routeCollectorProxy->setBasePath($basePath);
 
-        $this->assertEquals($basePath, $routeCollectorProxy->getBasePath());
+        $this->assertSame($basePath, $routeCollectorProxy->getBasePath());
 
         $newBasePath = '/new/base/path';
         $routeCollectorProxy->setBasePath('/new/base/path');
 
-        $this->assertEquals($newBasePath, $routeCollectorProxy->getBasePath());
+        $this->assertSame($newBasePath, $routeCollectorProxy->getBasePath());
     }
 
     public function testGet()
@@ -149,7 +149,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->get($pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testPost()
@@ -182,7 +182,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->post($pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testPut()
@@ -215,7 +215,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->put($pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testPatch()
@@ -248,7 +248,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->patch($pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testDelete()
@@ -281,7 +281,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->delete($pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testOptions()
@@ -314,7 +314,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->options($pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testAny()
@@ -347,7 +347,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->any($pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testMap()
@@ -381,7 +381,7 @@ class RouteCollectorProxyTest extends TestCase
 
         $route = $routeCollectorProxy->map($methods, $pattern, $callable);
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     public function testRedirect()

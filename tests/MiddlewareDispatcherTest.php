@@ -62,7 +62,7 @@ class MiddlewareDispatcherTest extends TestCase
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
 
-        $this->assertEquals(1, $handler->getCalledCount());
+        $this->assertSame(1, $handler->getCalledCount());
     }
 
     public function testDeferredResolvedCallable(): void
@@ -91,7 +91,7 @@ class MiddlewareDispatcherTest extends TestCase
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
 
-        $this->assertEquals(1, $handler->getCalledCount());
+        $this->assertSame(1, $handler->getCalledCount());
     }
 
     public function testDeferredResolvedCallableWithoutContainerAndNonAdvancedCallableResolver(): void
@@ -115,7 +115,7 @@ class MiddlewareDispatcherTest extends TestCase
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
 
-        $this->assertEquals(1, $handler->getCalledCount());
+        $this->assertSame(1, $handler->getCalledCount());
     }
 
     public function testDeferredResolvedCallableWithDirectConstructorCall(): void
@@ -135,7 +135,7 @@ class MiddlewareDispatcherTest extends TestCase
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
 
-        $this->assertEquals(1, $handler->getCalledCount());
+        $this->assertSame(1, $handler->getCalledCount());
     }
 
     public function deferredCallableProvider(): array
@@ -197,7 +197,7 @@ class MiddlewareDispatcherTest extends TestCase
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
 
-        $this->assertEquals(1, $handler->getCalledCount());
+        $this->assertSame(1, $handler->getCalledCount());
     }
 
     public function testDeferredResolvedSlimCallable(): void
@@ -209,7 +209,7 @@ class MiddlewareDispatcherTest extends TestCase
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
 
-        $this->assertEquals(1, $handler->getCalledCount());
+        $this->assertSame(1, $handler->getCalledCount());
     }
 
     public function testDeferredResolvedClosureIsBoundToContainer(): void
@@ -271,8 +271,8 @@ class MiddlewareDispatcherTest extends TestCase
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
 
-        $this->assertEquals(1, MockMiddlewareWithoutConstructor::$CalledCount);
-        $this->assertEquals(1, $handler->getCalledCount());
+        $this->assertSame(1, MockMiddlewareWithoutConstructor::$CalledCount);
+        $this->assertSame(1, $handler->getCalledCount());
     }
 
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface(): void
@@ -349,7 +349,7 @@ class MiddlewareDispatcherTest extends TestCase
         $response = $dispatcher->handle($requestProphecy->reveal());
 
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldHaveBeenCalled();
-        $this->assertEquals($responseProphecy->reveal(), $response);
+        $this->assertSame($responseProphecy->reveal(), $response);
     }
 
     public function testExecutesMiddlewareLastInFirstOut(): void
@@ -462,7 +462,7 @@ class MiddlewareDispatcherTest extends TestCase
         $response = $dispatcher->handle($requestProphecy->reveal());
 
         $this->assertFalse(MockSequenceMiddleware::$hasBeenInstantiated);
-        $this->assertEquals($responseProphecy->reveal(), $response);
+        $this->assertSame($responseProphecy->reveal(), $response);
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
     }
 
@@ -498,8 +498,8 @@ class MiddlewareDispatcherTest extends TestCase
         $response1 = $dispatcher->handle($requestProphecy->reveal());
         $response2 = $dispatcher->handle($requestProphecy->reveal());
 
-        $this->assertEquals($responseProphecy->reveal(), $response1);
-        $this->assertEquals($responseProphecy->reveal(), $response2);
+        $this->assertSame($responseProphecy->reveal(), $response1);
+        $this->assertSame($responseProphecy->reveal(), $response2);
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
     }
 
@@ -572,7 +572,7 @@ class MiddlewareDispatcherTest extends TestCase
         $dispatcher->addDeferred('somemiddlewarename');
         $response = $dispatcher->handle($requestProphecy->reveal());
 
-        $this->assertEquals($responseProphecy->reveal(), $response);
+        $this->assertSame($responseProphecy->reveal(), $response);
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
     }
 

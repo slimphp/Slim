@@ -46,7 +46,7 @@ class RoutingMiddlewareTest extends TestCase
             // route is available
             $route = $request->getAttribute(RouteContext::ROUTE);
             $this->assertNotNull($route);
-            $this->assertEquals('foo', $route->getArgument('name'));
+            $this->assertSame('foo', $route->getArgument('name'));
 
             // routeParser is available
             $routeParser = $request->getAttribute(RouteContext::ROUTE_PARSER);
@@ -108,7 +108,7 @@ class RoutingMiddlewareTest extends TestCase
             // routingResults is available
             $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
             $this->assertInstanceOf(RoutingResults::class, $routingResults);
-            $this->assertEquals(Dispatcher::METHOD_NOT_ALLOWED, $routingResults->getRouteStatus());
+            $this->assertSame(Dispatcher::METHOD_NOT_ALLOWED, $routingResults->getRouteStatus());
         }
     }
 
@@ -145,7 +145,7 @@ class RoutingMiddlewareTest extends TestCase
             // routingResults is available
             $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
             $this->assertInstanceOf(RoutingResults::class, $routingResults);
-            $this->assertEquals(Dispatcher::NOT_FOUND, $routingResults->getRouteStatus());
+            $this->assertSame(Dispatcher::NOT_FOUND, $routingResults->getRouteStatus());
         }
     }
 
