@@ -190,7 +190,19 @@ class RouteCollector implements RouteCollectorInterface
     public function getNamedRoute(string $name): RouteInterface
     {
         if (isset($this->routesByName[$name])) {
-            return $this->routesByName[$name];
+            $route = $this->routesByName[$name];
+            if ($route->getName() === $name) {
+                return $route;
+            }
+
+            unset($this->routesByName[$name]);
+        }
+
+        foreach ($this->routes as $route) {
+            if ($name === $route->getName()) {
+                $this->routesByName[$name] = $route;
+                return $route;
+            }
         }
 
         throw new RuntimeException('Named route does not exist for name: ' . $name);
@@ -238,7 +250,7 @@ class RouteCollector implements RouteCollectorInterface
         $this->routes[$route->getIdentifier()] = $route;
 
         $routeName = $route->getName();
-        if (null !== $routeName && !isset($this->routesByName[$routeName])) {
+        if ($routeName !== null && !isset($this->routesByName[$routeName])) {
             $this->routesByName[$routeName] = $route;
         }
 
