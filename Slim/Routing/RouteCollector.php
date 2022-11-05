@@ -60,6 +60,13 @@ class RouteCollector implements RouteCollectorInterface
     protected array $routes = [];
 
     /**
+     * Routes indexed by name
+     *
+     * @var RouteInterface[]
+     */
+    protected array $routesByName = [];
+
+    /**
      * Route groups
      *
      * @var RouteGroup[]
@@ -172,7 +179,8 @@ class RouteCollector implements RouteCollectorInterface
     public function removeNamedRoute(string $name): RouteCollectorInterface
     {
         $route = $this->getNamedRoute($name);
-        unset($this->routes[$route->getIdentifier()]);
+
+        unset($this->routesByName[$route->getName()], $this->routes[$route->getIdentifier()]);
         return $this;
     }
 
@@ -181,11 +189,10 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function getNamedRoute(string $name): RouteInterface
     {
-        foreach ($this->routes as $route) {
-            if ($name === $route->getName()) {
-                return $route;
-            }
+        if (isset($this->routesByName[$name])) {
+            return $this->routesByName[$name];
         }
+
         throw new RuntimeException('Named route does not exist for name: ' . $name);
     }
 
@@ -229,6 +236,12 @@ class RouteCollector implements RouteCollectorInterface
     {
         $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
+
+        $routeName = $route->getName();
+        if (null !== $routeName && !isset($this->routesByName[$routeName])) {
+            $this->routesByName[$routeName] = $route;
+        }
+
         $this->routeCounter++;
 
         return $route;
