@@ -201,7 +201,7 @@ class AppTest extends TestCase
         });
         $response = $app->handle($requestProphecy->reveal());
 
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testAnyRoute(): void
@@ -236,7 +236,7 @@ class AppTest extends TestCase
 
             $response = $app->handle($requestProphecy->reveal());
 
-            $this->assertEquals('Hello World', (string) $response->getBody());
+            $this->assertSame('Hello World', (string) $response->getBody());
         }
     }
 
@@ -290,7 +290,7 @@ class AppTest extends TestCase
         });
         $response = $app->handle($requestProphecy->reveal());
 
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testRedirectRoute(): void
@@ -333,8 +333,8 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $responseFactoryProphecy->createResponse(301)->shouldHaveBeenCalled();
-        $this->assertEquals(301, $response->getStatusCode());
-        $this->assertEquals($to, $response->getHeaderLine('Location'));
+        $this->assertSame(301, $response->getStatusCode());
+        $this->assertSame($to, $response->getHeaderLine('Location'));
     }
 
     public function testRouteWithInternationalCharacters(): void
@@ -369,7 +369,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     /********************************************************************************
@@ -402,7 +402,7 @@ class AppTest extends TestCase
         $routeCollector = $app->getRouteCollector();
         $route = $routeCollector->lookupRoute('route0');
 
-        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertSame($pattern, $route->getPattern());
     }
 
     /********************************************************************************
@@ -566,7 +566,7 @@ class AppTest extends TestCase
         $routeCollector = $app->getRouteCollector();
         $route = $routeCollector->lookupRoute('route0');
 
-        $this->assertEquals($expectedPath, $route->getPattern());
+        $this->assertSame($expectedPath, $route->getPattern());
     }
 
     public function testRouteGroupPattern(): void
@@ -579,7 +579,7 @@ class AppTest extends TestCase
         $group = $app->group('/foo', function () {
         });
 
-        $this->assertEquals('/foo', $group->getPattern());
+        $this->assertSame('/foo', $group->getPattern());
     }
 
     /********************************************************************************
@@ -855,7 +855,7 @@ class AppTest extends TestCase
 
         $app->handle($requestProphecy->reveal());
 
-        $this->assertEquals('In2In1CenterOut1Out2', $output);
+        $this->assertSame('In2In1CenterOut1Out2', $output);
     }
 
     public function testAddMiddlewareOnRouteGroup(): void
@@ -937,7 +937,7 @@ class AppTest extends TestCase
 
         $app->handle($requestProphecy->reveal());
 
-        $this->assertEquals('In2In1CenterOut1Out2', $output);
+        $this->assertSame('In2In1CenterOut1Out2', $output);
     }
 
     public function testAddMiddlewareOnTwoRouteGroup(): void
@@ -1057,7 +1057,7 @@ class AppTest extends TestCase
 
         $app->handle($requestProphecy->reveal());
 
-        $this->assertEquals('In1In2In3CenterOut3Out2Out1', $output);
+        $this->assertSame('In1In2In3CenterOut3Out2Out1', $output);
     }
 
     public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException(): void
@@ -1132,7 +1132,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArgument(): void
@@ -1172,7 +1172,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArguments(): void
@@ -1212,7 +1212,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseStrategy(): void
@@ -1252,7 +1252,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy(): void
@@ -1293,7 +1293,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseNamedArgsStrategy(): void
@@ -1341,7 +1341,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument(): void
@@ -1381,7 +1381,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithoutMatchingRoute(): void
@@ -1447,7 +1447,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer(): void
@@ -1527,7 +1527,7 @@ class AppTest extends TestCase
 
         $expectedPayload = json_encode(['name' => 'foo', 'arguments' => []]);
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals($expectedPayload, (string) $response->getBody());
+        $this->assertSame($expectedPayload, (string) $response->getBody());
     }
 
     public function testInvokeFunctionName(): void
@@ -1573,7 +1573,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments(): void
@@ -1613,7 +1613,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal()->withAttribute('greeting', 'Hello'));
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg(): void
@@ -1654,7 +1654,7 @@ class AppTest extends TestCase
         $response = $app->handle($requestProphecy->reveal()->withAttribute('greeting', 'Hello'));
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testRun(): void
@@ -1801,7 +1801,7 @@ class AppTest extends TestCase
 
         $response = $app->handle($requestProphecy->reveal());
 
-        $this->assertEquals(1, $called);
+        $this->assertSame(1, $called);
         $this->assertEmpty((string) $response->getBody());
     }
 
@@ -1917,7 +1917,7 @@ class AppTest extends TestCase
 
         $this->assertSame(204, $response->getStatusCode());
         $this->assertSame(['nested', 'outer'], $response->getHeader('X-TRACE'));
-        $this->assertEquals('11', (string) $response->getBody());
+        $this->assertSame('11', (string) $response->getBody());
     }
 
     // TODO: Re-add testUnsupportedMethodWithoutRoute
@@ -1959,7 +1959,7 @@ class AppTest extends TestCase
 
         $response = $app->handle($requestProphecy->reveal());
 
-        $this->assertEquals('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testAppIsARequestHandler(): void
@@ -2005,7 +2005,7 @@ class AppTest extends TestCase
         });
 
         $response = $app->handle($requestProphecy->reveal());
-        $this->assertEquals('1', (string) $response->getBody());
+        $this->assertSame('1', (string) $response->getBody());
 
         $uriProphecy2 = $this->prophesize(UriInterface::class);
         $uriProphecy2->getPath()->willReturn('/Hello');
@@ -2021,7 +2021,7 @@ class AppTest extends TestCase
 
         $streamProphecy->__toString()->willReturn('');
         $response = $app->handle($requestProphecy2->reveal());
-        $this->assertEquals('0', (string) $response->getBody());
+        $this->assertSame('0', (string) $response->getBody());
     }
 
     public function testInvokeSequentialProcessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs(): void
@@ -2059,7 +2059,7 @@ class AppTest extends TestCase
         });
 
         $response = $app->handle($requestProphecy->reveal());
-        $this->assertEquals('2', (string) $response->getBody());
+        $this->assertSame('2', (string) $response->getBody());
 
         $uriProphecy2 = $this->prophesize(UriInterface::class);
         $uriProphecy2->getPath()->willReturn('/Hello');
@@ -2075,7 +2075,7 @@ class AppTest extends TestCase
 
         $streamProphecy->__toString()->willReturn('');
         $response = $app->handle($requestProphecy2->reveal());
-        $this->assertEquals('1', (string) $response->getBody());
+        $this->assertSame('1', (string) $response->getBody());
     }
 
     public function testInvokeSequentialProcessAfterAddingAnotherRouteArgument(): void
@@ -2118,12 +2118,12 @@ class AppTest extends TestCase
         });
 
         $response = $app->handle($requestProphecy->reveal());
-        $this->assertEquals('2', (string) $response->getBody());
+        $this->assertSame('2', (string) $response->getBody());
 
         $route->setArgument('extra2', 'value2');
 
         $streamProphecy->__toString()->willReturn('');
         $response = $app->handle($requestProphecy->reveal());
-        $this->assertEquals('3', (string) $response->getBody());
+        $this->assertSame('3', (string) $response->getBody());
     }
 }
