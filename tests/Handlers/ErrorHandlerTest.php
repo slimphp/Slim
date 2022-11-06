@@ -296,7 +296,7 @@ class ErrorHandlerTest extends TestCase
         $exception->setAllowedMethods(['POST', 'PUT']);
 
         /** @var ResponseInterface $res */
-        $res = $handler->__invoke($request, $exception, true, true, true);
+        $res = $handler->__invoke($request, $exception, true, false, true);
 
         $this->assertSame(200, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
@@ -367,7 +367,7 @@ class ErrorHandlerTest extends TestCase
         $exception = new RuntimeException();
 
         /** @var ResponseInterface $res */
-        $res = $handler->__invoke($request, $exception, true, true, true);
+        $res = $handler->__invoke($request, $exception, true, false, true);
 
         $this->assertTrue($res->hasHeader('Content-Type'));
         $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
