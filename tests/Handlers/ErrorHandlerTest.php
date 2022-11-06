@@ -388,6 +388,10 @@ class ErrorHandlerTest extends TestCase
         $handler = new ErrorHandler($callableResolverProphecy->reveal(), $this->getResponseFactory());
         $handler->setLogErrorRenderer('logErrorRenderer');
 
+        $displayErrorDetailsProperty = new ReflectionProperty($handler, 'displayErrorDetails');
+        $displayErrorDetailsProperty->setAccessible(true);
+        $displayErrorDetailsProperty->setValue($handler, true);
+
         $exception = new RuntimeException();
         $exceptionProperty = new ReflectionProperty($handler, 'exception');
         $exceptionProperty->setAccessible(true);
