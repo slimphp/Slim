@@ -21,7 +21,7 @@ class RequestResponseNamedArgsTest extends TestCase
     private ServerRequestInterface $request;
     private ResponseInterface $response;
 
-    private const LAST_PHP_VERSION_ID = 80000;
+    private const PHP_8_0_VERSION_ID = 80000;
 
     public function setUp(): void
     {
@@ -31,7 +31,7 @@ class RequestResponseNamedArgsTest extends TestCase
 
     public function testCreatingRequestResponseNamedArgsThrowsRuntimeExceptionForPHPOlderThan80()
     {
-        if (PHP_VERSION_ID >= self::LAST_PHP_VERSION_ID) {
+        if (PHP_VERSION_ID >= self::PHP_8_0_VERSION_ID) {
             $this->markTestSkipped('Test only valid for PHP versions older than 8.0');
         }
 
@@ -41,7 +41,7 @@ class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithEmptyArguments()
     {
-        if (PHP_VERSION_ID < self::LAST_PHP_VERSION_ID) {
+        if (PHP_VERSION_ID < self::PHP_8_0_VERSION_ID) {
             $this->markTestSkipped('Named arguments are not supported in PHP versions prior to 8.0');
         }
 
@@ -60,7 +60,7 @@ class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithKnownArguments()
     {
-        if (PHP_VERSION_ID < self::LAST_PHP_VERSION_ID) {
+        if (PHP_VERSION_ID < self::PHP_8_0_VERSION_ID) {
             $this->markTestSkipped('Named arguments are not supported in PHP versions prior to 8.0');
         }
 
@@ -109,7 +109,7 @@ class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithUnknownAndVariadic()
     {
-        if (PHP_VERSION_ID < self::LAST_PHP_VERSION_ID) {
+        if (PHP_VERSION_ID < self::PHP_8_0_VERSION_ID) {
             $this->markTestSkipped('Named arguments are not supported in PHP versions prior to 8.0');
         }
 
@@ -133,7 +133,7 @@ class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithMixedKnownAndUnknownParametersAndVariadic()
     {
-        if (PHP_VERSION_ID < self::LAST_PHP_VERSION_ID) {
+        if (PHP_VERSION_ID < self::PHP_8_0_VERSION_ID) {
             $this->markTestSkipped('Named arguments are not supported in PHP versions prior to 8.0');
         }
 
