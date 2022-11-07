@@ -39,8 +39,11 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
 
-        $mw = new RoutingMiddleware($app->getRouteResolver(), $app->getRouteCollector()->getRouteParser());
-        $app->add($mw);
+        $routingMiddleware = new RoutingMiddleware(
+            $app->getRouteResolver(),
+            $app->getRouteCollector()->getRouteParser()
+        );
+        $app->add($routingMiddleware);
 
         $exception = HttpNotFoundException::class;
         $handler = (function () {
@@ -49,9 +52,16 @@ class ErrorMiddlewareTest extends TestCase
             return $response;
         })->bindTo($this);
 
-        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
-        $mw2->setErrorHandler($exception, $handler);
-        $app->add($mw2);
+        $errorMiddleware = new ErrorMiddleware(
+            $callableResolver,
+            $this->getResponseFactory(),
+            false,
+            false,
+            false,
+            $logger
+        );
+        $errorMiddleware->setErrorHandler($exception, $handler);
+        $app->add($errorMiddleware);
 
         $request = $this->createServerRequest('/foo/baz/');
         $app->run($request);
@@ -66,8 +76,11 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
 
-        $mw = new RoutingMiddleware($app->getRouteResolver(), $app->getRouteCollector()->getRouteParser());
-        $app->add($mw);
+        $routingMiddleware = new RoutingMiddleware(
+            $app->getRouteResolver(),
+            $app->getRouteCollector()->getRouteParser()
+        );
+        $app->add($routingMiddleware);
 
         $handler = (function () {
             $response = $this->createResponse();
@@ -75,9 +88,16 @@ class ErrorMiddlewareTest extends TestCase
             return $response;
         })->bindTo($this);
 
-        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
-        $mw2->setDefaultErrorHandler($handler);
-        $app->add($mw2);
+        $errorMiddleware = new ErrorMiddleware(
+            $callableResolver,
+            $this->getResponseFactory(),
+            false,
+            false,
+            false,
+            $logger
+        );
+        $errorMiddleware->setDefaultErrorHandler($handler);
+        $app->add($errorMiddleware);
 
         $request = $this->createServerRequest('/foo/baz/');
         $app->run($request);
@@ -94,9 +114,16 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
-        $mw->setDefaultErrorHandler('Uncallable');
-        $mw->getDefaultErrorHandler();
+        $errorMiddleware = new ErrorMiddleware(
+            $callableResolver,
+            $this->getResponseFactory(),
+            false,
+            false,
+            false,
+            $logger
+        );
+        $errorMiddleware->setDefaultErrorHandler('Uncallable');
+        $errorMiddleware->getDefaultErrorHandler();
     }
 
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForUnhandledExceptions()
@@ -118,21 +145,21 @@ class ErrorMiddlewareTest extends TestCase
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
         $app->add(function ($request, $handler) {
             throw new LogicException('This is a LogicException...');
         });
-        $mw->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
+        $middleware->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
         })->bindTo($this), true); // - true; handle subclass but also LogicException explicitly
-        $mw->setDefaultErrorHandler((function () {
+        $middleware->setDefaultErrorHandler((function () {
             $response = $this->createResponse();
             $response->getBody()->write('Oops..');
             return $response;
         })->bindTo($this));
-        $app->add($mw);
+        $app->add($middleware);
         $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('...');
             return $response;
@@ -149,25 +176,25 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new InvalidArgumentException('This is a subclass of LogicException...');
         });
 
-        $mw->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
+        $middleware->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
         })->bindTo($this), true); // - true; handle subclass
 
-        $mw->setDefaultErrorHandler((function () {
+        $middleware->setDefaultErrorHandler((function () {
             $response = $this->createResponse();
             $response->getBody()->write('Oops..');
             return $response;
         })->bindTo($this));
 
-        $app->add($mw);
+        $app->add($middleware);
 
         $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('...');
@@ -187,25 +214,25 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new InvalidArgumentException('This is a subclass of LogicException...');
         });
 
-        $mw->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
+        $middleware->setErrorHandler(LogicException::class, (function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
         })->bindTo($this), false); // - false; don't handle subclass
 
-        $mw->setDefaultErrorHandler((function () {
+        $middleware->setDefaultErrorHandler((function () {
             $response = $this->createResponse();
             $response->getBody()->write('Oops..');
             return $response;
         })->bindTo($this));
 
-        $app->add($mw);
+        $app->add($middleware);
 
         $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('...');
@@ -225,7 +252,7 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new InvalidArgumentException('This is an invalid argument exception...');
@@ -237,15 +264,15 @@ class ErrorMiddlewareTest extends TestCase
             return $response;
         });
 
-        $mw->setErrorHandler([LogicException::class, InvalidArgumentException::class], $handler->bindTo($this));
+        $middleware->setErrorHandler([LogicException::class, InvalidArgumentException::class], $handler->bindTo($this));
 
-        $mw->setDefaultErrorHandler((function () {
+        $middleware->setDefaultErrorHandler((function () {
             $response = $this->createResponse();
             $response->getBody()->write('Oops..');
             return $response;
         })->bindTo($this));
 
-        $app->add($mw);
+        $app->add($middleware);
 
         $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('...');
@@ -265,19 +292,19 @@ class ErrorMiddlewareTest extends TestCase
         $callableResolver = $app->getCallableResolver();
         $logger = $this->getMockLogger();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false, $logger);
 
         $app->add(function ($request, $handler) {
             throw new Error('Oops..');
         });
 
-        $mw->setDefaultErrorHandler((function (ServerRequestInterface $request, $exception) {
+        $middleware->setDefaultErrorHandler((function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
         })->bindTo($this));
 
-        $app->add($mw);
+        $app->add($middleware);
 
         $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('...');

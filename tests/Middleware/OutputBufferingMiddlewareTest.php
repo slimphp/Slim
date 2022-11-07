@@ -23,22 +23,22 @@ class OutputBufferingMiddlewareTest extends TestCase
 {
     public function testStyleDefaultValid()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory());
+        $middleware = new OutputBufferingMiddleware($this->getStreamFactory());
 
-        $reflectionProperty = new ReflectionProperty($mw, 'style');
+        $reflectionProperty = new ReflectionProperty($middleware, 'style');
         $reflectionProperty->setAccessible(true);
-        $value = $reflectionProperty->getValue($mw);
+        $value = $reflectionProperty->getValue($middleware);
 
         $this->assertSame('append', $value);
     }
 
     public function testStyleCustomValid()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
+        $middleware = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
-        $reflectionProperty = new ReflectionProperty($mw, 'style');
+        $reflectionProperty = new ReflectionProperty($middleware, 'style');
         $reflectionProperty->setAccessible(true);
-        $value = $reflectionProperty->getValue($mw);
+        $value = $reflectionProperty->getValue($middleware);
 
         $this->assertSame('prepend', $value);
     }
@@ -53,14 +53,14 @@ class OutputBufferingMiddlewareTest extends TestCase
     public function testAppend()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = function ($request, $handler) use ($responseFactory) {
+        $middleware = function ($request, $handler) use ($responseFactory) {
             $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
         };
-        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
+        $outputBufferingMiddleware = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
 
         $request = $this->createServerRequest('/', 'GET');
 
@@ -68,8 +68,8 @@ class OutputBufferingMiddlewareTest extends TestCase
             $this->createMock(RequestHandlerInterface::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($outputBufferingMiddleware);
         $response = $middlewareDispatcher->handle($request);
 
         $this->assertSame('BodyTest', (string) $response->getBody());
@@ -78,14 +78,14 @@ class OutputBufferingMiddlewareTest extends TestCase
     public function testPrepend()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = function ($request, $handler) use ($responseFactory) {
+        $middleware = function ($request, $handler) use ($responseFactory) {
             $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
         };
-        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
+        $outputBufferingMiddleware = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $request = $this->createServerRequest('/', 'GET');
 
@@ -93,8 +93,8 @@ class OutputBufferingMiddlewareTest extends TestCase
             $this->createMock(RequestHandlerInterface::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($outputBufferingMiddleware);
         $response = $middlewareDispatcher->handle($request);
 
         $this->assertSame('TestBody', (string) $response->getBody());
@@ -102,13 +102,13 @@ class OutputBufferingMiddlewareTest extends TestCase
 
     public function testOutputBufferIsCleanedWhenThrowableIsCaught()
     {
-        $responseFactory = $this->getResponseFactory();
-        $mw = (function ($request, $handler) {
+        $this->getResponseFactory();
+        $middleware = (function ($request, $handler) {
             echo "Test";
             $this->assertSame('Test', ob_get_contents());
             throw new Exception('Oops...');
         })->bindTo($this);
-        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
+        $outputBufferingMiddleware = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $request = $this->createServerRequest('/', 'GET');
 
@@ -116,8 +116,8 @@ class OutputBufferingMiddlewareTest extends TestCase
             $this->createMock(RequestHandlerInterface::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($outputBufferingMiddleware);
 
         try {
             $middlewareDispatcher->handle($request);

@@ -21,11 +21,11 @@ class MethodOverrideMiddlewareTest extends TestCase
     public function testHeader()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
+        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
             $this->assertSame('PUT', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
-        $mw2 = new MethodOverrideMiddleware();
+        $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
         $request = $this
             ->createServerRequest('/', 'POST')
@@ -35,20 +35,20 @@ class MethodOverrideMiddlewareTest extends TestCase
             $this->createMock(RequestHandler::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
         $middlewareDispatcher->handle($request);
     }
 
     public function testBodyParam()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
+        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
             $this->assertSame('PUT', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
-        $mw2 = new MethodOverrideMiddleware();
+        $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
         $request = $this
             ->createServerRequest('/', 'POST')
@@ -58,20 +58,20 @@ class MethodOverrideMiddlewareTest extends TestCase
             $this->createMock(RequestHandler::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
         $middlewareDispatcher->handle($request);
     }
 
     public function testHeaderPreferred()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
+        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
             $this->assertSame('DELETE', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
-        $mw2 = new MethodOverrideMiddleware();
+        $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
         $request = $this
             ->createServerRequest('/', 'POST')
@@ -82,20 +82,20 @@ class MethodOverrideMiddlewareTest extends TestCase
             $this->createMock(RequestHandler::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
         $middlewareDispatcher->handle($request);
     }
 
     public function testNoOverride()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
+        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
             $this->assertSame('POST', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
-        $mw2 = new MethodOverrideMiddleware();
+        $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
         $request = $this->createServerRequest('/', 'POST');
 
@@ -103,20 +103,20 @@ class MethodOverrideMiddlewareTest extends TestCase
             $this->createMock(RequestHandler::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
         $middlewareDispatcher->handle($request);
     }
 
     public function testNoOverrideRewindEofBodyStream()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
+        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
             $this->assertSame('POST', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
-        $mw2 = new MethodOverrideMiddleware();
+        $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
         $request = $this->createServerRequest('/', 'POST');
 
@@ -138,8 +138,8 @@ class MethodOverrideMiddlewareTest extends TestCase
             $this->createMock(RequestHandler::class),
             null
         );
-        $middlewareDispatcher->addCallable($mw);
-        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->addCallable($middleware);
+        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
         $middlewareDispatcher->handle($request);
     }
 }
