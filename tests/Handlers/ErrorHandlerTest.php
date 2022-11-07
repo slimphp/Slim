@@ -95,12 +95,12 @@ class ErrorHandlerTest extends TestCase
         $method->setAccessible(true);
 
         $statusCode = $method->invoke($handler);
-        $this->assertEquals($statusCode, 404);
+        $this->assertSame($statusCode, 404);
 
         $reflectionProperty->setValue($handler, new MockCustomException());
 
         $statusCode = $method->invoke($handler);
-        $this->assertEquals($statusCode, 500);
+        $this->assertSame($statusCode, 500);
     }
 
     /**
@@ -189,7 +189,7 @@ class ErrorHandlerTest extends TestCase
 
         $contentType = $method->invoke($handler, $request);
 
-        $this->assertEquals('text/xml', $contentType);
+        $this->assertSame('text/xml', $contentType);
     }
 
     public function testDetermineContentTypeApplicationJsonOrXml()
@@ -223,7 +223,7 @@ class ErrorHandlerTest extends TestCase
 
         $contentType = $method->invoke($handler, $request);
 
-        $this->assertEquals('application/xml', $contentType);
+        $this->assertSame('application/xml', $contentType);
     }
 
     /**
@@ -254,7 +254,7 @@ class ErrorHandlerTest extends TestCase
         // call determineContentType()
         $return = $method->invoke($handler, $request);
 
-        $this->assertEquals('text/html', $return);
+        $this->assertSame('text/html', $return);
     }
 
     public function testRegisterErrorRenderer()
@@ -284,8 +284,8 @@ class ErrorHandlerTest extends TestCase
         $defaultErrorRendererContentTypeProperty->setAccessible(true);
         $defaultErrorRendererContentType = $defaultErrorRendererContentTypeProperty->getValue($handler);
 
-        $this->assertEquals(PlainTextErrorRenderer::class, $defaultErrorRenderer);
-        $this->assertEquals('text/plain', $defaultErrorRendererContentType);
+        $this->assertSame(PlainTextErrorRenderer::class, $defaultErrorRenderer);
+        $this->assertSame('text/plain', $defaultErrorRendererContentType);
     }
 
     public function testOptions()
@@ -296,11 +296,11 @@ class ErrorHandlerTest extends TestCase
         $exception->setAllowedMethods(['POST', 'PUT']);
 
         /** @var ResponseInterface $res */
-        $res = $handler->__invoke($request, $exception, true, true, true);
+        $res = $handler->__invoke($request, $exception, true, false, true);
 
         $this->assertSame(200, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
-        $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
+        $this->assertSame('POST, PUT', $res->getHeaderLine('Allow'));
     }
 
     public function testWriteToErrorLog()
@@ -367,10 +367,10 @@ class ErrorHandlerTest extends TestCase
         $exception = new RuntimeException();
 
         /** @var ResponseInterface $res */
-        $res = $handler->__invoke($request, $exception, true, true, true);
+        $res = $handler->__invoke($request, $exception, true, false, true);
 
         $this->assertTrue($res->hasHeader('Content-Type'));
-        $this->assertEquals('text/html', $res->getHeaderLine('Content-Type'));
+        $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
     }
 
     public function testLogErrorRenderer()
@@ -387,6 +387,10 @@ class ErrorHandlerTest extends TestCase
 
         $handler = new ErrorHandler($callableResolverProphecy->reveal(), $this->getResponseFactory());
         $handler->setLogErrorRenderer('logErrorRenderer');
+
+        $displayErrorDetailsProperty = new ReflectionProperty($handler, 'displayErrorDetails');
+        $displayErrorDetailsProperty->setAccessible(true);
+        $displayErrorDetailsProperty->setValue($handler, true);
 
         $exception = new RuntimeException();
         $exceptionProperty = new ReflectionProperty($handler, 'exception');

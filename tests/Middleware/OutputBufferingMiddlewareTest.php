@@ -29,7 +29,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $reflectionProperty->setAccessible(true);
         $value = $reflectionProperty->getValue($middleware);
 
-        $this->assertEquals('append', $value);
+        $this->assertSame('append', $value);
     }
 
     public function testStyleCustomValid()
@@ -40,7 +40,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $reflectionProperty->setAccessible(true);
         $value = $reflectionProperty->getValue($middleware);
 
-        $this->assertEquals('prepend', $value);
+        $this->assertSame('prepend', $value);
     }
 
     public function testStyleCustomInvalid()
@@ -72,7 +72,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $middlewareDispatcher->addMiddleware($outputBufferingMiddleware);
         $response = $middlewareDispatcher->handle($request);
 
-        $this->assertEquals('BodyTest', $response->getBody());
+        $this->assertSame('BodyTest', (string) $response->getBody());
     }
 
     public function testPrepend()
@@ -97,7 +97,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $middlewareDispatcher->addMiddleware($outputBufferingMiddleware);
         $response = $middlewareDispatcher->handle($request);
 
-        $this->assertEquals('TestBody', $response->getBody());
+        $this->assertSame('TestBody', (string) $response->getBody());
     }
 
     public function testOutputBufferIsCleanedWhenThrowableIsCaught()
@@ -105,7 +105,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $this->getResponseFactory();
         $middleware = (function ($request, $handler) {
             echo "Test";
-            $this->assertEquals('Test', ob_get_contents());
+            $this->assertSame('Test', ob_get_contents());
             throw new Exception('Oops...');
         })->bindTo($this);
         $outputBufferingMiddleware = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
@@ -122,7 +122,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         try {
             $middlewareDispatcher->handle($request);
         } catch (Exception $e) {
-            $this->assertEquals('', ob_get_contents());
+            $this->assertSame('', ob_get_contents());
         }
     }
 }

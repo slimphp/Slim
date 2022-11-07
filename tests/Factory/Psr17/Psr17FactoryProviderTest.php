@@ -22,7 +22,7 @@ class Psr17FactoryProviderTest extends TestCase
     {
         Psr17FactoryProvider::setFactories([]);
 
-        $this->assertEquals([], Psr17FactoryProvider::getFactories());
+        $this->assertSame([], Psr17FactoryProvider::getFactories());
     }
 
 
@@ -34,6 +34,6 @@ class Psr17FactoryProviderTest extends TestCase
         Psr17FactoryProvider::setFactories(['Factory 1']);
         Psr17FactoryProvider::addFactory('Factory 2');
 
-        $this->assertEquals(['Factory 2', 'Factory 1'], Psr17FactoryProvider::getFactories());
+        $this->assertSame(['Factory 2', 'Factory 1'], Psr17FactoryProvider::getFactories());
     }
 }

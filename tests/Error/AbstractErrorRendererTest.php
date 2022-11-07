@@ -107,7 +107,7 @@ class AbstractErrorRendererTest extends TestCase
         $output = json_encode(json_decode($renderer->__invoke($exception, true)));
         $expectedString = json_encode(['message' => 'Slim Application Error', 'exception' => [$fragment]]);
 
-        $this->assertEquals($output, $expectedString);
+        $this->assertSame($output, $expectedString);
     }
 
     public function testJSONErrorRendererDoesNotDisplayErrorDetails()
@@ -117,7 +117,7 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new JsonErrorRenderer();
         $output = json_encode(json_decode($renderer->__invoke($exception, false)));
 
-        $this->assertEquals($output, json_encode(['message' => 'Slim Application Error']));
+        $this->assertSame($output, json_encode(['message' => 'Slim Application Error']));
     }
 
     public function testJSONErrorRendererDisplaysPreviousError()
@@ -139,7 +139,7 @@ class AbstractErrorRendererTest extends TestCase
 
         $expectedString = json_encode(['message' => 'Slim Application Error', 'exception' => $fragments]);
 
-        $this->assertEquals($output, $expectedString);
+        $this->assertSame($output, $expectedString);
     }
 
     public function testJSONErrorRendererRenderHttpException()
@@ -156,7 +156,7 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new JsonErrorRenderer();
         $output = json_encode(json_decode($renderer->__invoke($httpExceptionProphecy->reveal(), false)));
 
-        $this->assertEquals(
+        $this->assertSame(
             $output,
             json_encode(['message' => $exceptionTitle]),
             'Should contain http exception title'
@@ -174,11 +174,11 @@ class AbstractErrorRendererTest extends TestCase
         /** @var stdClass $output */
         $output = simplexml_load_string($renderer->__invoke($exception, true));
 
-        $this->assertEquals($output->message[0], 'Slim Application Error');
-        $this->assertEquals((string) $output->exception[0]->type, 'Exception');
-        $this->assertEquals((string) $output->exception[0]->message, 'Ooops...');
-        $this->assertEquals((string) $output->exception[1]->type, 'RuntimeException');
-        $this->assertEquals((string) $output->exception[1]->message, 'Oops..');
+        $this->assertSame((string) $output->message[0], 'Slim Application Error');
+        $this->assertSame((string) $output->exception[0]->type, 'Exception');
+        $this->assertSame((string) $output->exception[0]->message, 'Ooops...');
+        $this->assertSame((string) $output->exception[1]->type, 'RuntimeException');
+        $this->assertSame((string) $output->exception[1]->message, 'Oops..');
     }
 
     public function testXMLErrorRendererRenderHttpException()
@@ -197,7 +197,7 @@ class AbstractErrorRendererTest extends TestCase
         /** @var stdClass $output */
         $output = simplexml_load_string($renderer->__invoke($httpExceptionProphecy->reveal(), true));
 
-        $this->assertEquals($output->message[0], $exceptionTitle, 'Should contain http exception title');
+        $this->assertSame((string) $output->message[0], $exceptionTitle, 'Should contain http exception title');
     }
 
     public function testPlainTextErrorRendererFormatFragmentMethod()
@@ -236,7 +236,7 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new PlainTextErrorRenderer();
         $output = $renderer->__invoke($exception, false);
 
-        $this->assertEquals("Slim Application Error\n", $output, 'Should show only one string');
+        $this->assertSame("Slim Application Error\n", $output, 'Should show only one string');
     }
 
     public function testPlainTextErrorRendererRenderHttpException()

@@ -50,7 +50,7 @@ class RouteTest extends TestCase
      */
     public function createRoute($methods = 'GET', string $pattern = '/', $callable = null): Route
     {
-        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response) {
+        $callable ??= function (ServerRequestInterface $request, ResponseInterface $response) {
                 return $response;
         };
 
@@ -116,16 +116,16 @@ class RouteTest extends TestCase
         };
         $route = $this->createRoute($methods, $pattern, $callable);
 
-        $this->assertEquals($methods, $route->getMethods());
-        $this->assertEquals($pattern, $route->getPattern());
-        $this->assertEquals($callable, $route->getCallable());
+        $this->assertSame($methods, $route->getMethods());
+        $this->assertSame($pattern, $route->getPattern());
+        $this->assertSame($callable, $route->getCallable());
     }
 
     public function testGetMethodsReturnsArrayWhenConstructedWithString()
     {
         $route = $this->createRoute();
 
-        $this->assertEquals(['GET'], $route->getMethods());
+        $this->assertSame(['GET'], $route->getMethods());
     }
 
     public function testGetMethods()
@@ -133,14 +133,14 @@ class RouteTest extends TestCase
         $methods = ['GET', 'POST'];
         $route = $this->createRoute($methods);
 
-        $this->assertEquals($methods, $route->getMethods());
+        $this->assertSame($methods, $route->getMethods());
     }
 
     public function testGetPattern()
     {
         $route = $this->createRoute();
 
-        $this->assertEquals('/', $route->getPattern());
+        $this->assertSame('/', $route->getPattern());
     }
 
     public function testGetCallable()
@@ -246,7 +246,7 @@ class RouteTest extends TestCase
             $groups
         );
 
-        $this->assertEquals($groups, $route->getGroups());
+        $this->assertSame($groups, $route->getGroups());
     }
 
     public function testArgumentSetting()
@@ -385,14 +385,14 @@ class RouteTest extends TestCase
     public function testIdentifier()
     {
         $route = $this->createRoute();
-        $this->assertEquals('route0', $route->getIdentifier());
+        $this->assertSame('route0', $route->getIdentifier());
     }
 
     public function testSetName()
     {
         $route = $this->createRoute();
-        $this->assertEquals($route, $route->setName('foo'));
-        $this->assertEquals('foo', $route->getName());
+        $this->assertSame($route, $route->setName('foo'));
+        $this->assertSame('foo', $route->getName());
     }
 
     public function testControllerMethodAsStringResolvesWithoutContainer()
@@ -409,7 +409,7 @@ class RouteTest extends TestCase
         $response = $route->run($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(1, CallableTest::$CalledCount);
+        $this->assertSame(1, CallableTest::$CalledCount);
     }
 
     public function testControllerMethodAsStringResolvesWithContainer()
@@ -475,7 +475,7 @@ class RouteTest extends TestCase
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
 
-        $this->assertEquals('foo', (string) $response->getBody());
+        $this->assertSame('foo', (string) $response->getBody());
     }
 
     /**
@@ -498,8 +498,8 @@ class RouteTest extends TestCase
         ob_end_clean();
 
         // Output buffer is ignored without optional middleware
-        $this->assertEquals('', (string) $response->getBody());
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertSame('', (string) $response->getBody());
+        $this->assertSame(201, $response->getStatusCode());
     }
 
     /**
@@ -517,7 +517,7 @@ class RouteTest extends TestCase
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
 
-        $this->assertEquals('foo', (string) $response->getBody());
+        $this->assertSame('foo', (string) $response->getBody());
     }
 
     public function testInvokeWithException()
@@ -639,7 +639,7 @@ class RouteTest extends TestCase
             ->reveal()
             ->get(RequestHandlerTest::class)::$strategy;
 
-        $this->assertEquals(RequestHandler::class, $strategy);
+        $this->assertSame(RequestHandler::class, $strategy);
     }
 
     public function testInvokeUsesUserSetStrategyForRequestHandlers()
@@ -674,7 +674,7 @@ class RouteTest extends TestCase
         $request = $this->createServerRequest('/', 'GET');
         $route->run($request);
 
-        $this->assertEquals(1, $strategy::$CalledCount);
+        $this->assertSame(1, $strategy::$CalledCount);
     }
 
     public function testRequestHandlerStrategyAppendsRouteArgumentsAsAttributesToRequest()
@@ -714,8 +714,8 @@ class RouteTest extends TestCase
             $name = $args[0];
             $value = $args[1];
 
-            $self->assertEquals('id', $name);
-            $self->assertEquals(1, $value);
+            $self->assertSame('id', $name);
+            $self->assertSame(1, $value);
 
             return $this;
         })->shouldBeCalledOnce();
@@ -731,7 +731,7 @@ class RouteTest extends TestCase
         $route = $this->createRoute();
         $route->setPattern('/hola/{nombre}');
 
-        $this->assertEquals('/hola/{nombre}', $route->getPattern());
+        $this->assertSame('/hola/{nombre}', $route->getPattern());
     }
 
     /**
@@ -805,7 +805,7 @@ class RouteTest extends TestCase
         $response = $route->run($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(
+        $this->assertSame(
             [$containerProphecy->reveal()->get('CallableTest2'), 'toCall'],
             InvocationStrategyTest::$LastCalledFor
         );
@@ -869,6 +869,6 @@ class RouteTest extends TestCase
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
 
-        $this->assertEquals('Hello', (string) $response->getBody());
+        $this->assertSame('Hello', (string) $response->getBody());
     }
 }

@@ -71,7 +71,7 @@ class DispatcherTest extends TestCase
 
         /** @var RoutingResults $result */
         $result = $dispatcher2->dispatch('GET', '/');
-        $this->assertEquals(FastRouteDispatcher::FOUND, $result->getRouteStatus());
+        $this->assertSame(FastRouteDispatcher::FOUND, $result->getRouteStatus());
 
         unlink($cacheFile);
     }
@@ -111,7 +111,7 @@ class DispatcherTest extends TestCase
         $dispatcher = new Dispatcher($routeCollector);
         $results = $dispatcher->getAllowedMethods('/');
 
-        $this->assertEquals($methods, $results);
+        $this->assertSame($methods, $results);
     }
 
     public function testDispatch()
@@ -130,13 +130,13 @@ class DispatcherTest extends TestCase
         $dispatcher = new Dispatcher($routeCollector);
         $results = $dispatcher->dispatch('GET', '/hello/Foo%20Bar');
 
-        $this->assertEquals(RoutingResults::FOUND, $results->getRouteStatus());
-        $this->assertEquals('GET', $results->getMethod());
-        $this->assertEquals('/hello/Foo%20Bar', $results->getUri());
-        $this->assertEquals($route->getIdentifier(), $results->getRouteIdentifier());
-        $this->assertEquals(['name' => 'Foo Bar'], $results->getRouteArguments());
-        $this->assertEquals(['name' => 'Foo%20Bar'], $results->getRouteArguments(false));
-        $this->assertEquals($methods, $results->getAllowedMethods());
+        $this->assertSame(RoutingResults::FOUND, $results->getRouteStatus());
+        $this->assertSame('GET', $results->getMethod());
+        $this->assertSame('/hello/Foo%20Bar', $results->getUri());
+        $this->assertSame($route->getIdentifier(), $results->getRouteIdentifier());
+        $this->assertSame(['name' => 'Foo Bar'], $results->getRouteArguments());
+        $this->assertSame(['name' => 'Foo%20Bar'], $results->getRouteArguments(false));
+        $this->assertSame($methods, $results->getAllowedMethods());
         $this->assertSame($dispatcher, $results->getDispatcher());
     }
 }
