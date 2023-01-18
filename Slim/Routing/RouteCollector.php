@@ -17,6 +17,7 @@ use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteCollectorInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteParserInterface;
@@ -224,21 +225,30 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface
     {
-        $routeCollectorProxy = new RouteCollectorProxy(
-            $this->responseFactory,
-            $this->callableResolver,
-            $this->container,
-            $this,
-            $pattern
-        );
-
-        $routeGroup = new RouteGroup($pattern, $callable, $this->callableResolver, $routeCollectorProxy);
+        $routeGroup = $this->createGroup($pattern,$callable);
         $this->routeGroups[] = $routeGroup;
 
         $routeGroup->collectRoutes();
         array_pop($this->routeGroups);
 
         return $routeGroup;
+    }
+
+    protected function createGroup(string $pattern, $callable): RouteGroupInterface
+    {
+        $routeCollectorProxy = $this->createProxy($pattern);
+        return new RouteGroup($pattern, $callable, $this->callableResolver, $routeCollectorProxy);
+    }
+
+    protected function createProxy(string $pattern): RouteCollectorProxyInterface
+    {
+        return new RouteCollectorProxy(
+            $this->responseFactory,
+            $this->callableResolver,
+            $this->container,
+            $this,
+            $pattern
+        );
     }
 
     /**
