@@ -70,7 +70,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * Route groups
      *
-     * @var RouteGroup[]
+     * @var RouteGroupInterface[]
      */
     protected array $routeGroups = [];
 
@@ -225,7 +225,7 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface
     {
-        $routeGroup = $this->createGroup($pattern,$callable);
+        $routeGroup = $this->createGroup($pattern, $callable);
         $this->routeGroups[] = $routeGroup;
 
         $routeGroup->collectRoutes();
@@ -234,6 +234,9 @@ class RouteCollector implements RouteCollectorInterface
         return $routeGroup;
     }
 
+    /**
+     * @param string|callable $callable
+     */
     protected function createGroup(string $pattern, $callable): RouteGroupInterface
     {
         $routeCollectorProxy = $this->createProxy($pattern);
