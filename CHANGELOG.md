@@ -1,5 +1,34 @@
 # Changelog
 
+# 4.11.0 - 2022-11-06
+- [3180: Declare types](https://github.com/slimphp/Slim/pull/3180) thanks to @nbayramberdiyev
+- [3181: Update laminas/laminas-diactoros requirement from ^2.8 to ^2.9](https://github.com/slimphp/Slim/pull/3181) thanks to @dependabot[bot]
+- [3182: Update guzzlehttp/psr7 requirement from ^2.1 to ^2.2](https://github.com/slimphp/Slim/pull/3182) thanks to @dependabot[bot]
+- [3183: Update phpstan/phpstan requirement from ^1.4 to ^1.5](https://github.com/slimphp/Slim/pull/3183) thanks to @dependabot[bot]
+- [3184: Update adriansuter/php-autoload-override requirement from ^1.2 to ^1.3](https://github.com/slimphp/Slim/pull/3184) thanks to @dependabot[bot]
+- [3189: Update phpstan/phpstan requirement from ^1.5 to ^1.6](https://github.com/slimphp/Slim/pull/3189) thanks to @dependabot[bot]
+- [3191: Adding property types to Middleware classes](https://github.com/slimphp/Slim/pull/3191) thanks to @ashleycoles
+- [3193: Handlers types](https://github.com/slimphp/Slim/pull/3193) thanks to @ashleycoles
+- [3194: Adding types to AbstractErrorRenderer](https://github.com/slimphp/Slim/pull/3194) thanks to @ashleycoles
+- [3195: Adding prop types for Exception classes](https://github.com/slimphp/Slim/pull/3195) thanks to @ashleycoles
+- [3196: Adding property type declarations for Factory classes](https://github.com/slimphp/Slim/pull/3196) thanks to @ashleycoles
+- [3197: Remove redundant docblock types](https://github.com/slimphp/Slim/pull/3197) thanks to @theodorejb
+- [3199: Update laminas/laminas-diactoros requirement from ^2.9 to ^2.11](https://github.com/slimphp/Slim/pull/3199) thanks to @dependabot[bot]
+- [3200: Update phpstan/phpstan requirement from ^1.6 to ^1.7](https://github.com/slimphp/Slim/pull/3200) thanks to @dependabot[bot]
+- [3205: Update guzzlehttp/psr7 requirement from ^2.2 to ^2.4](https://github.com/slimphp/Slim/pull/3205) thanks to @dependabot[bot]
+- [3206: Update squizlabs/php_codesniffer requirement from ^3.6 to ^3.7](https://github.com/slimphp/Slim/pull/3206) thanks to @dependabot[bot]
+- [3207: Update phpstan/phpstan requirement from ^1.7 to ^1.8](https://github.com/slimphp/Slim/pull/3207) thanks to @dependabot[bot]
+- [3211: Assign null coalescing to coalesce equal](https://github.com/slimphp/Slim/pull/3211) thanks to @MathiasReker
+- [3213: Void return](https://github.com/slimphp/Slim/pull/3213) thanks to @MathiasReker
+- [3214: Is null](https://github.com/slimphp/Slim/pull/3214) thanks to @MathiasReker
+- [3216: Refactor](https://github.com/slimphp/Slim/pull/3216) thanks to @mehdihasanpour
+- [3218: Refactor some code](https://github.com/slimphp/Slim/pull/3218) thanks to @mehdihasanpour
+- [3221: Cleanup](https://github.com/slimphp/Slim/pull/3221) thanks to @mehdihasanpour
+- [3225: Update laminas/laminas-diactoros requirement from ^2.11 to ^2.14](https://github.com/slimphp/Slim/pull/3225) thanks to @dependabot[bot]
+- [3228: Using assertSame to let assert equal be restricted](https://github.com/slimphp/Slim/pull/3228) thanks to @peter279k
+- [3229: Update laminas/laminas-diactoros requirement from ^2.14 to ^2.17](https://github.com/slimphp/Slim/pull/3229) thanks to @dependabot[bot]
+- [3235: Persist routes indexed by name in RouteCollector for improved performance.](https://github.com/slimphp/Slim/pull/3235) thanks to @BusterNeece
+
 # 4.10.0 - 2022-03-14
 - [3120: Add a new PSR-17 factory to Psr17FactoryProvider](https://github.com/slimphp/Slim/pull/3120) thanks to @solventt
 - [3123: Replace deprecated setMethods() in tests](https://github.com/slimphp/Slim/pull/3123) thanks to @solventt
