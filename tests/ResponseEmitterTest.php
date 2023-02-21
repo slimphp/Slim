@@ -137,7 +137,7 @@ class ResponseEmitterTest extends TestCase
     public function testResponseReplacesPreviouslySetHeaders(): void
     {
         $response = $this
-            ->createResponse(200, 'OK')
+            ->createResponse()
             ->withHeader('X-Foo', 'baz1')
             ->withAddedHeader('X-Foo', 'baz2');
         $responseEmitter = new ResponseEmitter();
@@ -146,16 +146,16 @@ class ResponseEmitterTest extends TestCase
         $expectedStack = [
             ['header' => 'X-Foo: baz1', 'replace' => true, 'status_code' => null],
             ['header' => 'X-Foo: baz2', 'replace' => false, 'status_code' => null],
-            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
         ];
 
         $this->assertSame($expectedStack, HeaderStack::stack());
+        $this->assertSame(200, http_response_code());
     }
 
     public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders(): void
     {
         $response = $this
-            ->createResponse(200, 'OK')
+            ->createResponse()
             ->withHeader('set-cOOkie', 'foo=bar')
             ->withAddedHeader('Set-Cookie', 'bar=baz');
         $responseEmitter = new ResponseEmitter();
@@ -164,10 +164,10 @@ class ResponseEmitterTest extends TestCase
         $expectedStack = [
             ['header' => 'set-cOOkie: foo=bar', 'replace' => false, 'status_code' => null],
             ['header' => 'set-cOOkie: bar=baz', 'replace' => false, 'status_code' => null],
-            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
         ];
 
         $this->assertSame($expectedStack, HeaderStack::stack());
+        $this->assertSame(200, http_response_code());
     }
 
     public function testIsResponseEmptyWithNonEmptyBodyAndTriggeringStatusCode(): void
@@ -185,7 +185,7 @@ class ResponseEmitterTest extends TestCase
     {
         $body = $this->createStream('Hello');
         $response = $this
-            ->createResponse(200)
+            ->createResponse()
             ->withBody($body);
         $responseEmitter = new ResponseEmitter();
 
@@ -199,7 +199,7 @@ class ResponseEmitterTest extends TestCase
     {
         $resource = popen('echo 12', 'r');
         $body = $this->getStreamFactory()->createStreamFromResource($resource);
-        $response = $this->createResponse(200)->withBody($body);
+        $response = $this->createResponse()->withBody($body);
         $responseEmitter = new ResponseEmitter();
 
         $responseEmitter->isResponseEmpty($response);
@@ -212,19 +212,20 @@ class ResponseEmitterTest extends TestCase
     {
         $body = new SlowPokeStream();
         $response = $this
-            ->createResponse(204, 'No content')
+            ->createResponse(204)
             ->withBody($body);
 
         $responseEmitter = new ResponseEmitter();
         $responseEmitter->emit($response);
 
+        $this->assertSame(204, http_response_code());
         $this->assertFalse($body->eof());
         $this->expectOutputString('');
     }
 
     public function testIsResponseEmptyWithEmptyBody(): void
     {
-        $response = $this->createResponse(200);
+        $response = $this->createResponse();
         $responseEmitter = new ResponseEmitter();
 
         $this->assertTrue($responseEmitter->isResponseEmpty($response));
@@ -234,7 +235,7 @@ class ResponseEmitterTest extends TestCase
     {
         $body = $this->createStream('0');
         $response = $this
-            ->createResponse(200)
+            ->createResponse()
             ->withBody($body);
         $responseEmitter = new ResponseEmitter();
 

@@ -43,12 +43,12 @@ class HeaderStack
     /**
      * @var string[][]
      */
-    private static $data = [];
+    private static array $data = [];
 
     /**
      * Reset state
      */
-    public static function reset()
+    public static function reset(): void
     {
         self::$data = [];
     }
@@ -58,7 +58,7 @@ class HeaderStack
      *
      * @param array $header
      */
-    public static function push(array $header)
+    public static function push(array $header): void
     {
         self::$data[] = $header;
     }
@@ -68,7 +68,7 @@ class HeaderStack
      *
      * @return string[][]
      */
-    public static function stack()
+    public static function stack(): array
     {
         return self::$data;
     }
@@ -80,7 +80,7 @@ class HeaderStack
      *
      * @return bool
      */
-    public static function has($header)
+    public static function has(string $header): bool
     {
         foreach (self::$data as $item) {
             $components = explode(':', $item['header']);

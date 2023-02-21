@@ -72,13 +72,7 @@ class ResponseEmitter
      */
     private function emitStatusLine(ResponseInterface $response): void
     {
-        $statusLine = sprintf(
-            'HTTP/%s %s %s',
-            $response->getProtocolVersion(),
-            $response->getStatusCode(),
-            $response->getReasonPhrase()
-        );
-        header($statusLine, true, $response->getStatusCode());
+        http_response_code($response->getStatusCode());
     }
 
     /**
