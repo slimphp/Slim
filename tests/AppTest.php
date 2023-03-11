@@ -1384,6 +1384,60 @@ class AppTest extends TestCase
         $this->assertSame('Hello World', (string) $response->getBody());
     }
 
+    public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgumentWithRequestHandlerInterface(): void
+    {
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+        $response = $responseProphecy->reveal();
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($response);
+
+        $class = new class($response) implements RequestHandlerInterface {
+            private ResponseInterface $response;
+
+            public function __construct(ResponseInterface $response)
+            {
+                $this->response = $response;
+            }
+
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $nameAttr = $request->getAttribute('name');
+                $this->response->getBody()->write("Hello {$nameAttr}");
+                return $this->response;
+            }
+        };
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/Hello/{name}', $class)->setArgument('name', 'World!');
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertSame('Hello World', (string) $response->getBody());
+    }
+
     public function testInvokeWithoutMatchingRoute(): void
     {
         $this->expectException(HttpNotFoundException::class);
