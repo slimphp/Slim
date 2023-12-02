@@ -61,7 +61,7 @@
         "httpsoft/http-server-request": "^1.1",
         "laminas/laminas-diactoros": "^2.17",
         "nyholm/psr7": "^1.8",
-        "nyholm/psr7-server": "^1.0",
+        "nyholm/psr7-server": "^1.1",
         "phpspec/prophecy": "^1.17",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/phpstan": "^1.10",
