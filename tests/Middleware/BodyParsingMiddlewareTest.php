@@ -31,6 +31,7 @@ class BodyParsingMiddlewareTest extends TestCase
         $response = $this->createResponse();
         return new class ($response) implements RequestHandlerInterface {
             private $response;
+            public $request;
 
             public function __construct(ResponseInterface $response)
             {
@@ -39,7 +40,7 @@ class BodyParsingMiddlewareTest extends TestCase
 
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
-                $this->response->request = $request;
+                $this->request = $request;
                 return $this->response;
             }
         };
@@ -152,9 +153,10 @@ class BodyParsingMiddlewareTest extends TestCase
         $request = $this->createRequestWithBody($contentType, $body);
 
         $middleware = new BodyParsingMiddleware();
-        $response = $middleware->process($request, $this->createRequestHandler());
+        $requestHandler = $this->createRequestHandler();
+        $middleware->process($request, $requestHandler);
 
-        $this->assertEquals($expected, $response->request->getParsedBody());
+        $this->assertEquals($expected, $requestHandler->request->getParsedBody());
     }
 
     public function testParsingWithARegisteredParser()
@@ -167,9 +169,10 @@ class BodyParsingMiddlewareTest extends TestCase
             },
         ];
         $middleware = new BodyParsingMiddleware($parsers);
-        $response = $middleware->process($request, $this->createRequestHandler());
+        $requestHandler = $this->createRequestHandler();
+        $middleware->process($request, $requestHandler);
 
-        $this->assertSame(['data' => '{"foo":"bar"}'], $response->request->getParsedBody());
+        $this->assertSame(['data' => '{"foo":"bar"}'], $requestHandler->request->getParsedBody());
     }
 
     public function testParsingFailsWhenAnInvalidTypeIsReturned()

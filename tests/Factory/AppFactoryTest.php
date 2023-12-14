@@ -18,6 +18,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
 use Slim\Factory\AppFactory;
@@ -45,12 +46,8 @@ class AppFactoryTest extends TestCase
 {
     protected function tearDown(): void
     {
-        $responseFactoryDecoratorClassProperty = new ReflectionProperty(
-            SlimHttpPsr17Factory::class,
-            'responseFactoryClass'
-        );
-        $responseFactoryDecoratorClassProperty->setAccessible(true);
-        $responseFactoryDecoratorClassProperty->setValue(DecoratedResponseFactory::class);
+        $reflectionClass = new ReflectionClass(SlimHttpPsr17Factory::class);
+        $reflectionClass->setStaticPropertyValue('responseFactoryClass', DecoratedResponseFactory::class);
     }
 
     public function provideImplementations()
@@ -103,12 +100,8 @@ class AppFactoryTest extends TestCase
             'Slim\\Factory\\Psr17\\SlimHttpPsr17Factory could not instantiate a decorated response factory.'
         );
 
-        $responseFactoryDecoratorClassProperty = new ReflectionProperty(
-            SlimHttpPsr17Factory::class,
-            'responseFactoryClass'
-        );
-        $responseFactoryDecoratorClassProperty->setAccessible(true);
-        $responseFactoryDecoratorClassProperty->setValue(stdClass::class);
+        $reflectionClass = new ReflectionClass(SlimHttpPsr17Factory::class);
+        $reflectionClass->setStaticPropertyValue('responseFactoryClass', SlimHttpPsr17Factory::class);
 
         Psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
         AppFactory::setSlimHttpDecoratorsAutomaticDetection(true);
