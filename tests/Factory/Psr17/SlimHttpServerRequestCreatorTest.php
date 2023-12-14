@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Factory\Psr17;
 
 use Psr\Http\Message\ServerRequestInterface;
+use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
 use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
@@ -91,12 +92,8 @@ class SlimHttpServerRequestCreatorTest extends TestCase
 
         $slimHttpServerRequestCreator = new SlimHttpServerRequestCreator($serverRequestCreatorProphecy->reveal());
 
-        $serverRequestDecoratorClassProperty = new ReflectionProperty(
-            SlimHttpServerRequestCreator::class,
-            'serverRequestDecoratorClass'
-        );
-        $serverRequestDecoratorClassProperty->setAccessible(true);
-        $serverRequestDecoratorClassProperty->setValue(stdClass::class);
+        $reflectionClass = new ReflectionClass(SlimHttpServerRequestCreator::class);
+        $reflectionClass->setStaticPropertyValue('serverRequestDecoratorClass', stdClass::class);
 
         $slimHttpServerRequestCreator->createServerRequestFromGlobals();
     }

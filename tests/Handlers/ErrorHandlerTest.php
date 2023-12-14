@@ -241,10 +241,6 @@ class ErrorHandlerTest extends TestCase
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 
-        $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($class, $this->getResponseFactory());
-
         // use a mock object here as ErrorHandler cannot be directly instantiated
         $handler = $this
             ->getMockBuilder(ErrorHandler::class)
