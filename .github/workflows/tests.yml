@@ -27,7 +27,7 @@ jobs:
           coverage: xdebug
 
       - name: Install dependencies with Composer
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
 
       - name: Coding standards
         if: matrix.analysis
