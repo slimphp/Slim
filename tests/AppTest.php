@@ -1423,7 +1423,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
-        $handler = new Class
+        $handler = new class
         {
             public function foo(ServerRequestInterface $request, ResponseInterface $response)
             {
@@ -1465,7 +1465,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
-        $handler = new Class
+        $handler = new class
         {
         };
 
