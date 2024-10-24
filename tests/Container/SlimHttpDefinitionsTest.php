@@ -149,7 +149,7 @@ class SlimHttpDefinitionsTest extends TestCase
     public function testUriFactoryInterfaceThrowsRuntimeExceptionWhenNoImplementationIsAvailable()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Could not instantiate a URI factory.');
+        $this->expectExceptionMessage('Could not instantiate a UriFactory.');
 
         $definitions = new SlimHttpDefinitions();
 
