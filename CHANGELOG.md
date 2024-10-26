@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `JsonRenderer` utility class for rendering JSON responses.
 - New `RequestResponseTypedArgs` invocation strategy for route parameters with type declarations.
 - New `UrlGeneratorMiddleware` injects the `UrlGenerator` into the request attributes.
+- New `CorsMiddleware` for handling CORS requests.
 - Support to build a custom middleware pipeline without the Slim App class. See new `ResponseFactoryMiddleware`
 - Add content negotiator
 - Add Config class and ConfigInterface
