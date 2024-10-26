@@ -32,8 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `UrlGeneratorMiddleware` injects the `UrlGenerator` into the request attributes.
 - New `CorsMiddleware` for handling CORS requests.
 - Support to build a custom middleware pipeline without the Slim App class. See new `ResponseFactoryMiddleware`
-- Add content negotiator
-- Add Config class and ConfigInterface
+- New media type detector
+- New Config class and ConfigInterface
 
 ### Changed
 
