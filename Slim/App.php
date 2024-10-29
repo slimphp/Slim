@@ -78,23 +78,14 @@ class App implements RouteCollectionInterface
      * request handler, router, and emitter.
      *
      * @param ContainerInterface $container The dependency injection container
-     * @param ServerRequestCreatorInterface $serverRequestCreator The server request creator
-     * @param RequestHandlerInterface $requestHandler The request handler
-     * @param Router $router The router instance
-     * @param EmitterInterface $emitter The response emitter
      */
-    public function __construct(
-        ContainerInterface $container,
-        ServerRequestCreatorInterface $serverRequestCreator,
-        RequestHandlerInterface $requestHandler,
-        Router $router,
-        EmitterInterface $emitter,
-    ) {
+    public function __construct(ContainerInterface $container)
+    {
         $this->container = $container;
-        $this->serverRequestCreator = $serverRequestCreator;
-        $this->requestHandler = $requestHandler;
-        $this->router = $router;
-        $this->emitter = $emitter;
+        $this->serverRequestCreator = $container->get(ServerRequestCreatorInterface::class);
+        $this->requestHandler = $container->get(RequestHandlerInterface::class);
+        $this->router = $container->get(Router::class);
+        $this->emitter = $container->get(EmitterInterface::class);
     }
 
     /**

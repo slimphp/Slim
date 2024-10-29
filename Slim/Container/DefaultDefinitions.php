@@ -17,7 +17,6 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Slim\App;
 use Slim\Configuration\Config;
 use Slim\Emitter\ResponseEmitter;
 use Slim\Error\Handlers\ExceptionHandler;
@@ -30,7 +29,6 @@ use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\ExceptionHandlerInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
-use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Media\MediaType;
 use Slim\Media\MediaTypeDetector;
 use Slim\Middleware\BodyParsingMiddleware;
@@ -54,15 +52,6 @@ final class DefaultDefinitions
     public function __invoke(): array
     {
         return [
-            App::class => function (ContainerInterface $container) {
-                $serverRequestCreator = $container->get(ServerRequestCreatorInterface::class);
-                $requestHandler = $container->get(RequestHandlerInterface::class);
-                $router = $container->get(Router::class);
-                $emitter = $container->get(EmitterInterface::class);
-
-                return new App($container, $serverRequestCreator, $requestHandler, $router, $emitter);
-            },
-
             BodyParsingMiddleware::class => function (ContainerInterface $container) {
                 $mediaTypeDetector = $container->get(MediaTypeDetector::class);
                 $middleware = new BodyParsingMiddleware($mediaTypeDetector);
