@@ -44,7 +44,7 @@ jobs:
         run: composer stan
 
       - name: Tests
-        if: !matrix.analysis
+        if: ${{ !matrix.analysis }}
         run: composer test
 
       - name: Tests with coverage
