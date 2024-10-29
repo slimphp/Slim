@@ -35,14 +35,20 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Coding standards
-        if: matrix.analysis
+        run: composer cs:check
+
+      - name: Code sniffer
         run: composer sniffer:check
 
       - name: Static analysis
-        if: matrix.analysis
         run: composer stan
 
       - name: Tests
+        if: !matrix.analysis
+        run: composer test
+
+      - name: Tests with coverage
+        if: matrix.analysis
         run: composer test:coverage
 
       - name: Upload coverage results to Coveralls

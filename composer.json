@@ -109,6 +109,7 @@
         "stan": "phpstan analyse -c phpstan.neon --no-progress --ansi",
         "test": "phpunit --configuration phpunit.xml --do-not-cache-result --colors=always --display-warnings --display-deprecations --no-coverage",
         "test:all": [
+            "@cs:check",
             "@sniffer:check",
             "@stan",
             "@test"
