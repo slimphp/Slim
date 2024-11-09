@@ -193,4 +193,27 @@ final class ExceptionHandlingMiddlewareTest extends TestCase
         $this->assertSame(123, $actual['exception'][0]['code']);
         $this->assertSame('Test error', $actual['exception'][0]['message']);
     }
+
+    public function testWithoutHandler(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Test error');
+
+        $builder = new AppBuilder();
+        $app = $builder->build();
+
+        $app->add(new ExceptionHandlingMiddleware());
+        $app->add(RoutingMiddleware::class);
+        $app->add(EndpointMiddleware::class);
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
+
+        $app->get('/', function () {
+            throw new RuntimeException('Test error', 123);
+        });
+
+        $app->handle($request);
+    }
 }
