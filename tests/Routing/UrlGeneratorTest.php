@@ -96,4 +96,20 @@ class UrlGeneratorTest extends TestCase
         // Attempt to generate a URL with missing data for the route parameter
         $urlGenerator->relativeUrlFor('user.show');
     }
+
+    public function testRelativeUrlForWithBasePath(): void
+    {
+        $app = (new AppBuilder())->build();
+        $router = $app->getContainer()->get(Router::class);
+        $router->setBasePath('/api');
+        $urlGenerator = new UrlGenerator($router);
+
+        $router->map(['GET'], '/user/{id}', 'user_handler')
+            ->setName('user.show');
+
+        // Generate relative URL with base path
+        $url = $urlGenerator->relativeUrlFor('user.show', ['id' => 123], ['page' => 2]);
+
+        $this->assertSame('/api/user/123?page=2', $url);
+    }
 }

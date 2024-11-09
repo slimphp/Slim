@@ -44,28 +44,20 @@ final class RoutingMiddleware implements MiddlewareInterface
         $dispatcher = new GroupCountBased($this->router->getRouteCollector()->getData());
 
         $httpMethod = $request->getMethod();
-        $uri = rawurldecode($request->getUri()->getPath());
-
-        $basePathUri = $uri;
+        $uri = $request->getUri()->getPath();
 
         // Determine base path
         $basePath = $request->getAttribute(RouteContext::BASE_PATH) ?? $this->router->getBasePath();
 
+        $dispatcherUri = $uri;
         if ($basePath) {
-            // Normalize base path
-            $basePath = sprintf('/%s', trim($basePath, '/'));
-
-            // Remove base path from URI for the dispatcher
-            $uri = substr($uri, strlen($basePath));
-
-            // Normalize uri
-            $uri = sprintf('/%s', trim($uri, '/'));
-
-            // Full URI with base path for the route results
-            $basePathUri = sprintf('%s%s', $basePath, $uri);
+            // Remove base path for the dispatcher
+            $dispatcherUri = substr($dispatcherUri, strlen($basePath));
+            $dispatcherUri = $this->normalizePath($dispatcherUri);
         }
 
-        $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
+        $dispatcherUri = rawurldecode($dispatcherUri);
+        $routeInfo = $dispatcher->dispatch($httpMethod, $dispatcherUri);
         $routeStatus = (int)$routeInfo[0];
         $routingResults = null;
 
@@ -74,7 +66,7 @@ final class RoutingMiddleware implements MiddlewareInterface
                 $routeStatus,
                 $routeInfo[1],
                 $request->getMethod(),
-                $basePathUri,
+                $uri,
                 $routeInfo[2]
             );
         }
@@ -84,13 +76,13 @@ final class RoutingMiddleware implements MiddlewareInterface
                 $routeStatus,
                 null,
                 $request->getMethod(),
-                $basePathUri,
+                $uri,
                 $routeInfo[1],
             );
         }
 
         if ($routeStatus === RoutingResults::NOT_FOUND) {
-            $routingResults = new RoutingResults($routeStatus, null, $request->getMethod(), $basePathUri);
+            $routingResults = new RoutingResults($routeStatus, null, $request->getMethod(), $uri);
         }
 
         if ($routingResults) {
@@ -100,5 +92,22 @@ final class RoutingMiddleware implements MiddlewareInterface
         }
 
         return $handler->handle($request);
+    }
+
+    private function normalizePath(string $path): string
+    {
+        // If path is empty or just a slash, return single slash
+        if ($path === '' || $path === '/') {
+            return '/';
+        }
+
+        // Ensure path starts with a slash
+        $path = '/' . ltrim($path, '/');
+
+        // Remove trailing slash unless it's the root path
+        $path = rtrim($path, '/');
+
+        // Replace multiple consecutive slashes with a single slash
+        return preg_replace('#/+#', '/', $path);
     }
 }

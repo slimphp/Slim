@@ -167,4 +167,36 @@ final class RoutingMiddlewareTest extends TestCase
 
         $app->handle($request);
     }
+
+    public function testRoutingWithBasePath(): void
+    {
+        $app = (new AppBuilder())->build();
+        $app->setBasePath('/api');
+
+        $app->add(RoutingMiddleware::class);
+        $app->add(EndpointMiddleware::class);
+
+        // Define a route with arguments
+        $app->get('/users/{id}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $urlGenerator = RouteContext::fromRequest($request)->getUrlGenerator();
+
+            $url = $urlGenerator->relativeUrlFor('user.show', ['id' => $args['id']], ['page' => 2]);
+            $response = $response->withHeader('X-relativeUrlFor', $url);
+
+            $url2 = $urlGenerator->fullUrlFor($request->getUri(), 'user.show', ['id' => $args['id']], ['page' => 2]);
+            $response = $response->withHeader('X-fullUrlFor', $url2);
+
+            return $response;
+        })->setName('user.show');
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/api/users/123');
+
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('/api/users/123?page=2', $response->getHeaderLine('X-relativeUrlFor'));
+        $this->assertSame('/api/users/123?page=2', $response->getHeaderLine('X-fullUrlFor'));
+    }
 }

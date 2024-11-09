@@ -185,7 +185,7 @@ class RouterTest extends TestCase
 
         $this->assertInstanceOf(Route::class, $route);
         $this->assertSame($methods, $route->getMethods());
-        $this->assertSame($basePath . $path, $route->getPattern());
+        $this->assertSame($path, $route->getPattern());
         $this->assertSame($handler, $route->getHandler());
     }
 

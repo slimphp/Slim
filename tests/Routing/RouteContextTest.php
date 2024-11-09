@@ -126,7 +126,6 @@ class RouteContextTest extends TestCase
         $this->assertSame($urlGenerator, $routeContext->getUrlGenerator());
     }
 
-
     /**
      * Tests that the RoutingResults instance returned by getRoutingResults matches
      * the one originally provided in the request attributes.
@@ -218,7 +217,8 @@ class RouteContextTest extends TestCase
         $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
 
         // Create a route for testing
-        $route = $app->get('/test', function () {})->setName('test-route');
+        $route = $app->get('/test', function () {
+        })->setName('test-route');
         $routingResults = new RoutingResults(200, $route, 'GET', '/test', []);
 
         $request = $request

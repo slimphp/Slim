@@ -281,16 +281,26 @@ final class AppTest extends TestCase
     public static function routePatternsProvider(): array
     {
         return [
-            [''], // Empty Route
-            ['/'], // Single Slash Route
-            ['foo'], // Route That Does Not Start With A Slash
-            ['/foo'], // Route That Does Not End In A Slash
-            ['/foo/'], // Route That Ends In A Slash
+            // Route pattern -> http uri
+            // Empty route
+            ['', '/'],
+            // Single slash route
+            ['/', '/'],
+            // Route That Does Not Start With A Slash
+            ['foo', '/foo'],
+            // Route That Does Not End In A Slash
+            ['/foo', '/foo'],
+            // Route That Ends In A Slash
+            ['/foo/', '/foo'],
+            // Route That Ends In A double Slash
+            ['/foo//', '/foo'],
+            // Route That contains In A double Slash
+            ['/foo//bar', '/foo/bar'],
         ];
     }
 
     #[DataProvider('routePatternsProvider')]
-    public function testRoutePatterns(string $pattern): void
+    public function testRoutePatterns(string $pattern, string $uri): void
     {
         $app = $this->createApp();
         $app->add(RoutingMiddleware::class);
@@ -298,7 +308,7 @@ final class AppTest extends TestCase
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', $pattern);
+            ->createServerRequest('GET', $uri);
 
         $app->get($pattern, function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');

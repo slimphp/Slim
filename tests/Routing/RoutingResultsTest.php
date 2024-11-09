@@ -49,6 +49,8 @@ class RoutingResultsTest extends TestCase
         $this->assertSame($route, $routingResults->getRoute());
         $this->assertSame($method, $routingResults->getMethod());
         $this->assertSame($uri, $routingResults->getUri());
+        $this->assertSame('value1', $routingResults->getRouteArgument('arg1'));
+        $this->assertSame(null, $routingResults->getRouteArgument('nada'));
         $this->assertSame($routeArguments, $routingResults->getRouteArguments());
         $this->assertSame($allowedMethods, $routingResults->getAllowedMethods());
     }
