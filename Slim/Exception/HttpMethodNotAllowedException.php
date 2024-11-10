@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace Slim\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
+
 use function implode;
 
 class HttpMethodNotAllowedException extends HttpSpecializedException
@@ -33,6 +36,18 @@ class HttpMethodNotAllowedException extends HttpSpecializedException
     protected string $description = 'The request method is not supported for the requested resource.';
 
     /**
+     * @inheritdoc
+     */
+    public function __construct(ServerRequestInterface $request, ?string $message = null, ?Throwable $previous = null)
+    {
+        if ($message === null) {
+            $actualMethod = $request->getMethod();
+            $message = 'Method "' . $actualMethod . '" not allowed.';
+        }
+        parent::__construct($request, $message, $previous);
+    }
+
+    /**
      * @return string[]
      */
     public function getAllowedMethods(): array
@@ -46,7 +61,8 @@ class HttpMethodNotAllowedException extends HttpSpecializedException
     public function setAllowedMethods(array $methods): self
     {
         $this->allowedMethods = $methods;
-        $this->message = 'Method not allowed. Must be one of: ' . implode(', ', $methods);
+        $actualMethod = $this->request->getMethod();
+        $this->message = 'Method "' . $actualMethod . '" not allowed. Must be one of: ' . implode(', ', $methods);
         return $this;
     }
 }

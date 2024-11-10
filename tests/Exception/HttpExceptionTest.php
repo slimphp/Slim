@@ -39,15 +39,15 @@ class HttpExceptionTest extends TestCase
 
     public function testHttpNotAllowedExceptionGetAllowedMethods()
     {
-        $request = $this->createServerRequest('/');
+        $request = $this->createServerRequest('/', 'POST');
 
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);
         $this->assertSame(['GET'], $exception->getAllowedMethods());
-        $this->assertSame('Method not allowed. Must be one of: GET', $exception->getMessage());
+        $this->assertSame('Method "POST" not allowed. Must be one of: GET', $exception->getMessage());
 
         $exception = new HttpMethodNotAllowedException($request);
         $this->assertSame([], $exception->getAllowedMethods());
-        $this->assertSame('Method not allowed.', $exception->getMessage());
+        $this->assertSame('Method "POST" not allowed.', $exception->getMessage());
     }
 }
