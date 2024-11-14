@@ -41,7 +41,7 @@ final class RoutingMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // Dispatch
-        $dispatcher = new GroupCountBased($this->router->getRouteCollector()->processedRoutes());
+        $dispatcher = new GroupCountBased($this->router->getRouteCollector()->getData());
 
         $httpMethod = $request->getMethod();
         $uri = $request->getUri()->getPath();
