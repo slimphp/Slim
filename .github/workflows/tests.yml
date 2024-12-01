@@ -27,11 +27,11 @@ jobs:
           coverage: xdebug
 
       - name: Install dependencies with Composer
-        if: matrix.php-versions < '8.4'
+        if: matrix.php < '8.4'
         run: composer update --prefer-dist --no-progress --no-interaction --ansi
 
       - name: Install dependencies with Composer
-        if: matrix.php-versions >= '8.4'
+        if: matrix.php >= '8.4'
         run: composer update --prefer-dist --no-progress -no-interaction --ansi --ignore-platform-reqs
 
       - name: Coding standards
