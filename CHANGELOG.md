@@ -2,10 +2,13 @@
 
 ## [Unreleased]
 
+### Fixed
+
 ### Added
 
 - Add support for PHP 8.4
 
+### Removed
 
 ## 4.14.0 - 2024-06-13
 
