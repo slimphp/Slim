@@ -79,8 +79,12 @@ final class MediaTypeDetector
      */
     private function parseContentType(?string $contentType): array
     {
-        $parts = explode(';', $contentType ?? '');
-        $name = strtolower(trim($parts[0] ?? ''));
+        if ($contentType === null) {
+            return [];
+        }
+
+        $parts = explode(';', $contentType);
+        $name = strtolower(trim($parts[0]));
 
         return $name ? [$name] : [];
     }
