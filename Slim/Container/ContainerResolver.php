@@ -57,7 +57,7 @@ final class ContainerResolver implements ContainerResolverInterface
 
         // The callable is an array whose first item is a container entry name
         // e.g. ['some-container-entry', 'methodToCall']
-        if (is_array($identifier) && is_string($identifier[0] ?? null)) {
+        if (is_string($identifier[0] ?? null)) {
             // Replace the container entry name by the actual object
             $identifier[0] = $this->container->get($identifier[0]);
 
