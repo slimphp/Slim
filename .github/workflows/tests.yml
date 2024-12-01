@@ -28,11 +28,11 @@ jobs:
 
       - name: Install dependencies with Composer
         if: matrix.php-versions < '8.4'
-        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction --ansi
+        run: composer update --prefer-dist --no-progress --no-interaction --ansi
 
       - name: Install dependencies with Composer
         if: matrix.php-versions >= '8.4'
-        run: composer install --prefer-dist --no-progress ---no-suggest -no-interaction --ansi --ignore-platform-reqs
+        run: composer update --prefer-dist --no-progress -no-interaction --ansi --ignore-platform-reqs
 
       - name: Coding standards
         if: matrix.analysis
