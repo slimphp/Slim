@@ -102,8 +102,14 @@
         "sort-packages": true
     },
     "scripts": {
-        "cs:check": "php-cs-fixer fix --dry-run --format=txt --verbose --config=.cs.php --ansi",
-        "cs:fix": "php-cs-fixer fix --config=.cs.php --ansi --verbose",
+        "cs:check": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
+            "php-cs-fixer fix --dry-run --format=txt --verbose --config=.cs.php --ansi"
+        ],
+        "cs:fix": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
+            "php-cs-fixer fix --config=.cs.php --ansi --verbose"
+        ],
         "sniffer:check": "phpcs --standard=phpcs.xml",
         "sniffer:fix": "phpcbf --standard=phpcs.xml",
         "stan": "phpstan analyse -c phpstan.neon --no-progress --ansi",
