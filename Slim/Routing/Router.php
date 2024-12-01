@@ -32,7 +32,7 @@ final class Router
         }
 
         $routePattern = $this->normalizePath($path);
-        $route = new Route($methods, $routePattern, $handler);
+        $route = new Route($methods, $routePattern, $handler, null);
 
         $this->collector->addRoute($methods, $routePattern, $route);
 
@@ -42,7 +42,7 @@ final class Router
     public function group(string $path, callable $handler): RouteGroup
     {
         $routePattern = $this->normalizePath($path);
-        $routeGroup = new RouteGroup($routePattern, $handler, $this);
+        $routeGroup = new RouteGroup($routePattern, $handler, $this, null);
         $this->collector->addGroup($routePattern, $routeGroup);
 
         return $routeGroup;
