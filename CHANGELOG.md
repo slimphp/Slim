@@ -6,6 +6,73 @@
 
 - Add support for PHP 8.4
 
+
+## 4.14.0 - 2024-06-13
+
+### Changed
+
+- Do not HTML entity encode in PlainTextErrorRenderer by @akrabat in https://github.com/slimphp/Slim/pull/3319
+- Only render tip to error log if plain text renderer is used by @akrabat in https://github.com/slimphp/Slim/pull/3321
+- Add template generics for PSR-11 implementations in PHPStan and Psalm by @limarkxx in https://github.com/slimphp/Slim/pull/3322
+- Update squizlabs/php_codesniffer requirement from ^3.9 to ^3.10 by @dependabot in https://github.com/slimphp/Slim/pull/3324
+- Update phpstan/phpstan requirement from ^1.10 to ^1.11 by @dependabot in https://github.com/slimphp/Slim/pull/3325
+- Update psr/http-factory requirement from ^1.0 to ^1.1 by @dependabot in https://github.com/slimphp/Slim/pull/3326
+
+#### Type hinting with template generics
+
+With the introduction of template generics, if you type-hint `Slim\App` instance variable using `/** @var \Slim\App $app */`, then you will need to change it to either:
+
+*  `/** @var \Slim\App<null> $app */` if you are not using a DI container, or
+* `/** @var \Slim\App<\Psr\Container\ContainerInterface> $app */` if you are
+
+You can also type-hint to the concrete instance of the container you are using too. For example, if you are using [PHP-DI](https://php-di.org), then you can use: `/** @var \Slim\App<DI\Container> $app */`.
+
+### New Contributors
+
+* @limarkxx made their first contribution in https://github.com/slimphp/Slim/pull/3322
+
+**Full Changelog**: https://github.com/slimphp/Slim/compare/4.13.0...4.14.0
+
+# 4.13.0 - 2024-03-03
+
+- [3277: Create HttpTooManyRequestsException.php](https://github.com/slimphp/Slim/pull/3277) thanks to @flavioheleno
+- [3278: Remove HttpGoneException executable flag](https://github.com/slimphp/Slim/pull/3278) thanks to @flavioheleno
+- [3285: Update guzzlehttp/psr7 requirement from ^2.5 to ^2.6](https://github.com/slimphp/Slim/pull/3285) thanks to @dependabot[bot]
+- [3290: Bump actions/checkout from 3 to 4](https://github.com/slimphp/Slim/pull/3290) thanks to @dependabot[bot]
+- [3291: Fix line length](https://github.com/slimphp/Slim/pull/3291) thanks to @l0gicgate
+- [3296: PSR 7 http-message version requirement](https://github.com/slimphp/Slim/issues/3296) thanks to @rotexdegba
+- [3297: Allow Diactoros 3](https://github.com/slimphp/Slim/pull/3297) thanks to @derrabus
+- [3299: Update tests and add PHP 8.3 to the CI matrix](https://github.com/slimphp/Slim/pull/3299) thanks to @akrabat
+- [3301: Update nyholm/psr7-server requirement from ^1.0 to ^1.1](https://github.com/slimphp/Slim/pull/3301) thanks to @dependabot[bot]
+- [3302: Add support for psr/http-message ^2.0](https://github.com/slimphp/Slim/pull/3302) thanks to @rotexdegba
+- [3305: Update phpspec/prophecy-phpunit requirement from ^2.0 to ^2.1](https://github.com/slimphp/Slim/pull/3305) thanks to @dependabot[bot]
+- [3306: Update phpspec/prophecy requirement from ^1.17 to ^1.18](https://github.com/slimphp/Slim/pull/3306) thanks to @dependabot[bot]
+- [3308: Update squizlabs/php&#95;codesniffer requirement from ^3.7 to ^3.8](https://github.com/slimphp/Slim/pull/3308) thanks to @dependabot[bot]
+- [3313: Bump ramsey/composer-install from 2 to 3](https://github.com/slimphp/Slim/pull/3313) thanks to @dependabot[bot]
+- [3314: Update phpspec/prophecy requirement from ^1.18 to ^1.19](https://github.com/slimphp/Slim/pull/3314) thanks to @dependabot[bot]
+- [3315: Update squizlabs/php&#95;codesniffer requirement from ^3.8 to ^3.9](https://github.com/slimphp/Slim/pull/3315) thanks to @dependabot[bot]
+
+# 4.12.0 - 2023-07-23
+
+- [3220: Refactor](https://github.com/slimphp/Slim/pull/3220) thanks to @amirkhodabande
+- [3237: Update phpstan/phpstan requirement from ^1.8 to ^1.9](https://github.com/slimphp/Slim/pull/3237) thanks to @dependabot[bot]
+- [3238: Update slim/http requirement from ^1.2 to ^1.3](https://github.com/slimphp/Slim/pull/3238) thanks to @dependabot[bot]
+- [3239: Update slim/psr7 requirement from ^1.5 to ^1.6](https://github.com/slimphp/Slim/pull/3239) thanks to @dependabot[bot]
+- [3240: Update phpspec/prophecy requirement from ^1.15 to ^1.16](https://github.com/slimphp/Slim/pull/3240) thanks to @dependabot[bot]
+- [3241: Update adriansuter/php-autoload-override requirement from ^1.3 to ^1.4](https://github.com/slimphp/Slim/pull/3241) thanks to @dependabot[bot]
+- [3245: New ability to override RouteGroupInterface in the Route class](https://github.com/slimphp/Slim/pull/3245) thanks to @githubjeka
+- [3253: Fix HttpBadRequestException description](https://github.com/slimphp/Slim/pull/3253) thanks to @jsanahuja
+- [3254: Update phpunit/phpunit requirement from ^9.5 to ^9.6](https://github.com/slimphp/Slim/pull/3254) thanks to @dependabot[bot]
+- [3255: Update phpstan/phpstan requirement from ^1.9 to ^1.10](https://github.com/slimphp/Slim/pull/3255) thanks to @dependabot[bot]
+- [3256: Update phpspec/prophecy requirement from ^1.16 to ^1.17](https://github.com/slimphp/Slim/pull/3256) thanks to @dependabot[bot]
+- [3264: Update psr/http-message requirement from ^1.0 to ^1.1](https://github.com/slimphp/Slim/pull/3264) thanks to @dependabot[bot]
+- [3265: Update nyholm/psr7 requirement from ^1.5 to ^1.7](https://github.com/slimphp/Slim/pull/3265) thanks to @dependabot[bot]
+- [3266: Update guzzlehttp/psr7 requirement from ^2.4 to ^2.5](https://github.com/slimphp/Slim/pull/3266) thanks to @dependabot[bot]
+- [3267: Update nyholm/psr7 requirement from ^1.7 to ^1.8](https://github.com/slimphp/Slim/pull/3267) thanks to @dependabot[bot]
+- [3269: Update httpsoft/http-server-request requirement from ^1.0 to ^1.1](https://github.com/slimphp/Slim/pull/3269) thanks to @dependabot[bot]
+- [3270: Update httpsoft/http-message requirement from ^1.0 to ^1.1](https://github.com/slimphp/Slim/pull/3270) thanks to @dependabot[bot]
+- [3271: prevent multiple entries of same methode in FastRouteDispatcher](https://github.com/slimphp/Slim/pull/3271) thanks to @papparazzo
+
 ## 4.11.0 - 2022-11-06
 
 - [3180: Declare types](https://github.com/slimphp/Slim/pull/3180) thanks to @nbayramberdiyev
