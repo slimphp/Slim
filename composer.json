@@ -65,7 +65,6 @@
     "require-dev": {
         "ext-simplexml": "*",
         "ext-xml": "*",
-        "ext-xdebug": "*",
         "bnf/phpstan-psr-container": "^1.0",
         "friendsofphp/php-cs-fixer": "^3.60",
         "guzzlehttp/psr7": "^2.6",
