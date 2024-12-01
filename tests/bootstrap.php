@@ -24,7 +24,7 @@ Override::apply($classLoader, [
 
             return connection_status();
         },
-        'header' => function (string $string, bool $replace = true, int $statusCode = null): void {
+        'header' => function (string $string, bool $replace = true, ?int $statusCode = null): void {
             HeaderStack::push(
                 [
                     'header' => $string,
