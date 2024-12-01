@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Middleware;
 
 use ErrorException;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -99,6 +100,11 @@ class ExceptionLoggingMiddlewareTest extends TestCase
         }
     }
 
+    /**
+     * Passing E_USER_ERROR to trigger_error() is now deprecated.
+     * RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_passing_e_user_error_to_trigger_error
+     */
+    #[RequiresPhp('< 8.4.0')]
     public function testUserLevelErrorIsLogged(): void
     {
         $this->expectException(ErrorException::class);

@@ -27,7 +27,7 @@ final class Route implements MiddlewareCollectionInterface
     /**
      * @param array<string> $methods
      */
-    public function __construct(array $methods, string $pattern, callable|string $handler, ?RouteGroup $group)
+    public function __construct(array $methods, string $pattern, callable|string $handler, ?RouteGroup $group = null)
     {
         $this->methods = $methods;
         $this->pattern = $pattern;

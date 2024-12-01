@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Emitter;
 
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -170,6 +171,7 @@ final class ResponseEmitterTest extends TestCase
         $this->assertSame($expectedStack, HeaderStack::stack());
     }
 
+    #[RequiresPhpExtension('xdebug')]
     public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders(): void
     {
         $response = $this

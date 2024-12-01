@@ -27,7 +27,7 @@ final class RouteGroup implements MiddlewareCollectionInterface, RouteCollection
 
     private ?RouteGroup $group;
 
-    public function __construct(string $prefix, callable $callback, Router $router, ?RouteGroup $group)
+    public function __construct(string $prefix, callable $callback, Router $router, ?RouteGroup $group = null)
     {
         $this->prefix = sprintf('/%s', ltrim($prefix, '/'));
         $this->callback = $callback;
