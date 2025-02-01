@@ -45,8 +45,8 @@ final class AppBuilder
      */
     public function __construct()
     {
-        $this->addDefinitions(DefaultDefinitions::class);
-        $this->addDefinitions(HttpDefinitions::class);
+        $this->addDefinitionsClass(DefaultDefinitions::class);
+        $this->addDefinitionsClass(HttpDefinitions::class);
     }
 
     /**
@@ -62,30 +62,57 @@ final class AppBuilder
     /**
      * Sets the service definitions for the DI container.
      *
-     * The method accepts either an array of definitions or the name of a class that provides definitions.
-     * If a class name is provided, its definitions are added to the existing ones.
+     * @param array $definitions An array of service definitions
      *
-     * @param array|string $definitions An array of service definitions or a class name providing them
+     * @return self The current instance
+     */
+    public function addDefinitions(array $definitions): self
+    {
+        $this->definitions = array_merge($this->definitions, $definitions);
+
+        return $this;
+    }
+
+    /**
+     * Sets the service definitions for the DI container.
+     *
+     * @param string $class A definition provider class name
      *
      * @throws RuntimeException
      *
-     * @return self The current AppBuilder instance for method chaining
+     * @return self The current instance
      */
-    public function addDefinitions(array|string $definitions): self
+    public function addDefinitionsClass(string $class): self
     {
-        if (is_string($definitions)) {
-            if (class_exists($definitions)) {
-                $definitions = (array)call_user_func(new $definitions());
-            } else {
-                $definitions = require $definitions;
+        $definitions = call_user_func(new $class());
 
-                if (!is_array($definitions)) {
-                    throw new RuntimeException('Definition file should return an array of definitions');
-                }
-            }
+        if (!is_array($definitions)) {
+            throw new RuntimeException('Definition file should return an array of definitions');
         }
 
-        $this->definitions = array_merge($this->definitions, $definitions);
+        $this->addDefinitions($definitions);
+
+        return $this;
+    }
+
+    /**
+     * Sets the service definitions for the DI container.
+     *
+     * @param string $file A service definitions provider file
+     *
+     * @throws RuntimeException
+     *
+     * @return self The current instance
+     */
+    public function addDefinitionsFile(string $file): self
+    {
+        $definitions = require $file;
+
+        if (!is_array($definitions)) {
+            throw new RuntimeException('Definition file should return an array of definitions');
+        }
+
+        $this->addDefinitions($definitions);
 
         return $this;
     }
@@ -95,7 +122,7 @@ final class AppBuilder
      *
      * @param ContainerFactoryInterface $containerFactory A DI container factory
      *
-     * @return self The current AppBuilder instance for method chaining
+     * @return self The current instance
      */
     public function setContainerFactory(ContainerFactoryInterface $containerFactory): self
     {

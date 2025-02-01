@@ -16,6 +16,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Slim\Builder\AppBuilder;
 use Slim\Container\DefaultDefinitions;
 use Slim\Container\HttpDefinitions;
@@ -27,6 +28,60 @@ use Slim\Tests\Traits\AppTestTrait;
 final class AppBuilderTest extends TestCase
 {
     use AppTestTrait;
+
+    public function testAddDefinitionsClass(): void
+    {
+        $builder = new AppBuilder();
+        $class = new class {
+            public function __invoke()
+            {
+                return ['foo' => 'bar'];
+            }
+        };
+        $builder->addDefinitionsClass($class::class);
+        $app = $builder->build();
+
+        $this->assertSame('bar', $app->getContainer()->get('foo'));
+    }
+
+    public function testAddDefinitionsClassException(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Definition file should return an array of definitions');
+
+        $builder = new AppBuilder();
+        $class = new class {
+            public function __invoke()
+            {
+                return null;
+            }
+        };
+        $builder->addDefinitionsClass($class::class);
+        $app = $builder->build();
+
+        $this->assertSame('bar', $app->getContainer()->get('foo'));
+    }
+
+    public function testAddDefinitionsFile(): void
+    {
+        $builder = new AppBuilder();
+        $builder->addDefinitionsFile(__DIR__ . '/TestContainerDefinition.php');
+        $app = $builder->build();
+
+        $this->assertSame('bar', $app->getContainer()->get('foo'));
+    }
+
+    public function testAddDefinitionsFileError(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Definition file should return an array of definitions');
+
+        $builder = new AppBuilder();
+        $builder->addDefinitionsFile(__DIR__ . '/TestContainerError.php');
+        $app = $builder->build();
+
+        $this->assertSame('bar', $app->getContainer()->get('foo'));
+    }
 
     public function testSetContainerFactory(): void
     {

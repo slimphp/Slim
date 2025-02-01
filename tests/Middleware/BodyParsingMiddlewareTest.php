@@ -45,7 +45,7 @@ final class BodyParsingMiddlewareTest extends TestCase
         $builder = new AppBuilder();
 
         // Replace or change the PSR-17 factory because slim/http has its own parser
-        $builder->addDefinitions(NyholmDefinitions::class);
+        $builder->addDefinitionsClass(NyholmDefinitions::class);
         $app = $builder->build();
 
         $responseFactory = $app->getContainer()->get(ResponseFactoryMiddleware::class);
@@ -151,7 +151,7 @@ final class BodyParsingMiddlewareTest extends TestCase
         $builder = new AppBuilder();
 
         // Replace or change the PSR-17 factory because slim/http has its own parser
-        $builder->addDefinitions(SlimPsr7Definitions::class);
+        $builder->addDefinitionsClass(SlimPsr7Definitions::class);
         $app = $builder->build();
         $container = $app->getContainer();
 
@@ -192,7 +192,7 @@ final class BodyParsingMiddlewareTest extends TestCase
         $builder = new AppBuilder();
 
         // Replace or change the PSR-17 factory because slim/http has its own parser
-        $builder->addDefinitions(SlimHttpDefinitions::class);
+        $builder->addDefinitionsClass(SlimHttpDefinitions::class);
         $builder->addDefinitions(
             [
                 BodyParsingMiddleware::class => function (ContainerInterface $container) {
@@ -243,7 +243,7 @@ final class BodyParsingMiddlewareTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         $builder = new AppBuilder();
-        $builder->addDefinitions($definitions);
+        $builder->addDefinitionsClass($definitions);
 
         $builder->addDefinitions(
             [
