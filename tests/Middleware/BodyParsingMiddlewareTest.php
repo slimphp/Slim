@@ -40,11 +40,23 @@ final class BodyParsingMiddlewareTest extends TestCase
     use AppTestTrait;
 
     #[DataProvider('parsingProvider')]
-    public function testParsing($contentType, $body, $expected)
+    public function testParsingWithNyholm($contentType, $body, $expected)
     {
         $builder = new AppBuilder();
 
-        // Replace or change the PSR-17 factory because slim/http has its own parser
+        $builder->addDefinitions(
+            [
+                BodyParsingMiddleware::class => function (ContainerInterface $container) {
+                    $mediaTypeDetector = $container->get(MediaTypeDetector::class);
+                    $middleware = new BodyParsingMiddleware($mediaTypeDetector);
+
+                    return $middleware
+                        ->withDefaultMediaType('text/html')
+                        ->withDefaultBodyParsers();
+                },
+            ]
+        );
+
         $builder->addDefinitionsClass(NyholmDefinitions::class);
         $app = $builder->build();
 
@@ -146,11 +158,22 @@ final class BodyParsingMiddlewareTest extends TestCase
     }
 
     #[DataProvider('parsingInvalidJsonProvider')]
-    public function testParsingInvalidJson($contentType, $body)
+    public function testParsingInvalidJsonWithSlimPsr7($contentType, $body)
     {
         $builder = new AppBuilder();
+        $builder->addDefinitions(
+            [
+                BodyParsingMiddleware::class => function (ContainerInterface $container) {
+                    $mediaTypeDetector = $container->get(MediaTypeDetector::class);
+                    $middleware = new BodyParsingMiddleware($mediaTypeDetector);
 
-        // Replace or change the PSR-17 factory because slim/http has its own parser
+                    return $middleware
+                        ->withDefaultMediaType('text/html')
+                        ->withDefaultBodyParsers();
+                },
+            ]
+        );
+
         $builder->addDefinitionsClass(SlimPsr7Definitions::class);
         $app = $builder->build();
         $container = $app->getContainer();
@@ -187,7 +210,7 @@ final class BodyParsingMiddlewareTest extends TestCase
         ];
     }
 
-    public function testParsingWithARegisteredParser()
+    public function testParsingWithARegisteredParserAndSlimHttp()
     {
         $builder = new AppBuilder();
 

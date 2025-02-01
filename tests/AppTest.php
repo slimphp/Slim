@@ -28,7 +28,6 @@ use Slim\Interfaces\ContainerFactoryInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Middleware\BasePathMiddleware;
-use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ErrorHandlingMiddleware;
@@ -127,7 +126,6 @@ final class AppTest extends TestCase
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
         $app->add(RoutingArgumentsMiddleware::class);
-        $app->add(BodyParsingMiddleware::class);
         $app->add(ErrorHandlingMiddleware::class);
         $app->add(ExceptionHandlingMiddleware::class);
         $app->add(ExceptionLoggingMiddleware::class);
@@ -136,7 +134,7 @@ final class AppTest extends TestCase
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response->withHeader('X-Test', 'action');
-        })->add(BodyParsingMiddleware::class);
+        });
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)

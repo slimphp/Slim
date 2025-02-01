@@ -37,7 +37,6 @@ use Slim\Emitter\ResponseEmitter;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
-use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ExceptionHandlingMiddleware;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\RequestHandler\MiddlewareRequestHandler;
@@ -166,14 +165,6 @@ final class DefaultDefinitionsTest extends TestCase
         $exceptionHandlingMiddleware = $container->get(ExceptionHandlingMiddleware::class);
 
         $this->assertInstanceOf(ExceptionHandlingMiddleware::class, $exceptionHandlingMiddleware);
-    }
-
-    public function testBodyParsingMiddleware(): void
-    {
-        $container = (new AppBuilder())->build()->getContainer();
-        $bodyParsingMiddleware = $container->get(BodyParsingMiddleware::class);
-
-        $this->assertInstanceOf(BodyParsingMiddleware::class, $bodyParsingMiddleware);
     }
 
     public function testLoggerInterface(): void

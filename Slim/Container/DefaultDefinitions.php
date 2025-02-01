@@ -21,8 +21,6 @@ use Slim\Emitter\ResponseEmitter;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
-use Slim\Media\MediaTypeDetector;
-use Slim\Middleware\BodyParsingMiddleware;
 use Slim\RequestHandler\MiddlewareRequestHandler;
 use Slim\Routing\Router;
 use Slim\Routing\Strategies\RequestResponse;
@@ -41,15 +39,6 @@ final class DefaultDefinitions
     public function __invoke(): array
     {
         return [
-            BodyParsingMiddleware::class => function (ContainerInterface $container) {
-                $mediaTypeDetector = $container->get(MediaTypeDetector::class);
-                $middleware = new BodyParsingMiddleware($mediaTypeDetector);
-
-                return $middleware
-                    ->withDefaultMediaType('text/html')
-                    ->withDefaultBodyParsers();
-            },
-
             ContainerResolverInterface::class => function (ContainerInterface $container) {
                 return $container->get(ContainerResolver::class);
             },
