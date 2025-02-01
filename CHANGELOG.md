@@ -22,9 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ExceptionLoggingMiddleware` for custom error logging.
   - `ExceptionHandlingMiddleware` delegates exceptions to a custom error handler.
   - `ErrorHandlingMiddleware` converts errors into `ErrorException` instances that can then be handled by the `ExceptionHandlingMiddleware` and `ExceptionLoggingMiddleware`.
-  - New custom error handlers using a new `ExceptionHandlerInterface`. See new `ExceptionHandlingMiddleware`.
-  - New `JsonExceptionRenderer` generates a JSON problem details (rfc7807) response
-  - New `XmlExceptionRenderer` generates a XML problem details (rfc7807) response
+  - New custom error handlers using the new `ExceptionLoggingMiddleware` middleware.
+  - New `JsonExceptionRenderer` generates JSON error response.
+  - New `XmlExceptionRenderer` generates XML error response.
 - New `BasePathMiddleware` for dealing with Apache subdirectories.
 - New `HeadMethodMiddleware` ensures that the response body is empty for HEAD requests.
 - New `JsonRenderer` utility class for rendering JSON responses.
@@ -34,11 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support to build a custom middleware pipeline without the Slim App class. See new `ResponseFactoryMiddleware`
 - New media type detector
 - New Config class and ConfigInterface
-- New PhpDiContainerFactory class and ContainerFactoryInterface 
+- New ContainerFactoryInterface and PhpDiContainerFactory class  
 
 ### Changed
 
-* Require PHP 8.2 or 8.3. News versions will be supported after a review and test process.
+* Require PHP 8.2 or newer. News versions will be supported after a review and test process.
 * Migrated all tests to PHPUnit 11
 * Update GitHub action and build settings
 * Improve DI container integration. Make the DI container a first-class citizen. Require a PSR-11 package.

@@ -19,21 +19,12 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Slim\Configuration\Config;
 use Slim\Emitter\ResponseEmitter;
-use Slim\Error\Handlers\ExceptionHandler;
-use Slim\Error\Renderers\HtmlExceptionRenderer;
-use Slim\Error\Renderers\JsonExceptionRenderer;
-use Slim\Error\Renderers\PlainTextExceptionRenderer;
-use Slim\Error\Renderers\XmlExceptionRenderer;
 use Slim\Interfaces\ConfigurationInterface;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
-use Slim\Interfaces\ExceptionHandlerInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
-use Slim\Media\MediaType;
 use Slim\Media\MediaTypeDetector;
 use Slim\Middleware\BodyParsingMiddleware;
-use Slim\Middleware\ExceptionHandlingMiddleware;
-use Slim\Middleware\ExceptionLoggingMiddleware;
 use Slim\RequestHandler\MiddlewareRequestHandler;
 use Slim\Routing\Router;
 use Slim\Routing\Strategies\RequestResponse;
@@ -75,46 +66,6 @@ final class DefaultDefinitions
 
             EmitterInterface::class => function () {
                 return new ResponseEmitter();
-            },
-
-            ExceptionHandlingMiddleware::class => function (ContainerInterface $container) {
-                $handler = $container->get(ExceptionHandlerInterface::class);
-
-                return (new ExceptionHandlingMiddleware())->withExceptionHandler($handler);
-            },
-
-            ExceptionHandlerInterface::class => function (ContainerInterface $container) {
-                // Default exception handler
-                $exceptionHandler = $container->get(ExceptionHandler::class);
-
-                // Settings
-                $displayErrorDetails = (bool)$container->get(ConfigurationInterface::class)
-                    ->get('display_error_details', false);
-
-                $exceptionHandler = $exceptionHandler
-                    ->withDisplayErrorDetails($displayErrorDetails)
-                    ->withDefaultMediaType(MediaType::TEXT_HTML);
-
-                return $exceptionHandler
-                    ->withoutHandlers()
-                    ->withHandler(MediaType::APPLICATION_JSON, JsonExceptionRenderer::class)
-                    ->withHandler(MediaType::TEXT_HTML, HtmlExceptionRenderer::class)
-                    ->withHandler(MediaType::APPLICATION_XHTML_XML, HtmlExceptionRenderer::class)
-                    ->withHandler(MediaType::APPLICATION_XML, XmlExceptionRenderer::class)
-                    ->withHandler(MediaType::TEXT_XML, XmlExceptionRenderer::class)
-                    ->withHandler(MediaType::TEXT_PLAIN, PlainTextExceptionRenderer::class);
-            },
-
-            ExceptionLoggingMiddleware::class => function (ContainerInterface $container) {
-                // Default logger
-                $logger = $container->get(LoggerInterface::class);
-                $middleware = new ExceptionLoggingMiddleware($logger);
-
-                // Read settings
-                $logErrorDetails = (bool)$container->get(ConfigurationInterface::class)
-                    ->get('log_error_details', false);
-
-                return $middleware->withLogErrorDetails($logErrorDetails);
             },
 
             LoggerInterface::class => function () {

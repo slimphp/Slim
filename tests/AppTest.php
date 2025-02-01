@@ -21,6 +21,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\App;
 use Slim\Builder\AppBuilder;
+use Slim\Error\Renderers\HtmlExceptionRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\ContainerFactoryInterface;
@@ -57,11 +58,21 @@ final class AppTest extends TestCase
     public function testAppWithExceptionAndErrorDetails(): void
     {
         $builder = new AppBuilder();
-        $builder->addSettings(['display_error_details' => true]);
+        $builder->addDefinitions(
+            [
+                ExceptionHandlingMiddleware::class => function ($container) {
+                    $middleware = ExceptionHandlingMiddleware::createFromContainer($container);
+
+                    return $middleware
+                        ->withDisplayErrorDetails(true)
+                        ->withDefaultHandler(HtmlExceptionRenderer::class);
+                },
+            ]
+        );
         $app = $builder->build();
 
-        $app->add(RoutingMiddleware::class);
         $app->add(ExceptionHandlingMiddleware::class);
+        $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
         $app->get('/', fn () => throw new UnexpectedValueException('Test exception message'));

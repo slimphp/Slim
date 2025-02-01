@@ -10,11 +10,18 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Interfaces\ExceptionHandlerInterface;
+use RuntimeException;
+use Slim\Exception\HttpException;
+use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Interfaces\ContainerResolverInterface;
+use Slim\Interfaces\ExceptionRendererInterface;
+use Slim\Media\MediaTypeDetector;
 use Throwable;
 
 /**
@@ -27,26 +34,152 @@ use Throwable;
  */
 final class ExceptionHandlingMiddleware implements MiddlewareInterface
 {
-    private ?ExceptionHandlerInterface $exceptionHandler = null;
+    private ResponseFactoryInterface $responseFactory;
+
+    private MediaTypeDetector $mediaTypeDetector;
+
+    private ContainerResolverInterface $resolver;
+
+    private bool $displayErrorDetails = false;
+
+    private string $defaultMediaType = 'text/html';
+
+    private array $handlers = [];
+
+    /**
+     * @var callable|ExceptionRendererInterface|string|null
+     */
+    private $defaultHandler = null;
+
+    public function __construct(
+        ContainerResolverInterface $resolver,
+        ResponseFactoryInterface $responseFactory,
+        MediaTypeDetector $mediaTypeDetector,
+    ) {
+        $this->resolver = $resolver;
+        $this->responseFactory = $responseFactory;
+        $this->mediaTypeDetector = $mediaTypeDetector;
+    }
+
+    public static function createFromContainer(ContainerInterface $container): self
+    {
+        return new self(
+            $container->get(ContainerResolverInterface::class),
+            $container->get(ResponseFactoryInterface::class),
+            $container->get(MediaTypeDetector::class)
+        );
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
             return $handler->handle($request);
         } catch (Throwable $exception) {
-            if ($this->exceptionHandler) {
-                return ($this->exceptionHandler)($request, $exception);
-            }
+            $statusCode = $this->determineStatusCode($request, $exception);
+            $mediaType = $this->negotiateMediaType($request);
+            $response = $this->createResponse($statusCode, $mediaType, $exception);
+            $handler = $this->negotiateHandler($mediaType);
 
-            throw $exception;
+            // Invoke the formatter handler
+            return call_user_func(
+                $handler,
+                $request,
+                $response,
+                $exception,
+                $this->displayErrorDetails
+            );
         }
     }
 
-    public function withExceptionHandler(ExceptionHandlerInterface $exceptionHandler): self
+    public function withDefaultMediaType(string $defaultMediaType): self
     {
         $clone = clone $this;
-        $clone->exceptionHandler = $exceptionHandler;
+        $clone->defaultMediaType = $defaultMediaType;
 
         return $clone;
+    }
+
+    public function withDisplayErrorDetails(bool $displayErrorDetails): self
+    {
+        $clone = clone $this;
+        $clone->displayErrorDetails = $displayErrorDetails;
+
+        return $clone;
+    }
+
+    public function withDefaultHandler(ExceptionRendererInterface|callable|string $handler): self
+    {
+        $clone = clone $this;
+        $clone->defaultHandler = $handler;
+
+        return $clone;
+    }
+
+    public function withHandler(string $mediaType, ExceptionRendererInterface|callable|string $handler): self
+    {
+        $clone = clone $this;
+        $clone->handlers[$mediaType] = $handler;
+
+        return $clone;
+    }
+
+    public function withoutHandlers(): self
+    {
+        $clone = clone $this;
+        $clone->handlers = [];
+        $clone->defaultHandler = null;
+
+        return $clone;
+    }
+
+    private function negotiateMediaType(ServerRequestInterface $request): string
+    {
+        $mediaTypes = $this->mediaTypeDetector->detect($request);
+
+        return $mediaTypes[0] ?? $this->defaultMediaType;
+    }
+
+    /**
+     * Determine which handler to use based on media type.
+     */
+    private function negotiateHandler(string $mediaType): callable
+    {
+        $handler = $this->handlers[$mediaType] ?? $this->defaultHandler ?? reset($this->handlers);
+
+        if (!$handler) {
+            throw new RuntimeException(sprintf('Exception handler for "%s" not found', $mediaType));
+        }
+
+        return $this->resolver->resolveCallable($handler);
+    }
+
+    private function determineStatusCode(ServerRequestInterface $request, Throwable $exception): int
+    {
+        if ($exception instanceof HttpException) {
+            return $exception->getCode();
+        }
+
+        if ($request->getMethod() === 'OPTIONS') {
+            return 200;
+        }
+
+        return 500;
+    }
+
+    private function createResponse(
+        int $statusCode,
+        string $contentType,
+        Throwable $exception,
+    ): ResponseInterface {
+        $response = $this->responseFactory
+            ->createResponse($statusCode)
+            ->withHeader('Content-Type', $contentType);
+
+        if ($exception instanceof HttpMethodNotAllowedException) {
+            $allowedMethods = implode(', ', $exception->getAllowedMethods());
+            $response = $response->withHeader('Allow', $allowedMethods);
+        }
+
+        return $response;
     }
 }

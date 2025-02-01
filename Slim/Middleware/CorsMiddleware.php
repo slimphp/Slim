@@ -112,7 +112,7 @@ final class CorsMiddleware implements MiddlewareInterface
      * Set allowed origins. Null means allow all (*).
      * Pass an array of strings to specify allowed origins.
      */
-    public function withAllowedOrigins(?array $origins): self
+    public function withAllowedOrigins(?array $origins = null): self
     {
         $clone = clone $this;
         $clone->allowedOrigins = $origins;
