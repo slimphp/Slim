@@ -25,7 +25,6 @@ use Slim\Interfaces\ContainerFactoryInterface;
  * Key functionalities include:
  * - Building the Slim `App` instance with configured dependencies.
  * - Customizing the DI container with user-defined service definitions or a custom container factory.
- * - Configuring application settings.
  */
 final class AppBuilder
 {
@@ -101,27 +100,6 @@ final class AppBuilder
     public function setContainerFactory(ContainerFactoryInterface $containerFactory): self
     {
         $this->containerFactory = $containerFactory;
-
-        return $this;
-    }
-
-    /**
-     * Add application-wide settings in the DI container.
-     *
-     * This method allows the user to configure various settings for the Slim application,
-     * by passing an associative array of settings.
-     *
-     * @param array $settings An associative array of application settings
-     *
-     * @return self The current AppBuilder instance for method chaining
-     */
-    public function addSettings(array $settings): self
-    {
-        $this->addDefinitions(
-            [
-                'settings' => $settings,
-            ]
-        );
 
         return $this;
     }

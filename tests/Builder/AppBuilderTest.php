@@ -28,58 +28,6 @@ final class AppBuilderTest extends TestCase
 {
     use AppTestTrait;
 
-    public function testSetSettings(): void
-    {
-        $builder = (new AppBuilder())->addSettings([
-            'key' => 'value',
-        ]);
-        $app = $builder->build();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
-
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', '/');
-
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write($this->get('settings')['key']);
-
-            return $response;
-        });
-
-        $response = $app->handle($request);
-        $this->assertSame('value', (string)$response->getBody());
-    }
-
-    public function testSetSettingsMerged(): void
-    {
-        $builder = new AppBuilder();
-        $builder->addSettings([
-            'key' => 'value',
-            'key2' => 'value2',
-        ]);
-        $builder->addSettings([
-            'key' => 'value3',
-        ]);
-        $app = $builder->build();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
-
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', '/');
-
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $settings = $this->get('settings');
-            $response->getBody()->write(json_encode($settings));
-
-            return $response;
-        });
-
-        $response = $app->handle($request);
-        $this->assertSame('{"key":"value3"}', (string)$response->getBody());
-    }
-
     public function testSetContainerFactory(): void
     {
         $builder = new AppBuilder();

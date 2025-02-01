@@ -17,9 +17,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Slim\Configuration\Config;
 use Slim\Emitter\ResponseEmitter;
-use Slim\Interfaces\ConfigurationInterface;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
@@ -50,14 +48,6 @@ final class DefaultDefinitions
                 return $middleware
                     ->withDefaultMediaType('text/html')
                     ->withDefaultBodyParsers();
-            },
-
-            Config::class => function (ContainerInterface $container) {
-                return new Config($container->has('settings') ? (array)$container->get('settings') : []);
-            },
-
-            ConfigurationInterface::class => function (ContainerInterface $container) {
-                return $container->get(Config::class);
             },
 
             ContainerResolverInterface::class => function (ContainerInterface $container) {

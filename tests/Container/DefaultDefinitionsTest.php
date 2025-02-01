@@ -34,7 +34,6 @@ use Slim\Container\NyholmDefinitions;
 use Slim\Container\SlimHttpDefinitions;
 use Slim\Container\SlimPsr7Definitions;
 use Slim\Emitter\ResponseEmitter;
-use Slim\Interfaces\ConfigurationInterface;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
@@ -47,20 +46,6 @@ use Slim\Routing\Strategies\RequestResponse;
 
 final class DefaultDefinitionsTest extends TestCase
 {
-    public function testConfig(): void
-    {
-        $container = (new AppBuilder())->build()->getContainer();
-        $details = $container->get(ConfigurationInterface::class)
-            ->get('display_error_details', false);
-
-        $this->assertFalse($details);
-
-        $details = $container->get(ConfigurationInterface::class)
-            ->get('log_error_details', false);
-
-        $this->assertFalse($details);
-    }
-
     public function testApp(): void
     {
         $container = (new AppBuilder())->build()->getContainer();
