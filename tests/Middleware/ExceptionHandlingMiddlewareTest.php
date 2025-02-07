@@ -250,8 +250,6 @@ final class ExceptionHandlingMiddlewareTest extends TestCase
         ];
     }
 
-    // todo: Add test for other media types
-
     public function testWithAcceptJson(): void
     {
         $builder = new AppBuilder();
