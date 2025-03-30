@@ -79,7 +79,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     }
 
     /**
-     * @param string|callable $toResolve
+     * @param callable|array<class-string, string>|string $toResolve
      *
      * @throws RuntimeException
      */
@@ -180,8 +180,8 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     }
 
     /**
-     * @param string|callable $toResolve
-     * @return string|callable
+     * @param callable|array<class-string, string>|string $toResolve
+     * @return callable|array<class-string, string>|string
      */
     private function prepareToResolve($toResolve)
     {
