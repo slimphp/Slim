@@ -47,14 +47,14 @@ interface RouteInterface
     /**
      * Get route callable
      *
-     * @return callable|array<class-string, string>|string
+     * @return callable|array{class-string, string}|string
      */
     public function getCallable();
 
     /**
      * Set route callable
      *
-     * @param callable|array<class-string, string>|string $callable
+     * @param callable|array{class-string, string}|string $callable
      */
     public function setCallable($callable): RouteInterface;
 

@@ -46,7 +46,7 @@ interface RouteCollectorProxyInterface
      * Add GET route
      *
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function get(string $pattern, $callable): RouteInterface;
 
@@ -54,7 +54,7 @@ interface RouteCollectorProxyInterface
      * Add POST route
      *
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function post(string $pattern, $callable): RouteInterface;
 
@@ -62,7 +62,7 @@ interface RouteCollectorProxyInterface
      * Add PUT route
      *
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function put(string $pattern, $callable): RouteInterface;
 
@@ -70,7 +70,7 @@ interface RouteCollectorProxyInterface
      * Add PATCH route
      *
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function patch(string $pattern, $callable): RouteInterface;
 
@@ -78,7 +78,7 @@ interface RouteCollectorProxyInterface
      * Add DELETE route
      *
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function delete(string $pattern, $callable): RouteInterface;
 
@@ -86,7 +86,7 @@ interface RouteCollectorProxyInterface
      * Add OPTIONS route
      *
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function options(string $pattern, $callable): RouteInterface;
 
@@ -94,7 +94,7 @@ interface RouteCollectorProxyInterface
      * Add route for any HTTP method
      *
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function any(string $pattern, $callable): RouteInterface;
 
@@ -103,7 +103,7 @@ interface RouteCollectorProxyInterface
      *
      * @param string[]                                    $methods  Numeric array of HTTP method names
      * @param string                                      $pattern  The route URI pattern
-     * @param callable|array<class-string, string>|string $callable The route callback routine
+     * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function map(array $methods, string $pattern, $callable): RouteInterface;
 
