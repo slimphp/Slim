@@ -107,15 +107,15 @@ class Route implements RouteInterface, RequestHandlerInterface
     protected bool $groupMiddlewareAppended = false;
 
     /**
-     * @param string[]                         $methods    The route HTTP methods
-     * @param string                           $pattern    The route pattern
-     * @param callable|array<class-string, string>|string                  $callable   The route callable
-     * @param ResponseFactoryInterface         $responseFactory
-     * @param CallableResolverInterface        $callableResolver
-     * @param TContainerInterface              $container
-     * @param InvocationStrategyInterface|null $invocationStrategy
-     * @param RouteGroupInterface[]            $groups     The parent route groups
-     * @param int                              $identifier The route identifier
+     * @param string[]                                    $methods    The route HTTP methods
+     * @param string                                      $pattern    The route pattern
+     * @param callable|array<class-string, string>|string $callable   The route callable
+     * @param ResponseFactoryInterface                    $responseFactory
+     * @param CallableResolverInterface                   $callableResolver
+     * @param TContainerInterface                         $container
+     * @param InvocationStrategyInterface|null            $invocationStrategy
+     * @param RouteGroupInterface[]                       $groups     The parent route groups
+     * @param int                                         $identifier The route identifier
      */
     public function __construct(
         array $methods,
