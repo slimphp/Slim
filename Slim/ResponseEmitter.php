@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 use function connection_status;
 use function header;
@@ -38,13 +39,15 @@ class ResponseEmitter
     public function emit(ResponseInterface $response): void
     {
         $isEmpty = $this->isResponseEmpty($response);
-        if (headers_sent() === false) {
+        headers_sent($file, $line);
+        if (empty($file)) {
             $this->emitHeaders($response);
-
             // Set the status _after_ the headers, because of PHP's "helpful" behavior with location headers.
             // See https://github.com/slimphp/Slim/issues/1730
 
             $this->emitStatusLine($response);
+        } else {
+            throw new RuntimeException('Headers already sent in ' . $file . ' on line ' . $line); 
         }
 
         if (!$isEmpty) {
