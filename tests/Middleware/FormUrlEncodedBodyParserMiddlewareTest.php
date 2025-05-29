@@ -88,12 +88,13 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             ): ResponseInterface {
                 $parsed = $request->getParsedBody();
                 $response = new Response();
-                $response->getBody()->write($parsed === null ? 'empty' : 'not-empty');
+                $response->getBody()->write(json_encode($parsed));
 
                 return $response;
             }
         });
 
-        $this->assertSame('empty', (string)$response->getBody());
+        // empty
+        $this->assertSame('[]', (string)$response->getBody());
     }
 }
