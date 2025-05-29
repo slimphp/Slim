@@ -41,6 +41,10 @@ final class BodyParsingMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        if (!$this->handlers) {
+            throw new RuntimeException('No body parsing handlers defined');
+        }
+
         $parsedBody = $request->getParsedBody();
 
         if (empty($parsedBody)) {
