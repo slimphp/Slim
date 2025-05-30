@@ -27,17 +27,24 @@ final class JsonBodyParserMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        $method = $request->getMethod();
+        $contentType = $request->getHeaderLine('Content-Type');
+
+        if (!in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            return $handler->handle($request);
+        }
 
         if ($this->isJsonMediaType($contentType)) {
             $body = (string)$request->getBody();
             $parsed = json_decode($body, true, 512, $this->flags);
 
-            if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsed)) {
+            if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new RuntimeException('Invalid JSON body: ' . json_last_error_msg());
             }
 
-            $request = $request->withParsedBody($parsed);
+            if (is_array($parsed)) {
+                $request = $request->withParsedBody($parsed);
+            }
         }
 
         return $handler->handle($request);
@@ -48,9 +55,8 @@ final class JsonBodyParserMiddleware implements MiddlewareInterface
      */
     private function isJsonMediaType(string $contentType): bool
     {
-        // Remove parameters (e.g. "; charset=utf-8")
-        $type = strtolower(trim(explode(';', $contentType)[0]));
+        $contentType = strtolower(trim(explode(';', $contentType)[0]));
 
-        return $type === 'application/json' || str_ends_with($type, '+json');
+        return $contentType === 'application/json' || str_ends_with($contentType, '+json');
     }
 }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Middleware;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -22,13 +23,14 @@ use Slim\Psr7\Response;
 
 final class JsonBodyParserMiddlewareTest extends TestCase
 {
-    public function testParsesValidJson(): void
+    #[DataProvider('validJsonProvider')]
+    public function testParsesValidJson($contentType, $body, $expected): void
     {
-        $stream = (new StreamFactory())->createStream('{"foo":"bar"}');
+        $stream = (new StreamFactory())->createStream($body);
 
         $request = (new ServerRequestFactory())
             ->createServerRequest('POST', '/')
-            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Type', $contentType)
             ->withBody($stream);
 
         $middleware = new JsonBodyParserMiddleware();
@@ -44,7 +46,7 @@ final class JsonBodyParserMiddlewareTest extends TestCase
             }
         });
 
-        $this->assertSame('{"foo":"bar"}', (string)$response->getBody());
+        $this->assertSame($expected, (string)$response->getBody());
     }
 
     public function testParsesStructuredJsonType(): void
@@ -72,7 +74,8 @@ final class JsonBodyParserMiddlewareTest extends TestCase
         $this->assertSame('{"hello":"world"}', (string)$response->getBody());
     }
 
-    public function testThrowsExceptionOnInvalidJson(): void
+    #[DataProvider('invalidJsonProvider')]
+    public function testThrowsExceptionOnInvalidJson($contentType, $body): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid JSON body');
@@ -117,5 +120,82 @@ final class JsonBodyParserMiddlewareTest extends TestCase
         });
 
         $this->assertSame('no-parse', (string)$response->getBody());
+    }
+
+    public static function validJsonProvider(): array
+    {
+        return [
+            'json' => [
+                'application/json',
+                '{"foo":"bar"}',
+                '{"foo":"bar"}',
+            ],
+            'json-with-charset' => [
+                "application/json\t ; charset=utf8",
+                '{"foo":"bar"}',
+                '{"foo":"bar"}',
+            ],
+            'json-suffix' => [
+                'application/vnd.api+json;charset=utf8',
+                '{"foo":"bar"}',
+                '{"foo":"bar"}',
+            ],
+            'valid-json-but-not-an-array' => [
+                'application/json;charset=utf8',
+                '"foo bar"',
+                'null',
+            ],
+            'empty-object' => [
+                'application/json',
+                '{}',
+                '[]',
+            ],
+            'unknown-contenttype' => [
+                'text/foo+bar',
+                '"foo bar"',
+                'null',
+            ],
+            'empty-contenttype' => [
+                '',
+                '"foo bar"',
+                'null',
+            ],
+            // null is not supported anymore
+            // Header values must be RFC 7230 compatible strings.
+            /* 'no-contenttype' => [
+                null,
+                '"foo bar"',
+                'null',
+            ],*/
+            'json-null' => [
+                'application/json',
+                'null',
+                'null',
+            ],
+            'json-false' => [
+                'application/json',
+                'false',
+                'null',
+            ],
+            'invalid-contenttype' => [
+                'foo',
+                '"foo bar"',
+                'null',
+            ],
+        ];
+    }
+
+    public static function invalidJsonProvider(): array
+    {
+        return [
+            'invalid-json' => [
+                'application/json',
+                '{"foo": "bar"',
+            ],
+            'invalid-json-empty-string' => [
+                'application/json',
+                '',
+            ],
+        ];
     }
 }

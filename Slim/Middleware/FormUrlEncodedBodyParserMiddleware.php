@@ -13,7 +13,12 @@ final class FormUrlEncodedBodyParserMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        $method = $request->getMethod();
+        $contentType = $request->getHeaderLine('Content-Type');
+
+        if (!in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            return $handler->handle($request);
+        }
 
         if ($this->isFormUrlEncodedMediaType($contentType)) {
             $body = (string)$request->getBody();

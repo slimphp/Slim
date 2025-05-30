@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `RequestResponseTypedArgs` invocation strategy for route parameters with type declarations.
 - New `UrlGeneratorMiddleware` injects the `UrlGenerator` into the request attributes.
 - New `CorsMiddleware` for handling CORS requests.
+- New `JsonBodyParserMiddleware` for parsing JSON requests.
+- New `XmlBodyParserMiddleware` for parsing XML requests.
+- New `FormUrlEncodedBodyParserMiddleware` for parsing form requests. 
 - Support to build a custom middleware pipeline without the Slim App class. See new `ResponseFactoryMiddleware`
 - New media type detector
 - New ContainerFactoryInterface and PhpDiContainerFactory class  
@@ -50,8 +53,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-* Remove LIFO middleware order support. Use FIFO instead.
+* LIFO middleware order support. Use FIFO instead.
 * Router cache file support (File IO was never sufficient. PHP OpCache is much faster)
+* Removed `BodyParsingMiddlewareTest` in favor of `JsonBodyParserMiddleware`, `XmlBodyParserMiddleware` and `FormUrlEncodedBodyParserMiddleware`.  
 * The `$app->redirect()` method because it was not aware of the basePath. Use the `UrlGenerator` instead.
 * The route `setArguments` and `setArgument` methods. Use a middleware for custom route arguments now.
 * The `RouteContext::ROUTE` const. Use `$route = $request->getAttribute(RouteContext::ROUTING_RESULTS)->getRoute();` instead.

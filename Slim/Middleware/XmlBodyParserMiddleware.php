@@ -20,9 +20,14 @@ final class XmlBodyParserMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $method = $request->getMethod();
         $contentType = $request->getHeaderLine('Content-Type');
 
-        if (str_starts_with(strtolower($contentType), 'application/xml') || str_starts_with($contentType, 'text/xml')) {
+        if (!in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            return $handler->handle($request);
+        }
+
+        if ($this->isXmlMediaType($contentType)) {
             $backup = libxml_use_internal_errors(true);
             $body = (string)$request->getBody();
             $xml = simplexml_load_string($body);
@@ -38,5 +43,14 @@ final class XmlBodyParserMiddleware implements MiddlewareInterface
         }
 
         return $handler->handle($request);
+    }
+
+    private function isXmlMediaType(string $contentType): bool
+    {
+        $contentType = strtolower(trim(explode(';', $contentType)[0]));
+
+        return $contentType === 'application/xml'
+            || $contentType === 'text/xml'
+            || str_ends_with($contentType, '+xml');
     }
 }
