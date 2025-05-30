@@ -39,7 +39,7 @@ final class JsonBodyParserMiddleware implements MiddlewareInterface
             $parsed = json_decode($body, true, 512, $this->flags);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RuntimeException('Invalid JSON body: ' . json_last_error_msg());
+                throw new RuntimeException(sprintf('Invalid JSON body: %s', json_last_error_msg()));
             }
 
             if (is_array($parsed)) {
