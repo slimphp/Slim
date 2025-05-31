@@ -13,7 +13,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Converts errors into ErrorException instances.
  */
-final class ErrorHandlingMiddleware implements MiddlewareInterface
+final class ErrorExceptionMiddleware implements MiddlewareInterface
 {
     /**
      * @throws ErrorException
