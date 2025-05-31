@@ -10,9 +10,9 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -25,11 +25,11 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 final class HeadMethodMiddleware implements MiddlewareInterface
 {
-    private ResponseFactoryInterface $responseFactory;
+    private StreamFactoryInterface $streamFactory;
 
-    public function __construct(ResponseFactoryInterface $responseFactory)
+    public function __construct(StreamFactoryInterface $streamFactory)
     {
-        $this->responseFactory = $responseFactory;
+        $this->streamFactory = $streamFactory;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -45,9 +45,7 @@ final class HeadMethodMiddleware implements MiddlewareInterface
          */
         $method = strtoupper($request->getMethod());
         if ($method === 'HEAD') {
-            $emptyBody = $this->responseFactory->createResponse()->getBody();
-
-            return $response->withBody($emptyBody);
+            return $response->withBody($this->streamFactory->createStream());
         }
 
         return $response;
