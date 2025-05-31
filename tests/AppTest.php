@@ -30,7 +30,7 @@ use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Middleware\BasePathMiddleware;
 use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\ErrorHandlingMiddleware;
+use Slim\Middleware\ErrorExceptionMiddleware;
 use Slim\Middleware\ExceptionHandlingMiddleware;
 use Slim\Middleware\ExceptionLoggingMiddleware;
 use Slim\Middleware\HeadMethodMiddleware;
@@ -126,7 +126,7 @@ final class AppTest extends TestCase
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
         $app->add(RoutingArgumentsMiddleware::class);
-        $app->add(ErrorHandlingMiddleware::class);
+        $app->add(ErrorExceptionMiddleware::class);
         $app->add(ExceptionHandlingMiddleware::class);
         $app->add(ExceptionLoggingMiddleware::class);
         $app->add(EndpointMiddleware::class);
