@@ -14,7 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
+use Slim\Exception\HttpBadRequestException;
 
 final class XmlBodyParserMiddleware implements MiddlewareInterface
 {
@@ -36,7 +36,7 @@ final class XmlBodyParserMiddleware implements MiddlewareInterface
             libxml_use_internal_errors($backup);
 
             if ($xml === false) {
-                throw new RuntimeException('Invalid XML body');
+                throw new HttpBadRequestException($request, 'Invalid XML body');
             }
 
             $request = $request->withParsedBody($xml);

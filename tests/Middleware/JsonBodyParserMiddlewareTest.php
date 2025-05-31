@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Middleware;
 
+use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -77,8 +78,8 @@ final class JsonBodyParserMiddlewareTest extends TestCase
     #[DataProvider('invalidJsonProvider')]
     public function testThrowsExceptionOnInvalidJson($contentType, $body): void
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Invalid JSON body');
+        $this->expectException(JsonException::class);
+        $this->expectExceptionMessage('Syntax error');
 
         $stream = (new StreamFactory())->createStream('{"foo": "bar"');
 

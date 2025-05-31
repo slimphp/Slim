@@ -4,7 +4,6 @@ namespace Slim\Renderers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Slim\Media\MediaType;
 
 /**
  * A utility class for rendering JSON responses.
@@ -23,7 +22,7 @@ final class JsonRenderer
 
     private int $jsonOptions = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
-    private string $contentType = MediaType::APPLICATION_JSON;
+    private string $contentType = 'application/json';
 
     public function __construct(StreamFactoryInterface $streamFactory)
     {

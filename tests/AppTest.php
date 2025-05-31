@@ -14,6 +14,7 @@ use DI\Container;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +22,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\App;
 use Slim\Builder\AppBuilder;
-use Slim\Error\Renderers\HtmlExceptionRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\ContainerFactoryInterface;
@@ -31,9 +31,9 @@ use Slim\Middleware\BasePathMiddleware;
 use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ErrorExceptionMiddleware;
-use Slim\Middleware\ExceptionHandlingMiddleware;
 use Slim\Middleware\ExceptionLoggingMiddleware;
 use Slim\Middleware\HeadMethodMiddleware;
+use Slim\Middleware\HtmlExceptionMiddleware;
 use Slim\Middleware\RoutingArgumentsMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Psr7\Headers;
@@ -59,18 +59,17 @@ final class AppTest extends TestCase
         $builder = new AppBuilder();
         $builder->addDefinitions(
             [
-                ExceptionHandlingMiddleware::class => function ($container) {
-                    $middleware = ExceptionHandlingMiddleware::createFromContainer($container);
+                HtmlExceptionMiddleware::class => function ($container) {
+                    $responseFactory = $container->get(ResponseFactoryInterface::class);
+                    $middleware = new HtmlExceptionMiddleware($responseFactory);
 
-                    return $middleware
-                        ->withDisplayErrorDetails(true)
-                        ->withDefaultHandler(HtmlExceptionRenderer::class);
+                    return $middleware->withErrorDetails(true);
                 },
             ]
         );
         $app = $builder->build();
 
-        $app->add(ExceptionHandlingMiddleware::class);
+        $app->add(HtmlExceptionMiddleware::class);
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
@@ -127,8 +126,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(RoutingArgumentsMiddleware::class);
         $app->add(ErrorExceptionMiddleware::class);
-        $app->add(ExceptionHandlingMiddleware::class);
         $app->add(ExceptionLoggingMiddleware::class);
+        $app->add(HtmlExceptionMiddleware::class);
         $app->add(EndpointMiddleware::class);
         $app->add(ContentLengthMiddleware::class);
 

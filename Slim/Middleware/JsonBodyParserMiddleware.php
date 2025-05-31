@@ -14,15 +14,15 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
+use Slim\Exception\HttpBadRequestException;
 
 final class JsonBodyParserMiddleware implements MiddlewareInterface
 {
     private int $flags;
 
-    public function __construct(int $flags = 0)
+    public function __construct(int $jsonFlags = JSON_THROW_ON_ERROR)
     {
-        $this->flags = $flags;
+        $this->flags = $jsonFlags;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -39,7 +39,7 @@ final class JsonBodyParserMiddleware implements MiddlewareInterface
             $parsed = json_decode($body, true, 512, $this->flags);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RuntimeException(sprintf('Invalid JSON body: %s', json_last_error_msg()));
+                throw new HttpBadRequestException($request, sprintf('Invalid JSON body: %s', json_last_error_msg()));
             }
 
             if (is_array($parsed)) {

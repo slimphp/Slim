@@ -8,42 +8,41 @@
 
 declare(strict_types=1);
 
-namespace Slim\Error\Renderers;
+namespace Slim\Middleware;
 
 use ErrorException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use Slim\Interfaces\ExceptionRendererInterface;
-use Slim\Media\MediaType;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-use function get_class;
-use function sprintf;
-
-/**
- * Formats exceptions into a plain text response.
- */
-final class PlainTextExceptionRenderer implements ExceptionRendererInterface
+final class PlainTextExceptionMiddleware implements MiddlewareInterface
 {
-    use ExceptionRendererTrait;
+    use ExceptionMiddlewareTrait;
 
-    private StreamFactoryInterface $streamFactory;
+    private const DEFAULT_TYPE = 'text/plain';
 
-    public function __construct(StreamFactoryInterface $streamFactory)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->streamFactory = $streamFactory;
+        try {
+            return $handler->handle($request);
+        } catch (Throwable $exception) {
+            $contentType = $this->detectMediaType($request);
+
+            if ($contentType === null) {
+                throw $exception;
+            }
+
+            return $this->createResponse($exception, $this->createPayload($exception), $contentType);
+        }
     }
 
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        ?Throwable $exception = null,
-        bool $displayErrorDetails = false
-    ): ResponseInterface {
+    private function createPayload(Throwable $exception): string
+    {
         $text = sprintf("%s\n", $this->getErrorTitle($exception));
 
-        if ($displayErrorDetails) {
+        if ($this->displayErrorDetails) {
             $text .= $this->formatExceptionFragment($exception);
 
             while ($exception = $exception->getPrevious()) {
@@ -52,10 +51,7 @@ final class PlainTextExceptionRenderer implements ExceptionRendererInterface
             }
         }
 
-        $body = $this->streamFactory->createStream($text);
-        $response = $response->withBody($body);
-
-        return $response->withHeader('Content-Type', MediaType::TEXT_PLAIN);
+        return $text;
     }
 
     private function formatExceptionFragment(Throwable $exception): string

@@ -8,39 +8,39 @@
 
 declare(strict_types=1);
 
-namespace Slim\Error\Renderers;
+namespace Slim\Middleware;
 
 use ErrorException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use Slim\Interfaces\ExceptionRendererInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-use function get_class;
-use function sprintf;
-
-/**
- * Formats exceptions into a HTML response.
- */
-final class HtmlExceptionRenderer implements ExceptionRendererInterface
+final class HtmlExceptionMiddleware implements MiddlewareInterface
 {
-    use ExceptionRendererTrait;
+    use ExceptionMiddlewareTrait;
 
-    private StreamFactoryInterface $streamFactory;
+    private const DEFAULT_TYPE = 'text/html';
 
-    public function __construct(StreamFactoryInterface $streamFactory)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->streamFactory = $streamFactory;
+        try {
+            return $handler->handle($request);
+        } catch (Throwable $exception) {
+            $contentType = $this->detectMediaType($request);
+
+            if ($contentType === null) {
+                throw $exception;
+            }
+
+            return $this->createResponse($exception, $this->createPayload($exception), $contentType);
+        }
     }
 
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        ?Throwable $exception = null,
-        bool $displayErrorDetails = false
-    ): ResponseInterface {
-        if ($displayErrorDetails) {
+    private function createPayload(Throwable $exception): string
+    {
+        if ($this->displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
             $html .= $this->renderExceptionFragment($exception);
@@ -48,12 +48,7 @@ final class HtmlExceptionRenderer implements ExceptionRendererInterface
             $html = sprintf('<p>%s</p>', $this->getErrorDescription($exception));
         }
 
-        $html = $this->renderHtmlBody($this->getErrorTitle($exception), $html);
-
-        $body = $this->streamFactory->createStream($html);
-        $response = $response->withBody($body);
-
-        return $response->withHeader('Content-Type', 'text/html');
+        return $this->renderHtmlBody($this->getErrorTitle($exception), $html);
     }
 
     private function renderExceptionFragment(Throwable $exception): string
@@ -87,7 +82,7 @@ final class HtmlExceptionRenderer implements ExceptionRendererInterface
         return $html;
     }
 
-    public function renderHtmlBody(string $title = '', string $html = ''): string
+    private function renderHtmlBody(string $title = '', string $html = ''): string
     {
         return sprintf(
             '<!doctype html>' .
