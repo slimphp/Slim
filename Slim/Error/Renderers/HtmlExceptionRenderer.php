@@ -15,7 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Slim\Interfaces\ExceptionRendererInterface;
-use Slim\Media\MediaType;
 use Throwable;
 
 use function get_class;
@@ -54,7 +53,7 @@ final class HtmlExceptionRenderer implements ExceptionRendererInterface
         $body = $this->streamFactory->createStream($html);
         $response = $response->withBody($body);
 
-        return $response->withHeader('Content-Type', MediaType::TEXT_HTML);
+        return $response->withHeader('Content-Type', 'text/html');
     }
 
     private function renderExceptionFragment(Throwable $exception): string

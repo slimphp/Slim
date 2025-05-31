@@ -111,8 +111,8 @@ final class ExceptionHandlingMiddlewareTest extends TestCase
 
                     return $middleware
                         ->withDisplayErrorDetails(true)
-                        ->withDefaultMediaType(MediaType::TEXT_HTML)
-                        ->withHandler(MediaType::TEXT_HTML, HtmlExceptionRenderer::class);
+                        ->withDefaultMediaType('text/html')
+                        ->withHandler('text/html', HtmlExceptionRenderer::class);
                 },
             ]
         );
@@ -150,7 +150,7 @@ final class ExceptionHandlingMiddlewareTest extends TestCase
 
                     return $middleware
                         ->withDisplayErrorDetails(true)
-                        ->withHandler(MediaType::APPLICATION_JSON, JsonExceptionRenderer::class);
+                        ->withHandler('application/json', JsonExceptionRenderer::class);
                 },
             ]
         );
@@ -214,7 +214,7 @@ final class ExceptionHandlingMiddlewareTest extends TestCase
 
                     return $middleware
                         ->withDisplayErrorDetails(true)
-                        ->withHandler(MediaType::TEXT_HTML, HtmlExceptionRenderer::class);
+                        ->withHandler('text/html', HtmlExceptionRenderer::class);
                 },
             ]
         );
@@ -260,7 +260,7 @@ final class ExceptionHandlingMiddlewareTest extends TestCase
 
                     return $middleware
                         ->withDisplayErrorDetails(false)
-                        ->withHandler(MediaType::APPLICATION_JSON, JsonExceptionRenderer::class);
+                        ->withHandler('application/json', JsonExceptionRenderer::class);
                 },
             ]
         );
