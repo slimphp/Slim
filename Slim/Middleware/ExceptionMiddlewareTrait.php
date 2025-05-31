@@ -15,7 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpMethodNotAllowedException;
-use Slim\Media\MediaTypeParser;
 use Throwable;
 
 trait ExceptionMiddlewareTrait
