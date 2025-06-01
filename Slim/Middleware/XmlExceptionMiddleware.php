@@ -8,39 +8,39 @@
 
 declare(strict_types=1);
 
-namespace Slim\Error\Renderers;
+namespace Slim\Middleware;
 
 use DOMDocument;
 use ErrorException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use Slim\Interfaces\ExceptionRendererInterface;
-use Slim\Media\MediaType;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-use function get_class;
-
-/**
- * Formats exceptions into a XML response.
- */
-final class XmlExceptionRenderer implements ExceptionRendererInterface
+final class XmlExceptionMiddleware implements MiddlewareInterface
 {
-    use ExceptionRendererTrait;
+    use ExceptionMiddlewareTrait;
 
-    private StreamFactoryInterface $streamFactory;
+    private const DEFAULT_TYPE = 'application/xml';
 
-    public function __construct(StreamFactoryInterface $streamFactory)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->streamFactory = $streamFactory;
+        try {
+            return $handler->handle($request);
+        } catch (Throwable $exception) {
+            $contentType = $this->detectMediaType($request);
+
+            if ($contentType === null) {
+                throw $exception;
+            }
+
+            return $this->createResponse($exception, $this->createPayload($exception), $contentType);
+        }
     }
 
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        ?Throwable $exception = null,
-        bool $displayErrorDetails = false,
-    ): ResponseInterface {
+    private function createPayload(Throwable $exception): string
+    {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
@@ -51,7 +51,7 @@ final class XmlExceptionRenderer implements ExceptionRendererInterface
         $errorElement->appendChild($messageElement);
 
         // If error details should be displayed
-        if ($displayErrorDetails) {
+        if ($this->displayErrorDetails) {
             do {
                 $exceptionElement = $dom->createElement('exception');
 
@@ -75,9 +75,6 @@ final class XmlExceptionRenderer implements ExceptionRendererInterface
             } while ($exception = $exception->getPrevious());
         }
 
-        $body = $this->streamFactory->createStream((string)$dom->saveXML());
-        $response = $response->withBody($body);
-
-        return $response->withHeader('Content-Type', MediaType::APPLICATION_XML);
+        return (string)$dom->saveXML();
     }
 }

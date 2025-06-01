@@ -20,7 +20,7 @@ use Psr\Log\LogLevel;
 use RuntimeException;
 use Slim\Builder\AppBuilder;
 use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\ErrorHandlingMiddleware;
+use Slim\Middleware\ErrorExceptionMiddleware;
 use Slim\Middleware\ExceptionLoggingMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Logging\TestLogger;
@@ -113,7 +113,7 @@ class ExceptionLoggingMiddlewareTest extends TestCase
         error_reporting(E_ALL);
 
         $logger = new TestLogger();
-        $app->add(ErrorHandlingMiddleware::class);
+        $app->add(ErrorExceptionMiddleware::class);
 
         $middleware = new ExceptionLoggingMiddleware($logger);
 

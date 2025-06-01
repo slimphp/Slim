@@ -19,10 +19,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Builder\AppBuilder;
 use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\ErrorHandlingMiddleware;
+use Slim\Middleware\ErrorExceptionMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 
-final class ErrorHandlingMiddlewareTest extends TestCase
+final class ErrorExceptionMiddlewareTest extends TestCase
 {
     public function testProcessHandlesError(): void
     {
@@ -45,7 +45,7 @@ final class ErrorHandlingMiddlewareTest extends TestCase
         $app = (new AppBuilder())->build();
         $middleware = $app
             ->getContainer()
-            ->get(ErrorHandlingMiddleware::class);
+            ->get(ErrorExceptionMiddleware::class);
 
         // Invoke the middleware process method
         $middleware->process($request, $handler);
@@ -59,7 +59,7 @@ final class ErrorHandlingMiddlewareTest extends TestCase
         $app = $builder->build();
         $middleware = $app
             ->getContainer()
-            ->get(ErrorHandlingMiddleware::class);
+            ->get(ErrorExceptionMiddleware::class);
 
         $app->add($middleware);
         $app->add(RoutingMiddleware::class);
@@ -97,7 +97,7 @@ final class ErrorHandlingMiddlewareTest extends TestCase
 
         // Instantiate the middleware
         $app = (new AppBuilder())->build();
-        $middleware = $app->getContainer()->get(ErrorHandlingMiddleware::class);
+        $middleware = $app->getContainer()->get(ErrorExceptionMiddleware::class);
 
         // Invoke the middleware process method
         $middleware->process($request, $handler);
@@ -115,7 +115,7 @@ final class ErrorHandlingMiddlewareTest extends TestCase
             ->willReturn($response);
 
         $app = (new AppBuilder())->build();
-        $middleware = $app->getContainer()->get(ErrorHandlingMiddleware::class);
+        $middleware = $app->getContainer()->get(ErrorExceptionMiddleware::class);
 
         // Invoke the middleware process method and assert the response is returned
         $result = $middleware->process($request, $handler);

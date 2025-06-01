@@ -18,19 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `RoutingMiddleware` handles the routing process.
     - `EndpointMiddleware` processes the routing results and invokes the controller/action handler.
 - Simplified Error handling concept. Relates to #3287.
-  - Separation of Exceptions handling, PHP Error handling and Exception logging into different middleware.
+  - Separation of Exceptions handling, PHP Error handling and Exception logging into different middleware classes.
   - `ExceptionLoggingMiddleware` for custom error logging.
-  - `ExceptionHandlingMiddleware` delegates exceptions to a custom error handler.
-  - `ErrorHandlingMiddleware` converts errors into `ErrorException` instances that can then be handled by the `ExceptionHandlingMiddleware` and `ExceptionLoggingMiddleware`.
-  - New custom error handlers using the new `ExceptionLoggingMiddleware` middleware.
-  - New `JsonExceptionRenderer` generates JSON error response.
-  - New `XmlExceptionRenderer` generates XML error response.
-- New `BasePathMiddleware` for dealing with Apache subdirectories.
-- New `HeadMethodMiddleware` ensures that the response body is empty for HEAD requests.
-- New `JsonRenderer` utility class for rendering JSON responses.
-- New `RequestResponseTypedArgs` invocation strategy for route parameters with type declarations.
-- New `UrlGeneratorMiddleware` injects the `UrlGenerator` into the request attributes.
-- New `CorsMiddleware` for handling CORS requests.
+  - `JsonExceptionMiddleware` generates JSON error response.
+  - `HtmlExceptionMiddleware` generates HTML error response.
+  - `XmlExceptionMiddleware` generates XML error response.
+  - `PlainTextExceptionMiddleware` handles and formats exceptions into plain text responses.
+  - `ErrorExceptionMiddleware` converts PHP errors into `ErrorException` instances that can then be handled by the `ExceptionHandlingMiddleware` and `ExceptionLoggingMiddleware`.
+- `BasePathMiddleware` for dealing with Apache subdirectories.
+- `JsonBodyParserMiddleware` for parsing JSON requests.
+- `XmlBodyParserMiddleware` for parsing XML requests.
+- `FormUrlEncodedBodyParserMiddleware` for parsing form requests. 
+- `CorsMiddleware` for handling CORS requests.
+- `UrlGeneratorMiddleware` injects the `UrlGenerator` into the request attributes.
+- `HeadMethodMiddleware` ensures that the response body is empty for HEAD requests.
+- `RequestResponseTypedArgs` invocation strategy for route parameters with type declarations.
 - Support to build a custom middleware pipeline without the Slim App class. See new `ResponseFactoryMiddleware`
 - New media type detector
 - New ContainerFactoryInterface and PhpDiContainerFactory class  
@@ -50,8 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-* Remove LIFO middleware order support. Use FIFO instead.
+* LIFO middleware order support. Use FIFO instead.
 * Router cache file support (File IO was never sufficient. PHP OpCache is much faster)
+* Removed `BodyParsingMiddlewareTest` in favor of `JsonBodyParserMiddleware`, `XmlBodyParserMiddleware` and `FormUrlEncodedBodyParserMiddleware`.  
 * The `$app->redirect()` method because it was not aware of the basePath. Use the `UrlGenerator` instead.
 * The route `setArguments` and `setArgument` methods. Use a middleware for custom route arguments now.
 * The `RouteContext::ROUTE` const. Use `$route = $request->getAttribute(RouteContext::ROUTING_RESULTS)->getRoute();` instead.

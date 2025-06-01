@@ -35,7 +35,7 @@ use Slim\Routing\Router;
  *
  * @api
  */
-class App implements RouteCollectionInterface
+class App implements RequestHandlerInterface, RouteCollectionInterface
 {
     use RouteCollectionTrait;
 
