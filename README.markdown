@@ -1,3 +1,17 @@
+#Attention
+This fork was intended to update version 2.x of Slim Framework just to make it compatible with PHP 8.x
+
+## Changes made in this fork was
+* Add explicit return types into methods that implements interface \ArrayIterator, \IteratorAggregate and Countable
+* Removed use of magic_quotes_gpc
+
+##Files Changed
+/Slim/Environment.php
+/Slim/Helper/Set.php
+/Slim/Middleware/Flash.php
+/Slim/Http/Response.php
+/Slim/Http/util.php
+
 # Slim Framework
 
 [![Build Status](https://travis-ci.org/slimphp/Slim.svg?branch=master)](https://travis-ci.org/slimphp/Slim)
