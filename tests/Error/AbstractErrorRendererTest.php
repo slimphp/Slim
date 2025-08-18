@@ -60,7 +60,9 @@ class AbstractErrorRendererTest extends TestCase
         $reflectionRenderer = new ReflectionClass(HtmlErrorRenderer::class);
 
         $method = $reflectionRenderer->getMethod('renderExceptionFragment');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
         $output = $method->invoke($renderer, $exception);
 
         $this->assertMatchesRegularExpression('/.*Type:*/', $output);
@@ -101,7 +103,9 @@ class AbstractErrorRendererTest extends TestCase
         $reflectionRenderer = new ReflectionClass(JsonErrorRenderer::class);
 
         $method = $reflectionRenderer->getMethod('formatExceptionFragment');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $fragment = $method->invoke($renderer, $exception);
         $output = json_encode(json_decode($renderer->__invoke($exception, true)));
@@ -128,7 +132,9 @@ class AbstractErrorRendererTest extends TestCase
         $renderer = new JsonErrorRenderer();
         $reflectionRenderer = new ReflectionClass(JsonErrorRenderer::class);
         $method = $reflectionRenderer->getMethod('formatExceptionFragment');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $output = json_encode(json_decode($renderer->__invoke($exception, true)));
 
@@ -208,7 +214,9 @@ class AbstractErrorRendererTest extends TestCase
         $reflectionRenderer = new ReflectionClass(PlainTextErrorRenderer::class);
 
         $method = $reflectionRenderer->getMethod('formatExceptionFragment');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
         $output = $method->invoke($renderer, $exception);
         $this->assertIsString($output);
 

@@ -698,18 +698,24 @@ class AppTest extends TestCase
 
         // Check that the routing middleware really has been added to the tip of the app middleware stack.
         $middlewareDispatcherProperty = new ReflectionProperty(App::class, 'middlewareDispatcher');
-        $middlewareDispatcherProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $middlewareDispatcherProperty->setAccessible(true);
+        }
         /** @var MiddlewareDispatcher $middlewareDispatcher */
         $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
 
         $tipProperty = new ReflectionProperty(MiddlewareDispatcher::class, 'tip');
-        $tipProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $tipProperty->setAccessible(true);
+        }
         /** @var RequestHandlerInterface $tip */
         $tip = $tipProperty->getValue($middlewareDispatcher);
 
         $reflection = new ReflectionClass($tip);
         $middlewareProperty = $reflection->getProperty('middleware');
-        $middlewareProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $middlewareProperty->setAccessible(true);
+        }
 
         $this->assertSame($routingMiddleware, $middlewareProperty->getValue($tip));
         $this->assertInstanceOf(RoutingMiddleware::class, $routingMiddleware);
@@ -731,18 +737,24 @@ class AppTest extends TestCase
 
         // Check that the error middleware really has been added to the tip of the app middleware stack.
         $middlewareDispatcherProperty = new ReflectionProperty(App::class, 'middlewareDispatcher');
-        $middlewareDispatcherProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $middlewareDispatcherProperty->setAccessible(true);
+        }
         /** @var MiddlewareDispatcher $middlewareDispatcher */
         $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
 
         $tipProperty = new ReflectionProperty(MiddlewareDispatcher::class, 'tip');
-        $tipProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $tipProperty->setAccessible(true);
+        }
         /** @var RequestHandlerInterface $tip */
         $tip = $tipProperty->getValue($middlewareDispatcher);
 
         $reflection = new ReflectionClass($tip);
         $middlewareProperty = $reflection->getProperty('middleware');
-        $middlewareProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $middlewareProperty->setAccessible(true);
+        }
 
         $this->assertSame($errorMiddleware, $middlewareProperty->getValue($tip));
         $this->assertInstanceOf(ErrorMiddleware::class, $errorMiddleware);
@@ -761,18 +773,24 @@ class AppTest extends TestCase
 
         // Check that the body parsing middleware really has been added to the tip of the app middleware stack.
         $middlewareDispatcherProperty = new ReflectionProperty(App::class, 'middlewareDispatcher');
-        $middlewareDispatcherProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $middlewareDispatcherProperty->setAccessible(true);
+        }
         /** @var MiddlewareDispatcher $middlewareDispatcher */
         $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
 
         $tipProperty = new ReflectionProperty(MiddlewareDispatcher::class, 'tip');
-        $tipProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $tipProperty->setAccessible(true);
+        }
         /** @var RequestHandlerInterface $tip */
         $tip = $tipProperty->getValue($middlewareDispatcher);
 
         $reflection = new ReflectionClass($tip);
         $middlewareProperty = $reflection->getProperty('middleware');
-        $middlewareProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $middlewareProperty->setAccessible(true);
+        }
 
         $this->assertSame($bodyParsingMiddleware, $middlewareProperty->getValue($tip));
         $this->assertInstanceOf(BodyParsingMiddleware::class, $bodyParsingMiddleware);

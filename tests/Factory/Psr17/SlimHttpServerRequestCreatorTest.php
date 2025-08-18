@@ -36,7 +36,9 @@ class SlimHttpServerRequestCreatorTest extends TestCase
             SlimHttpServerRequestCreator::class,
             'serverRequestDecoratorClass'
         );
-        $serverRequestDecoratorClassProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+                    $serverRequestDecoratorClassProperty->setAccessible(true);
+        }
         $serverRequestDecoratorClassProperty->setValue($slimHttpServerRequestCreator, ServerRequest::class);
     }
 
@@ -69,7 +71,9 @@ class SlimHttpServerRequestCreatorTest extends TestCase
             SlimHttpServerRequestCreator::class,
             'serverRequestDecoratorClass'
         );
-        $serverRequestDecoratorClassProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverRequestDecoratorClassProperty->setAccessible(true);
+        }
         $serverRequestDecoratorClassProperty->setValue($slimHttpServerRequestCreator, '');
 
         $slimHttpServerRequestCreator->createServerRequestFromGlobals();

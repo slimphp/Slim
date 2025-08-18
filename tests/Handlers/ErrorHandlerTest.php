@@ -43,15 +43,21 @@ class ErrorHandlerTest extends TestCase
         $class = new ReflectionClass(ErrorHandler::class);
 
         $callableResolverProperty = $class->getProperty('callableResolver');
-        $callableResolverProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $callableResolverProperty->setAccessible(true);
+        }
         $callableResolverProperty->setValue($handler, $this->getCallableResolver());
 
         $reflectionProperty = $class->getProperty('contentType');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, 'application/json');
 
         $method = $class->getMethod('determineRenderer');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $renderer = $method->invoke($handler);
         $this->assertIsCallable($renderer);
@@ -84,15 +90,21 @@ class ErrorHandlerTest extends TestCase
         $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
         $reflectionProperty = $class->getProperty('exception');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, new HttpNotFoundException($request));
 
         $method = $class->getMethod('determineStatusCode');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $statusCode = $method->invoke($handler);
         $this->assertSame($statusCode, 404);
@@ -142,15 +154,21 @@ class ErrorHandlerTest extends TestCase
         $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
         $reflectionProperty = $class->getProperty('errorRenderers');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, $newErrorRenderers);
 
         $method = $class->getMethod('determineContentType');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $contentType = $method->invoke($handler, $request);
 
@@ -177,15 +195,21 @@ class ErrorHandlerTest extends TestCase
         $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
         $reflectionProperty = $class->getProperty('errorRenderers');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, $errorRenderers);
 
         $method = $class->getMethod('determineContentType');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $contentType = $method->invoke($handler, $request);
 
@@ -211,15 +235,21 @@ class ErrorHandlerTest extends TestCase
         $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
         $reflectionProperty = $class->getProperty('errorRenderers');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $reflectionProperty->setValue($handler, $errorRenderers);
 
         $method = $class->getMethod('determineContentType');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $contentType = $method->invoke($handler, $request);
 
@@ -239,7 +269,9 @@ class ErrorHandlerTest extends TestCase
         // provide access to the determineContentType() as it's a protected method
         $class = new ReflectionClass(ErrorHandler::class);
         $method = $class->getMethod('determineContentType');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         // use a mock object here as ErrorHandler cannot be directly instantiated
         $handler = $this
@@ -260,7 +292,9 @@ class ErrorHandlerTest extends TestCase
 
         $reflectionClass = new ReflectionClass(ErrorHandler::class);
         $reflectionProperty = $reflectionClass->getProperty('errorRenderers');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $errorRenderers = $reflectionProperty->getValue($handler);
 
         $this->assertArrayHasKey('application/slim', $errorRenderers);
@@ -273,11 +307,15 @@ class ErrorHandlerTest extends TestCase
 
         $reflectionClass = new ReflectionClass(ErrorHandler::class);
         $reflectionProperty = $reflectionClass->getProperty('defaultErrorRenderer');
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $defaultErrorRenderer = $reflectionProperty->getValue($handler);
 
         $defaultErrorRendererContentTypeProperty = $reflectionClass->getProperty('defaultErrorRendererContentType');
-        $defaultErrorRendererContentTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $defaultErrorRendererContentTypeProperty->setAccessible(true);
+        }
         $defaultErrorRendererContentType = $defaultErrorRendererContentTypeProperty->getValue($handler);
 
         $this->assertSame(PlainTextErrorRenderer::class, $defaultErrorRenderer);
@@ -414,16 +452,22 @@ class ErrorHandlerTest extends TestCase
         $handler->setLogErrorRenderer('logErrorRenderer');
 
         $displayErrorDetailsProperty = new ReflectionProperty($handler, 'displayErrorDetails');
-        $displayErrorDetailsProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $displayErrorDetailsProperty->setAccessible(true);
+        }
         $displayErrorDetailsProperty->setValue($handler, true);
 
         $exception = new RuntimeException();
         $exceptionProperty = new ReflectionProperty($handler, 'exception');
-        $exceptionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $exceptionProperty->setAccessible(true);
+        }
         $exceptionProperty->setValue($handler, $exception);
 
         $writeToErrorLogMethod = new ReflectionMethod($handler, 'writeToErrorLog');
-        $writeToErrorLogMethod->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $writeToErrorLogMethod->setAccessible(true);
+        }
         $writeToErrorLogMethod->invoke($handler);
     }
 }

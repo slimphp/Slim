@@ -76,7 +76,9 @@ class AppFactoryTest extends TestCase
         $routeCollector = $app->getRouteCollector();
 
         $responseFactoryProperty = new ReflectionProperty(RouteCollector::class, 'responseFactory');
-        $responseFactoryProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $responseFactoryProperty->setAccessible(true);
+        }
 
         $responseFactory = $responseFactoryProperty->getValue($routeCollector);
 
@@ -276,7 +278,9 @@ class AppFactoryTest extends TestCase
         $response = $responseFactory->createResponse();
 
         $streamFactoryProperty = new ReflectionProperty(DecoratedResponse::class, 'streamFactory');
-        $streamFactoryProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $streamFactoryProperty->setAccessible(true);
+        }
 
         $this->assertSame($streamFactoryProphecy->reveal(), $streamFactoryProperty->getValue($response));
     }
