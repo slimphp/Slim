@@ -64,7 +64,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
         if (!empty($output)) {
             if ($this->style === static::PREPEND) {
                 $body = $this->streamFactory->createStream();
-                $body->write($output . (string) $response->getBody());
+                $body->write($output . $response->getBody());
                 $response = $response->withBody($body);
             } elseif ($this->style === static::APPEND && $response->getBody()->isWritable()) {
                 $response->getBody()->write($output);
