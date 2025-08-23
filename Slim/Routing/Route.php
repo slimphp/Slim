@@ -367,7 +367,7 @@ class Route implements RouteInterface, RequestHandlerInterface
         }
         $strategy = $this->invocationStrategy;
 
-        $strategyImplements = class_implements($strategy) ?: [];
+        $strategyImplements = class_implements($strategy);
 
         if (
             is_array($callable)
