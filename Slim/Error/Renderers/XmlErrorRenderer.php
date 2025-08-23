@@ -22,6 +22,7 @@ use function str_replace;
  */
 class XmlErrorRenderer extends AbstractErrorRenderer
 {
+    #[\Override]
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         $xml = '<' . '?xml version="1.0" encoding="UTF-8" standalone="yes"?' . ">\n";

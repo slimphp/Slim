@@ -57,6 +57,7 @@ class RouteGroup implements RouteGroupInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function collectRoutes(): RouteGroupInterface
     {
         if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
@@ -71,6 +72,7 @@ class RouteGroup implements RouteGroupInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function add($middleware): RouteGroupInterface
     {
         $this->middleware[] = $middleware;
@@ -80,6 +82,7 @@ class RouteGroup implements RouteGroupInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addMiddleware(MiddlewareInterface $middleware): RouteGroupInterface
     {
         $this->middleware[] = $middleware;
@@ -90,6 +93,7 @@ class RouteGroup implements RouteGroupInterface
      * {@inheritdoc}
      * @param MiddlewareDispatcher<\Psr\Container\ContainerInterface|null> $dispatcher
      */
+    #[\Override]
     public function appendMiddlewareToDispatcher(MiddlewareDispatcher $dispatcher): RouteGroupInterface
     {
         foreach ($this->middleware as $middleware) {
@@ -102,6 +106,7 @@ class RouteGroup implements RouteGroupInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPattern(): string
     {
         return $this->pattern;

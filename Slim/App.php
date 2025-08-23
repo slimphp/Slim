@@ -204,6 +204,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
      * @param ServerRequestInterface $request
      * @return ResponseInterface
      */
+    #[\Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $response = $this->middlewareDispatcher->handle($request);

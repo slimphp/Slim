@@ -47,6 +47,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function resolve($toResolve): callable
     {
         $toResolve = $this->prepareToResolve($toResolve);
@@ -65,6 +66,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function resolveRoute($toResolve): callable
     {
         return $this->resolveByPredicate($toResolve, [$this, 'isRoute'], 'handle');
@@ -73,6 +75,7 @@ final class CallableResolver implements AdvancedCallableResolverInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function resolveMiddleware($toResolve): callable
     {
         return $this->resolveByPredicate($toResolve, [$this, 'isMiddleware'], 'process');

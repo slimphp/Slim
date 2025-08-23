@@ -37,6 +37,7 @@ class RouteResolver implements RouteResolverInterface
     /**
      * @param string $uri Should be $request->getUri()->getPath()
      */
+    #[\Override]
     public function computeRoutingResults(string $uri, string $method): RoutingResults
     {
         $uri = rawurldecode($uri);
@@ -49,6 +50,7 @@ class RouteResolver implements RouteResolverInterface
     /**
      * @throws RuntimeException
      */
+    #[\Override]
     public function resolveRoute(string $identifier): RouteInterface
     {
         return $this->routeCollector->lookupRoute($identifier);

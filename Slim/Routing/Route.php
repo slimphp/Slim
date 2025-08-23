@@ -148,6 +148,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getInvocationStrategy(): InvocationStrategyInterface
     {
         return $this->invocationStrategy;
@@ -156,6 +157,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setInvocationStrategy(InvocationStrategyInterface $invocationStrategy): RouteInterface
     {
         $this->invocationStrategy = $invocationStrategy;
@@ -165,6 +167,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getMethods(): array
     {
         return $this->methods;
@@ -173,6 +176,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPattern(): string
     {
         return $this->pattern;
@@ -181,6 +185,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setPattern(string $pattern): RouteInterface
     {
         $this->pattern = $pattern;
@@ -190,6 +195,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getCallable()
     {
         return $this->callable;
@@ -198,6 +204,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setCallable($callable): RouteInterface
     {
         $this->callable = $callable;
@@ -207,6 +214,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName(): ?string
     {
         return $this->name;
@@ -215,6 +223,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setName(string $name): RouteInterface
     {
         $this->name = $name;
@@ -224,6 +233,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getIdentifier(): string
     {
         return $this->identifier;
@@ -232,6 +242,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getArgument(string $name, ?string $default = null): ?string
     {
         if (array_key_exists($name, $this->arguments)) {
@@ -243,6 +254,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getArguments(): array
     {
         return $this->arguments;
@@ -251,6 +263,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setArguments(array $arguments, bool $includeInSavedArguments = true): RouteInterface
     {
         if ($includeInSavedArguments) {
@@ -272,6 +285,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function add($middleware): RouteInterface
     {
         $this->middlewareDispatcher->add($middleware);
@@ -281,6 +295,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addMiddleware(MiddlewareInterface $middleware): RouteInterface
     {
         $this->middlewareDispatcher->addMiddleware($middleware);
@@ -290,6 +305,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function prepare(array $arguments): RouteInterface
     {
         $this->arguments = array_replace($this->savedArguments, $arguments);
@@ -299,6 +315,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setArgument(string $name, string $value, bool $includeInSavedArguments = true): RouteInterface
     {
         if ($includeInSavedArguments) {
@@ -312,6 +329,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function run(ServerRequestInterface $request): ResponseInterface
     {
         if (!$this->groupMiddlewareAppended) {
@@ -339,6 +357,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
@@ -348,7 +367,7 @@ class Route implements RouteInterface, RequestHandlerInterface
         }
         $strategy = $this->invocationStrategy;
 
-        $strategyImplements = class_implements($strategy);
+        $strategyImplements = class_implements($strategy) ?: [];
 
         if (
             is_array($callable)

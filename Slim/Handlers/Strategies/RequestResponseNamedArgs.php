@@ -27,6 +27,7 @@ class RequestResponseNamedArgs implements InvocationStrategyInterface
      *
      * @param array<string, string>  $routeArguments
      */
+    #[\Override]
     public function __invoke(
         callable $callable,
         ServerRequestInterface $request,

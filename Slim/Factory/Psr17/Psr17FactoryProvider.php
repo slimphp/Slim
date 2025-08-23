@@ -30,6 +30,7 @@ class Psr17FactoryProvider implements Psr17FactoryProviderInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getFactories(): array
     {
         return static::$factories;
@@ -38,6 +39,7 @@ class Psr17FactoryProvider implements Psr17FactoryProviderInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function setFactories(array $factories): void
     {
         static::$factories = $factories;
@@ -46,6 +48,7 @@ class Psr17FactoryProvider implements Psr17FactoryProviderInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function addFactory(string $factory): void
     {
         array_unshift(static::$factories, $factory);

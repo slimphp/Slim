@@ -32,6 +32,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getResponseFactory(): ResponseFactoryInterface
     {
         if (
@@ -47,6 +48,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getStreamFactory(): StreamFactoryInterface
     {
         if (
@@ -62,6 +64,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getServerRequestCreator(): ServerRequestCreatorInterface
     {
         if (!static::isServerRequestCreatorAvailable()) {
@@ -74,6 +77,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function isResponseFactoryAvailable(): bool
     {
         return static::$responseFactoryClass && class_exists(static::$responseFactoryClass);
@@ -82,6 +86,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function isStreamFactoryAvailable(): bool
     {
         return static::$streamFactoryClass && class_exists(static::$streamFactoryClass);
@@ -90,6 +95,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function isServerRequestCreatorAvailable(): bool
     {
         return (

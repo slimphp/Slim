@@ -22,6 +22,7 @@ use function sprintf;
  */
 class HtmlErrorRenderer extends AbstractErrorRenderer
 {
+    #[\Override]
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         if ($displayErrorDetails) {

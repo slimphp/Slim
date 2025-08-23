@@ -54,6 +54,7 @@ class RouteRunner implements RequestHandlerInterface
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      */
+    #[\Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         // If routing hasn't been done, then do it now so we can dispatch

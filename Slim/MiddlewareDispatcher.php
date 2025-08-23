@@ -60,6 +60,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function seedMiddlewareStack(RequestHandlerInterface $kernel): void
     {
         $this->tip = $kernel;
@@ -68,6 +69,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     /**
      * Invoke the middleware stack
      */
+    #[\Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->tip->handle($request);
@@ -82,6 +84,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
      *
      * @param MiddlewareInterface|string|callable $middleware
      */
+    #[\Override]
     public function add($middleware): MiddlewareDispatcherInterface
     {
         if ($middleware instanceof MiddlewareInterface) {
@@ -110,6 +113,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
      * that have been added before will be executed after the newly
      * added one (last in, first out).
      */
+    #[\Override]
     public function addMiddleware(MiddlewareInterface $middleware): MiddlewareDispatcherInterface
     {
         $next = $this->tip;
@@ -124,6 +128,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
                 $this->next = $next;
             }
 
+            #[\Override]
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 return $this->middleware->process($request, $this->next);
@@ -170,6 +175,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
                 $this->callableResolver = $callableResolver;
             }
 
+            #[\Override]
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 if ($this->callableResolver instanceof AdvancedCallableResolverInterface) {
@@ -277,6 +283,7 @@ class MiddlewareDispatcher implements MiddlewareDispatcherInterface
                 $this->next = $next;
             }
 
+            #[\Override]
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 /** @var ResponseInterface */

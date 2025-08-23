@@ -25,6 +25,7 @@ class Logger extends AbstractLogger
      *
      * @throws InvalidArgumentException
      */
+    #[\Override]
     public function log($level, $message, array $context = []): void
     {
         error_log((string) $message);

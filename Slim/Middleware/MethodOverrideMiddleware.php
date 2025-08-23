@@ -21,6 +21,7 @@ use function strtoupper;
 /** @api */
 class MethodOverrideMiddleware implements MiddlewareInterface
 {
+    #[\Override]
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $methodHeader = $request->getHeaderLine('X-Http-Method-Override');

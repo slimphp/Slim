@@ -49,6 +49,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
     /**
      * @throws Throwable
      */
+    #[\Override]
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
@@ -63,7 +64,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
         if (!empty($output)) {
             if ($this->style === static::PREPEND) {
                 $body = $this->streamFactory->createStream();
-                $body->write($output . $response->getBody());
+                $body->write($output . (string) $response->getBody());
                 $response = $response->withBody($body);
             } elseif ($this->style === static::APPEND && $response->getBody()->isWritable()) {
                 $response->getBody()->write($output);

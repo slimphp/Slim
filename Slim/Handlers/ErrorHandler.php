@@ -111,6 +111,7 @@ class ErrorHandler implements ErrorHandlerInterface
      * @param bool                   $logErrors           Whether or not to log errors
      * @param bool                   $logErrorDetails     Whether or not to log error details
      */
+    #[\Override]
     public function __invoke(
         ServerRequestInterface $request,
         Throwable $exception,

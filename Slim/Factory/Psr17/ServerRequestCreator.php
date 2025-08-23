@@ -35,6 +35,7 @@ class ServerRequestCreator implements ServerRequestCreatorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function createServerRequestFromGlobals(): ServerRequestInterface
     {
         /** @var callable $callable */

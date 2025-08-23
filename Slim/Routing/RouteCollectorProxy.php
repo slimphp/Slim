@@ -55,6 +55,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getResponseFactory(): ResponseFactoryInterface
     {
         return $this->responseFactory;
@@ -63,6 +64,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getCallableResolver(): CallableResolverInterface
     {
         return $this->callableResolver;
@@ -72,6 +74,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      * {@inheritdoc}
      * @return TContainerInterface
      */
+    #[\Override]
     public function getContainer(): ?ContainerInterface
     {
         return $this->container;
@@ -80,6 +83,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getRouteCollector(): RouteCollectorInterface
     {
         return $this->routeCollector;
@@ -88,6 +92,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBasePath(): string
     {
         return $this->routeCollector->getBasePath();
@@ -96,6 +101,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setBasePath(string $basePath): RouteCollectorProxyInterface
     {
         $this->routeCollector->setBasePath($basePath);
@@ -106,6 +112,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function get(string $pattern, $callable): RouteInterface
     {
         return $this->map(['GET'], $pattern, $callable);
@@ -114,6 +121,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function post(string $pattern, $callable): RouteInterface
     {
         return $this->map(['POST'], $pattern, $callable);
@@ -122,6 +130,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function put(string $pattern, $callable): RouteInterface
     {
         return $this->map(['PUT'], $pattern, $callable);
@@ -130,6 +139,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function patch(string $pattern, $callable): RouteInterface
     {
         return $this->map(['PATCH'], $pattern, $callable);
@@ -138,6 +148,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function delete(string $pattern, $callable): RouteInterface
     {
         return $this->map(['DELETE'], $pattern, $callable);
@@ -146,6 +157,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function options(string $pattern, $callable): RouteInterface
     {
         return $this->map(['OPTIONS'], $pattern, $callable);
@@ -154,6 +166,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function any(string $pattern, $callable): RouteInterface
     {
         return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
@@ -162,6 +175,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function map(array $methods, string $pattern, $callable): RouteInterface
     {
         $pattern = $this->groupPattern . $pattern;
@@ -172,6 +186,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function group(string $pattern, $callable): RouteGroupInterface
     {
         $pattern = $this->groupPattern . $pattern;
@@ -182,6 +197,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function redirect(string $from, $to, int $status = 302): RouteInterface
     {
         $responseFactory = $this->responseFactory;

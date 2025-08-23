@@ -25,6 +25,7 @@ class FastRouteDispatcher extends GroupCountBased
      *
      * @return array{int, string|null, array<string, string>}
      */
+    #[\Override]
     public function dispatch($httpMethod, $uri): array
     {
         $routingResults = $this->routingResults($httpMethod, $uri);

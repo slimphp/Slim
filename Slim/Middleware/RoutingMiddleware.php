@@ -39,6 +39,7 @@ class RoutingMiddleware implements MiddlewareInterface
      * @throws HttpMethodNotAllowedException
      * @throws RuntimeException
      */
+    #[\Override]
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $request = $this->performRouting($request);

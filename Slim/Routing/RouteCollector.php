@@ -104,6 +104,7 @@ class RouteCollector implements RouteCollectorInterface
         }
     }
 
+    #[\Override]
     public function getRouteParser(): RouteParserInterface
     {
         return $this->routeParser;
@@ -112,11 +113,13 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * Get default route invocation strategy
      */
+    #[\Override]
     public function getDefaultInvocationStrategy(): InvocationStrategyInterface
     {
         return $this->defaultInvocationStrategy;
     }
 
+    #[\Override]
     public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy): RouteCollectorInterface
     {
         $this->defaultInvocationStrategy = $strategy;
@@ -126,6 +129,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getCacheFile(): ?string
     {
         return $this->cacheFile;
@@ -134,6 +138,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setCacheFile(string $cacheFile): RouteCollectorInterface
     {
         if (file_exists($cacheFile) && !is_readable($cacheFile)) {
@@ -155,6 +160,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBasePath(): string
     {
         return $this->basePath;
@@ -163,6 +169,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * Set the base path used in urlFor()
      */
+    #[\Override]
     public function setBasePath(string $basePath): RouteCollectorInterface
     {
         $this->basePath = $basePath;
@@ -173,6 +180,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getRoutes(): array
     {
         return $this->routes;
@@ -181,6 +189,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeNamedRoute(string $name): RouteCollectorInterface
     {
         $route = $this->getNamedRoute($name);
@@ -193,6 +202,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getNamedRoute(string $name): RouteInterface
     {
         if (isset($this->routesByName[$name])) {
@@ -217,6 +227,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function lookupRoute(string $identifier): RouteInterface
     {
         if (!isset($this->routes[$identifier])) {
@@ -228,6 +239,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function group(string $pattern, $callable): RouteGroupInterface
     {
         $routeGroup = $this->createGroup($pattern, $callable);
@@ -266,6 +278,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function map(array $methods, string $pattern, $handler): RouteInterface
     {
         $route = $this->createRoute($methods, $pattern, $handler);
