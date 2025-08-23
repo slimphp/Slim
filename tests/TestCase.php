@@ -120,4 +120,14 @@ abstract class TestCase extends PhpUnitTestCase
         $psr7ObjectProvider = new PSR7ObjectProvider();
         return $psr7ObjectProvider->createStream($contents);
     }
+
+    /**
+     * @param ReflectionProperty|ReflectionMethod $property
+     */
+    protected function setAccessible($property): void
+    {
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+    }
 }

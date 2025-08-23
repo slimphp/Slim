@@ -34,7 +34,7 @@ class DispatcherTest extends TestCase
         $dispatcher = new Dispatcher($routeCollector);
 
         $method = new ReflectionMethod(Dispatcher::class, 'createDispatcher');
-        $method->setAccessible(true);
+        $this->setAccessible($method);
 
         $this->assertInstanceOf(FastRouteDispatcher::class, $method->invoke($dispatcher));
     }
@@ -57,7 +57,7 @@ class DispatcherTest extends TestCase
         $routeCollector->setCacheFile($cacheFile);
 
         $method = new ReflectionMethod(Dispatcher::class, 'createDispatcher');
-        $method->setAccessible(true);
+        $this->setAccessible($method);
         $method->invoke($dispatcher);
         $this->assertFileExists($cacheFile, 'cache file was not created');
 
@@ -66,7 +66,7 @@ class DispatcherTest extends TestCase
         $dispatcher2 = new Dispatcher($routeCollector2);
 
         $method = new ReflectionMethod(Dispatcher::class, 'createDispatcher');
-        $method->setAccessible(true);
+        $this->setAccessible($method);
         $method->invoke($dispatcher2);
 
         /** @var RoutingResults $result */
@@ -88,7 +88,7 @@ class DispatcherTest extends TestCase
         $dispatcher = new Dispatcher($routeCollector);
 
         $method = new ReflectionMethod(Dispatcher::class, 'createDispatcher');
-        $method->setAccessible(true);
+        $this->setAccessible($method);
 
         $fastRouteDispatcher = $method->invoke($dispatcher);
         $fastRouteDispatcher2 = $method->invoke($dispatcher);

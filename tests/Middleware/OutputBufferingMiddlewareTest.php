@@ -26,7 +26,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $middleware = new OutputBufferingMiddleware($this->getStreamFactory());
 
         $reflectionProperty = new ReflectionProperty($middleware, 'style');
-        $reflectionProperty->setAccessible(true);
+        $this->setAccessible($reflectionProperty);
         $value = $reflectionProperty->getValue($middleware);
 
         $this->assertSame('append', $value);
@@ -37,7 +37,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         $middleware = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $reflectionProperty = new ReflectionProperty($middleware, 'style');
-        $reflectionProperty->setAccessible(true);
+        $this->setAccessible($reflectionProperty);
         $value = $reflectionProperty->getValue($middleware);
 
         $this->assertSame('prepend', $value);

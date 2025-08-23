@@ -280,7 +280,7 @@ class ResponseEmitterTest extends TestCase
 
         $mirror = new ReflectionClass(ResponseEmitter::class);
         $emitBodyMethod = $mirror->getMethod('emitBody');
-        $emitBodyMethod->setAccessible(true);
+        $this->setAccessible($emitBodyMethod);
         $emitBodyMethod->invoke($responseEmitter, $response);
 
         $this->expectOutputString("");
