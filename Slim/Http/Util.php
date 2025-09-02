@@ -403,7 +403,7 @@ class Util
     public static function parseCookieHeader($header)
     {
         $cookies = array();
-        $header = rtrim($header, "\r\n");
+        $header = rtrim((string)$header, "\r\n");
         $headerPieces = preg_split('@\s*[;,]\s*@', $header);
         foreach ($headerPieces as $c) {
             $cParts = explode('=', $c, 2);
