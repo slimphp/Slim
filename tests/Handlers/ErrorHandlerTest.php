@@ -36,10 +36,7 @@ class ErrorHandlerTest extends TestCase
 
     public function testDetermineRenderer()
     {
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(ErrorHandler::class);
         $class = new ReflectionClass(ErrorHandler::class);
 
         $callableResolverProperty = $class->getProperty('callableResolver');
@@ -77,10 +74,7 @@ class ErrorHandlerTest extends TestCase
     public function testDetermineStatusCode()
     {
         $request = $this->createServerRequest('/');
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(ErrorHandler::class);
         $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('responseFactory');
@@ -129,10 +123,7 @@ class ErrorHandlerTest extends TestCase
             ->createServerRequest('/', 'GET')
             ->withHeader('Content-Type', 'unknown/json+');
 
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(ErrorHandler::class);
         $newErrorRenderers = [
             'application/xml' => XmlErrorRenderer::class,
             'text/xml' => XmlErrorRenderer::class,
@@ -164,10 +155,7 @@ class ErrorHandlerTest extends TestCase
             ->withHeader('Content-Type', 'text/plain')
             ->withHeader('Accept', 'text/plain,text/xml');
 
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(ErrorHandler::class);
 
         $errorRenderers = [
             'text/plain' => PlainTextErrorRenderer::class,
@@ -199,10 +187,7 @@ class ErrorHandlerTest extends TestCase
             ->withHeader('Content-Type', 'text/json')
             ->withHeader('Accept', 'application/xhtml+xml');
 
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(ErrorHandler::class);
 
         $errorRenderers = [
             'application/xml' => XmlErrorRenderer::class
@@ -242,10 +227,7 @@ class ErrorHandlerTest extends TestCase
         $method->setAccessible(true);
 
         // use a mock object here as ErrorHandler cannot be directly instantiated
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(ErrorHandler::class);
 
         // call determineContentType()
         $return = $method->invoke($handler, $request);

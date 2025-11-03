@@ -155,7 +155,7 @@ class AppTest extends TestCase
         $this->assertSame($middlewareDispatcherProphecy->reveal(), $app->getMiddlewareDispatcher());
     }
 
-    public function lowerCaseRequestMethodsProvider(): array
+    public static function lowerCaseRequestMethodsProvider(): array
     {
         return [
             ['get'],
@@ -171,6 +171,7 @@ class AppTest extends TestCase
      * @param string $method
      * @dataProvider upperCaseRequestMethodsProvider()
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('upperCaseRequestMethodsProvider')]
     public function testGetPostPutPatchDeleteOptionsMethods(string $method): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
@@ -244,7 +245,7 @@ class AppTest extends TestCase
      * Route collector proxy methods
      *******************************************************************************/
 
-    public function upperCaseRequestMethodsProvider(): array
+    public static function upperCaseRequestMethodsProvider(): array
     {
         return [
             ['GET'],
@@ -261,6 +262,8 @@ class AppTest extends TestCase
      * @dataProvider lowerCaseRequestMethodsProvider
      * @dataProvider upperCaseRequestMethodsProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('lowerCaseRequestMethodsProvider')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('upperCaseRequestMethodsProvider')]
     public function testMapRoute(string $method): void
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
@@ -376,7 +379,7 @@ class AppTest extends TestCase
      * Route Patterns
      *******************************************************************************/
 
-    public function routePatternsProvider(): array
+    public static function routePatternsProvider(): array
     {
         return [
             [''], // Empty Route
@@ -391,6 +394,7 @@ class AppTest extends TestCase
      * @param string $pattern
      * @dataProvider routePatternsProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('routePatternsProvider')]
     public function testRoutePatterns(string $pattern): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
@@ -409,7 +413,7 @@ class AppTest extends TestCase
      * Route Groups
      *******************************************************************************/
 
-    public function routeGroupsDataProvider(): array
+    public static function routeGroupsDataProvider(): array
     {
         return [
             'empty group with empty route' => [
@@ -539,6 +543,7 @@ class AppTest extends TestCase
      * @param array  $sequence
      * @param string $expectedPath
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('routeGroupsDataProvider')]
     public function testRouteGroupCombinations(array $sequence, string $expectedPath): void
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);

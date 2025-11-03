@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.3/phpunit.xsd"
          beStrictAboutChangesToGlobalState="true"
          beStrictAboutOutputDuringTests="true"
          colors="true"
          bootstrap="tests/bootstrap.php"
          executionOrder="random"
+         cacheDirectory=".phpunit.cache"
 >
     <testsuites>
         <testsuite name="Slim Test Suite">
             <directory>tests</directory>
+            <exclude>tests/Mocks</exclude>
         </testsuite>
     </testsuites>
-
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory>Slim</directory>
-        </include>
+    <coverage>
         <report>
             <html outputDirectory="coverage" lowUpperBound="20" highLowerBound="50"/>
         </report>
     </coverage>
+    <source>
+        <include>
+            <directory>Slim</directory>
+        </include>
+    </source>
 </phpunit>

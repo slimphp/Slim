@@ -1,5 +1,8 @@
 name: Tests
 
+permissions:
+  contents: read
+
 on: [push, pull_request]
 
 jobs:
@@ -12,13 +15,17 @@ jobs:
       matrix:
         php: [7.4, 8.0, 8.1, 8.2, 8.3, 8.4]
         experimental: [false]
+        composer-options: ['']
         include:
           - php: 8.2
             analysis: true
+          - php: nightly
+            experimental: true
+            composer-options: '--ignore-platform-req=php+'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -27,12 +34,7 @@ jobs:
           coverage: xdebug
 
       - name: Install dependencies with Composer
-        if: matrix.php < '8.4'
-        run: composer update --prefer-dist --no-progress --no-interaction --ansi
-
-      - name: Install dependencies with Composer
-        if: matrix.php >= '8.4'
-        run: composer update --prefer-dist --no-progress --no-interaction --ansi --ignore-platform-reqs
+        run: composer update --prefer-dist --no-progress --no-interaction --ansi ${{ matrix.composer-options }}
 
       - name: Coding standards
         if: matrix.analysis
@@ -43,12 +45,11 @@ jobs:
         run: vendor/bin/phpstan
 
       - name: Tests
-        run: vendor/bin/phpunit --coverage-clover clover.xml
+        run: vendor/bin/phpunit ${{ matrix.analysis && '--coverage-clover clover.xml' || '--no-coverage'  }}
 
       - name: Upload coverage results to Coveralls
         if: matrix.analysis
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          composer require php-coveralls/php-coveralls -n -W
-          vendor/bin/php-coveralls --coverage_clover=clover.xml -v
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: php-${{ matrix.php }}
+          files: clover.xml
