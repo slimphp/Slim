@@ -70,7 +70,7 @@ class RouteContextTest extends TestCase
         $routeContext->getBasePath();
     }
 
-    public function requiredRouteContextRequestAttributes(): array
+    public static function requiredRouteContextRequestAttributes(): array
     {
         return [
             [RouteContext::ROUTE_PARSER],
@@ -82,6 +82,7 @@ class RouteContextTest extends TestCase
      * @dataProvider requiredRouteContextRequestAttributes
      * @param string $attribute
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('requiredRouteContextRequestAttributes')]
     public function testCannotCreateInstanceIfRequestIsMissingAttributes(string $attribute): void
     {
         $this->expectException(RuntimeException::class);

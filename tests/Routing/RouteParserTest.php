@@ -17,7 +17,7 @@ use Slim\Tests\TestCase;
 
 class RouteParserTest extends TestCase
 {
-    public function urlForCases()
+    public static function urlForCases()
     {
         return [
             'with base path' => [
@@ -34,12 +34,26 @@ class RouteParserTest extends TestCase
                 [],
                 '/hello/world',
             ],
-            'without query parameters' => [
+            'with query parameters' => [
                 false,
                 '/{first}/{second}',
                 ['first' => 'hello', 'second' => 'world'],
                 ['a' => 'b', 'c' => 'd'],
                 '/hello/world?a=b&c=d',
+            ],
+            'with query parameters containing array with string keys' => [
+                false,
+                '/{first}/{second}',
+                ['first' => 'hello', 'second' => 'world'],
+                ['a' => ['k' => '1', 'f' => 'x'], 'b', 'c' => 'd'],
+                '/hello/world?a%5Bk%5D=1&a%5Bf%5D=x&0=b&c=d',
+            ],
+            'with query parameters containing array with numeric keys' => [
+                false,
+                '/{first}/{second}',
+                ['first' => 'hello', 'second' => 'world'],
+                ['a' => ['b', 'x', 'y'], 'c' => 'd'],
+                '/hello/world?a%5B0%5D=b&a%5B1%5D=x&a%5B2%5D=y&c=d',
             ],
             'with argument without optional parameter' => [
                 false,
@@ -108,6 +122,7 @@ class RouteParserTest extends TestCase
      * @param $queryParams
      * @param $expectedResult
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('urlForCases')]
     public function testUrlForWithBasePath($withBasePath, $pattern, $arguments, $queryParams, $expectedResult)
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);

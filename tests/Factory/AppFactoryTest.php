@@ -50,7 +50,7 @@ class AppFactoryTest extends TestCase
         $reflectionClass->setStaticPropertyValue('responseFactoryClass', DecoratedResponseFactory::class);
     }
 
-    public function provideImplementations()
+    public static function provideImplementations()
     {
         return [
             [SlimPsr17Factory::class, SlimResponseFactory::class],
@@ -66,6 +66,7 @@ class AppFactoryTest extends TestCase
      * @param string $psr17factory
      * @param string $expectedResponseFactoryClass
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideImplementations')]
     public function testCreateAppWithAllImplementations(string $psr17factory, string $expectedResponseFactoryClass)
     {
         Psr17FactoryProvider::setFactories([$psr17factory]);
@@ -134,6 +135,7 @@ class AppFactoryTest extends TestCase
     /**
      * @runInSeparateProcess - Psr17FactoryProvider::setFactories breaks other tests
      */
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function testResponseFactoryIsStillReturnedIfStreamFactoryIsNotAvailable()
     {
         Psr17FactoryProvider::setFactories([MockPsr17FactoryWithoutStreamFactory::class]);
@@ -147,6 +149,7 @@ class AppFactoryTest extends TestCase
     /**
      * @runInSeparateProcess - AppFactory::setResponseFactory breaks other tests
      */
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function testAppIsCreatedWithInstancesFromSetters()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
@@ -204,6 +207,7 @@ class AppFactoryTest extends TestCase
      * @runInSeparateProcess - AppFactory::create saves $responseFactory into static::$responseFactory,
      *                         this breaks other tests
      */
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function testAppIsCreatedWithInjectedInstancesFromFunctionArguments()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
@@ -254,6 +258,7 @@ class AppFactoryTest extends TestCase
     /**
      * @runInSeparateProcess - AppFactory::setResponseFactory breaks other tests
      */
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function testResponseAndStreamFactoryIsBeingInjectedInDecoratedResponseFactory()
     {
         $responseProphecy = $this->prophesize(ResponseInterface::class);

@@ -138,7 +138,7 @@ class MiddlewareDispatcherTest extends TestCase
         $this->assertSame(1, $handler->getCalledCount());
     }
 
-    public function deferredCallableProvider(): array
+    public static function deferredCallableProvider(): array
     {
         return [
             [MockMiddlewareSlimCallable::class . ':custom', new MockMiddlewareSlimCallable()],
@@ -157,6 +157,7 @@ class MiddlewareDispatcherTest extends TestCase
      * @param string $callable
      * @param callable|MiddlewareInterface
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('deferredCallableProvider')]
     public function testDeferredResolvedCallableWithContainerAndNonAdvancedCallableResolverUnableToResolveCallable(
         $callable,
         $result

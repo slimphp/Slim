@@ -6,9 +6,31 @@
 
 ### Added
 
-- Add support for PHP 8.4
+### Changed
 
 ### Removed
+
+## 4.15.0 - 2025-08-24
+
+### Fixed
+
+- Fix DocBlocks for callable route handlers (#3389)
+- Change class keyword to lowercase (#3346)
+- Fix tests for PHP 8.3
+- Fixes the build status badge in Readme (#3331)
+- Fix text and eol attributes for * selector in .gitattributes (#3391)
+- Deprecate setArgument/s (#3383)
+
+### Added
+
+- Add support for PHP 8.4
+- Add phpstan v2
+
+### Changed
+
+- Update http urls in composer.json (#3399)
+
+**Full Changelog**: https://github.com/slimphp/Slim/compare/4.14.0...4.15.0
 
 ## 4.14.0 - 2024-06-13
 
