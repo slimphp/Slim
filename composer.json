@@ -60,8 +60,7 @@
         "psr/http-message": "^2.0",
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
-        "psr/log": "^3.0",
-        "relay/relay": "^3.0"
+        "psr/log": "^3.0"
     },
     "require-dev": {
         "ext-simplexml": "*",
