@@ -60,11 +60,8 @@ return (new Config())
             'class_definition' => [
                 'space_before_parenthesis' => true,
             ],
-            'declare_equal_normalize' => false,
             'phpdoc_summary' => false,
-            'phpdoc_add_missing_param_annotation' => false,
             'no_useless_concat_operator' => false,
-            'fully_qualified_strict_types' => false,
             'trailing_comma_in_multiline' => ['elements' => ['arrays']],
         ]
     )
