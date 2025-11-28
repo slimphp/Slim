@@ -14,6 +14,7 @@ use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use Stringable;
 
 use function clearstatcache;
 use function fclose;
@@ -33,7 +34,7 @@ use function var_export;
 
 use const SEEK_SET;
 
-class MockStream implements StreamInterface
+class MockStream implements Stringable, StreamInterface
 {
     /** @var resource|null A resource reference */
     private $stream;

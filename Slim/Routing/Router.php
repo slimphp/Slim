@@ -6,8 +6,9 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use InvalidArgumentException;
+use Slim\Interfaces\RouterInterface;
 
-final class Router
+final class Router implements RouterInterface
 {
     use RouteCollectionTrait;
 

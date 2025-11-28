@@ -16,11 +16,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\EmitterInterface;
+use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Routing\Route;
 use Slim\Routing\RouteCollectionTrait;
 use Slim\Routing\RouteGroup;
-use Slim\Routing\Router;
 
 /**
  * App
@@ -60,7 +60,7 @@ class App implements RequestHandlerInterface
     /**
      * The router instance for handling route definitions and matching.
      */
-    private Router $router;
+    private RouterInterface $router;
 
     /**
      * The emitter instance for sending the HTTP response to the client.
@@ -76,14 +76,14 @@ class App implements RequestHandlerInterface
      * @param ContainerInterface $container The dependency injection container
      * @param ServerRequestCreatorInterface $serverRequestCreator
      * @param RequestHandlerInterface $requestHandler
-     * @param Router $router
+     * @param RouterInterface $router
      * @param EmitterInterface $emitter
      */
     public function __construct(
         ContainerInterface $container,
         ServerRequestCreatorInterface $serverRequestCreator,
         RequestHandlerInterface $requestHandler,
-        Router $router,
+        RouterInterface $router,
         EmitterInterface $emitter
     ) {
         $this->container = $container;

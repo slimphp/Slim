@@ -19,7 +19,9 @@ use Slim\Emitter\ResponseEmitter;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
+use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\UrlGeneratorInterface;
+use Slim\Routing\Router;
 use Slim\Routing\RouterDispatcher;
 use Slim\Routing\UrlGenerator;
 use Slim\Strategies\RequestResponse;
@@ -56,6 +58,10 @@ final class SlimDefinitions
 
             RequestHandlerInterface::class => function (ContainerInterface $container) {
                 return $container->get(RouterDispatcher::class);
+            },
+
+            RouterInterface::class => function (ContainerInterface $container) {
+                return $container->get(Router::class);
             },
 
             UrlGeneratorInterface::class => function (ContainerInterface $container) {
