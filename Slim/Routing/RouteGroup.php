@@ -10,29 +10,30 @@ use Slim\Interfaces\RouteCollectionInterface;
 
 final class RouteGroup implements MiddlewareCollectionInterface, RouteCollectionInterface
 {
-    use MiddlewareAwareTrait;
+    use MiddlewareCollectionTrait;
 
     use RouteCollectionTrait;
+
+    private string $prefix;
 
     /**
      * @var callable
      */
     private $callback;
 
-    private RouteCollector $routeCollector;
-
-    private string $prefix;
-
-    private Router $router;
-
     private ?RouteGroup $group;
 
-    public function __construct(string $prefix, callable $callback, Router $router, ?RouteGroup $group = null)
-    {
-        $this->prefix = sprintf('/%s', ltrim($prefix, '/'));
+    private RouteCollector $routeCollector;
+
+    public function __construct(
+        string $prefix,
+        callable $callback,
+        RouteCollector $routeCollector,
+        ?RouteGroup $group = null
+    ) {
+        $this->prefix = $prefix;
         $this->callback = $callback;
-        $this->router = $router;
-        $this->routeCollector = $router->getRouteCollector();
+        $this->routeCollector = $routeCollector;
         $this->group = $group;
     }
 
@@ -60,10 +61,7 @@ final class RouteGroup implements MiddlewareCollectionInterface, RouteCollection
      */
     public function map(array $methods, string $path, callable|string $handler): Route
     {
-        $routePath = ($path === '' || $path === '/') ? $this->prefix : $this->prefix . sprintf(
-            '/%s',
-            ltrim($path, '/')
-        );
+        $routePath = $this->prefix . $path;
         $route = new Route($methods, $routePath, $handler, $this);
         $this->routeCollector->addRoute($methods, $path, $route);
 
@@ -72,8 +70,8 @@ final class RouteGroup implements MiddlewareCollectionInterface, RouteCollection
 
     public function group(string $path, callable $handler): RouteGroup
     {
-        $routePath = ($path === '/') ? $this->prefix : $this->prefix . sprintf('/%s', ltrim($path, '/'));
-        $routeGroup = new RouteGroup($routePath, $handler, $this->router, $this);
+        $routePath = $this->prefix . $path;
+        $routeGroup = new RouteGroup($routePath, $handler, $this->routeCollector, $this);
 
         $this->routeCollector->addGroup($path, $routeGroup);
 

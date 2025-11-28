@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -31,7 +31,7 @@ final class SlimHttpDefinitions
      */
     private $classExists = 'class_exists';
 
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         $that = $this;
 

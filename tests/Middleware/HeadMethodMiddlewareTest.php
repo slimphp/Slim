@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\HeadMethodMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -23,7 +23,7 @@ class HeadMethodMiddlewareTest extends TestCase
 {
     public function testHeadRequestResponseBodyIsEmpty(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(HeadMethodMiddleware::class);
         $app->add(RoutingMiddleware::class);
@@ -48,7 +48,7 @@ class HeadMethodMiddlewareTest extends TestCase
 
     public function testGetRequestResponseBodyIsUnchanged(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(HeadMethodMiddleware::class);
         $app->add(RoutingMiddleware::class);

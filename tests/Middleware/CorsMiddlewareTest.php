@@ -6,7 +6,7 @@ namespace Slim\Tests\Middleware;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\CorsMiddleware;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -15,7 +15,7 @@ class CorsMiddlewareTest extends TestCase
 {
     public function testDefaultConfiguration(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         // Add CORS middleware with default config
         $app->add(CorsMiddleware::class);
@@ -47,7 +47,7 @@ class CorsMiddlewareTest extends TestCase
 
     public function testDefaultConfigurationWithOrigin(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         // Add CORS middleware with default config
         $app->add(CorsMiddleware::class);
@@ -80,7 +80,7 @@ class CorsMiddlewareTest extends TestCase
 
     public function testPreflightRequest(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         // Configure CORS middleware
         $cors = $app->getContainer()
@@ -120,7 +120,7 @@ class CorsMiddlewareTest extends TestCase
 
     public function testDisallowedOrigin(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         // Configure CORS middleware
         $cors = $app->getContainer()
@@ -153,7 +153,7 @@ class CorsMiddlewareTest extends TestCase
 
     public function testCustomHeadersAndMethods(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         // Configure CORS middleware
         $cors = $app->getContainer()
@@ -201,7 +201,7 @@ class CorsMiddlewareTest extends TestCase
 
     public function testWildcardOriginWithCredentials(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         // Configure CORS middleware
         $cors = $app->getContainer()

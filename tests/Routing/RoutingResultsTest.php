@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\Route;
@@ -84,7 +84,7 @@ class RoutingResultsTest extends TestCase
 
     public function testRoutingArgumentsFromRouteContext(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);

@@ -12,6 +12,10 @@ namespace Slim\Container;
 
 use Closure;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\ContainerResolverInterface;
 
@@ -120,5 +124,57 @@ final class ContainerResolver implements ContainerResolverInterface
         }
 
         return $callable;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function resolveMiddleware(MiddlewareInterface|callable|string|array $middleware): MiddlewareInterface
+    {
+        $middleware = $this->resolve($middleware);
+
+        if ($middleware instanceof MiddlewareInterface) {
+            return $middleware;
+        }
+
+        if (is_callable($middleware)) {
+            return $this->createMiddlewareFromCallable($middleware);
+        }
+
+        throw new RuntimeException('A middleware must be an object or callable that implements "MiddlewareInterface".');
+    }
+
+    /**
+     * Create a (non-standard) callable middleware.
+     *
+     * @throws RuntimeException
+     */
+    private function createMiddlewareFromCallable(callable $middleware): MiddlewareInterface
+    {
+        if ($middleware instanceof Closure) {
+            /** @var Closure $middleware */
+            $middleware = $middleware->bindTo($this->container) ?? throw new RuntimeException(
+                'Unable to bind middleware to DI container.'
+            );
+        }
+
+        return new class ($middleware) implements MiddlewareInterface {
+            /**
+             * @var callable
+             */
+            private $middleware;
+
+            public function __construct(callable $middleware)
+            {
+                $this->middleware = $middleware;
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                return ($this->middleware)($request, $handler);
+            }
+        };
     }
 }

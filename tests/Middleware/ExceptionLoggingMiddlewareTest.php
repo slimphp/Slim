@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LogLevel;
 use RuntimeException;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ErrorExceptionMiddleware;
 use Slim\Middleware\ExceptionLoggingMiddleware;
@@ -31,7 +31,7 @@ class ExceptionLoggingMiddlewareTest extends TestCase
     {
         $this->expectException(ErrorException::class);
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $logger = new TestLogger();
 
@@ -68,7 +68,7 @@ class ExceptionLoggingMiddlewareTest extends TestCase
         // Expect the RuntimeException to be thrown
         $this->expectException(RuntimeException::class);
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $logger = new TestLogger();
 
@@ -109,7 +109,7 @@ class ExceptionLoggingMiddlewareTest extends TestCase
     {
         $this->expectException(ErrorException::class);
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         error_reporting(E_ALL);
 
         $logger = new TestLogger();

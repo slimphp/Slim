@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use ReflectionClass;
 use RuntimeException;
-use Slim\Container\HttpDefinitions;
+use Slim\Container\Definition\HttpDefinitions;
 
 class HttpDefinitionsTest extends TestCase
 {
@@ -34,12 +34,12 @@ class HttpDefinitionsTest extends TestCase
         $classExistsProperty->setAccessible(true);
         $classExistsProperty->setValue($httpDefinitions, $classExistsMock);
 
-        $httpDefinitions();
+        $httpDefinitions->getDefinitions();
     }
 
     public function testServerRequestFactoryInterface()
     {
-        $definitions = (new HttpDefinitions())->__invoke();
+        $definitions = (new HttpDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $serverRequestFactory = $container->get(ServerRequestFactoryInterface::class);

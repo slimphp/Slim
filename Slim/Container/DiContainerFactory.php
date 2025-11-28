@@ -12,12 +12,20 @@ namespace Slim\Container;
 
 use DI\Container;
 use Psr\Container\ContainerInterface;
+use Slim\Container\Definition\HttpDefinitions;
+use Slim\Container\Definition\SlimDefinitions;
 use Slim\Interfaces\ContainerFactoryInterface;
 
-final class PhpDiContainerFactory implements ContainerFactoryInterface
+final class DiContainerFactory implements ContainerFactoryInterface
 {
     public function createContainer(array $definitions = []): ContainerInterface
     {
-        return new Container($definitions);
+        return new Container(
+            array_replace(
+                (new SlimDefinitions())->getDefinitions(),
+                (new HttpDefinitions())->getDefinitions(),
+                $definitions
+            )
+        );
     }
 }

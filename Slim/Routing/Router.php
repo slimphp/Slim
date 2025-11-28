@@ -2,22 +2,24 @@
 
 namespace Slim\Routing;
 
+use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
+use FastRoute\RouteParser\Std;
 use InvalidArgumentException;
 
 final class Router
 {
     use RouteCollectionTrait;
 
-    use MiddlewareAwareTrait;
+    use MiddlewareCollectionTrait;
 
     private RouteCollector $collector;
 
     private string $basePath = '';
 
-    public function __construct(RouteCollector $collector)
+    public function __construct()
     {
-        $this->collector = $collector;
+        $this->collector = new RouteCollector(new Std(), new GroupCountBased());
     }
 
     /**
@@ -42,7 +44,7 @@ final class Router
     public function group(string $path, callable $handler): RouteGroup
     {
         $routePattern = $this->normalizePath($path);
-        $routeGroup = new RouteGroup($routePattern, $handler, $this);
+        $routeGroup = new RouteGroup($routePattern, $handler, $this->getRouteCollector());
         $this->collector->addGroup($routePattern, $routeGroup);
 
         return $routeGroup;

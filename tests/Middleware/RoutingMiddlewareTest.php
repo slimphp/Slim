@@ -16,9 +16,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Factory\AppFactory;
 use Slim\Interfaces\UrlGeneratorInterface;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -29,8 +29,7 @@ final class RoutingMiddlewareTest extends TestCase
 {
     public function testRouteIsStoredOnSuccessfulMatch()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -44,10 +43,6 @@ final class RoutingMiddlewareTest extends TestCase
             $test->assertNotNull($route);
 
             // routeParser is available
-            $urlGenerator = $request->getAttribute(RouteContext::URL_GENERATOR);
-            $test->assertNotNull($urlGenerator);
-            $test->assertInstanceOf(UrlGeneratorInterface::class, $urlGenerator);
-
             return $handler->handle($request);
         };
 
@@ -74,8 +69,7 @@ final class RoutingMiddlewareTest extends TestCase
     {
         $this->expectException(HttpMethodNotAllowedException::class);
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -93,11 +87,6 @@ final class RoutingMiddlewareTest extends TestCase
                 // route is not available
                 $route = $routingResults->getRoute();
                 $test->assertNull($route);
-
-                // routeParser is available
-                $urlParser = $request->getAttribute(RouteContext::URL_GENERATOR);
-                $test->assertNotNull($urlParser);
-                $test->assertInstanceOf(UrlGeneratorInterface::class, $urlParser);
 
                 // Re-throw to keep the behavior consistent
                 throw $exception;
@@ -125,8 +114,7 @@ final class RoutingMiddlewareTest extends TestCase
     {
         $this->expectException(HttpNotFoundException::class);
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -144,11 +132,6 @@ final class RoutingMiddlewareTest extends TestCase
                 // route is not available
                 $route = $routingResults->getRoute();
                 $test->assertNull($route);
-
-                // routeParser is available
-                $urlGenerator = $request->getAttribute(RouteContext::URL_GENERATOR);
-                $test->assertNotNull($urlGenerator);
-                $test->assertInstanceOf(UrlGeneratorInterface::class, $urlGenerator);
 
                 // Re-throw to keep the behavior consistent
                 throw $exception;
@@ -170,7 +153,7 @@ final class RoutingMiddlewareTest extends TestCase
 
     public function testRoutingWithBasePath(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $app->setBasePath('/api');
 
         $app->add(RoutingMiddleware::class);
@@ -178,7 +161,7 @@ final class RoutingMiddlewareTest extends TestCase
 
         // Define a route with arguments
         $app->get('/users/{id}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $urlGenerator = RouteContext::fromRequest($request)->getUrlGenerator();
+            $urlGenerator = $this->get(UrlGeneratorInterface::class);
 
             $url = $urlGenerator->relativeUrlFor('user.show', ['id' => $args['id']], ['page' => 2]);
             $response = $response->withHeader('X-relativeUrlFor', $url);

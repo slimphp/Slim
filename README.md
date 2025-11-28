@@ -56,16 +56,15 @@ Then create file `public/index.php`.
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ExceptionHandlingMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// Instantiate App using the builder
-$builder = new AppBuilder();
-$app = $builder->build();
+// Instantiate the App
+$app = AppFactory::build();
 
 // Add middleware
 $app->add(ExceptionHandlingMiddleware::class);

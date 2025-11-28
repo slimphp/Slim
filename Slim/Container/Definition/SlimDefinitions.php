@@ -8,22 +8,21 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
-use FastRoute\DataGenerator\GroupCountBased;
-use FastRoute\RouteCollector;
-use FastRoute\RouteParser\Std;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Slim\Container\ContainerResolver;
 use Slim\Emitter\ResponseEmitter;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
-use Slim\RequestHandler\MiddlewareRequestHandler;
-use Slim\Routing\Router;
-use Slim\Routing\Strategies\RequestResponse;
+use Slim\Interfaces\UrlGeneratorInterface;
+use Slim\Routing\RouterDispatcher;
+use Slim\Routing\UrlGenerator;
+use Slim\Strategies\RequestResponse;
 
 /**
  * This class provides the default dependency definitions for a Slim application. It implements the
@@ -34,9 +33,9 @@ use Slim\Routing\Strategies\RequestResponse;
  * This class ensures that the Slim application can be properly instantiated with the necessary
  * components and services.
  */
-final class DefaultDefinitions
+final class SlimDefinitions
 {
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         return [
             ContainerResolverInterface::class => function (ContainerInterface $container) {
@@ -51,16 +50,16 @@ final class DefaultDefinitions
                 return new NullLogger();
             },
 
-            RequestHandlerInterface::class => function (ContainerInterface $container) {
-                return $container->get(MiddlewareRequestHandler::class);
-            },
-
             RequestHandlerInvocationStrategyInterface::class => function (ContainerInterface $container) {
                 return $container->get(RequestResponse::class);
             },
 
-            Router::class => function () {
-                return new Router(new RouteCollector(new Std(), new GroupCountBased()));
+            RequestHandlerInterface::class => function (ContainerInterface $container) {
+                return $container->get(RouterDispatcher::class);
+            },
+
+            UrlGeneratorInterface::class => function (ContainerInterface $container) {
+                return $container->get(UrlGenerator::class);
             },
         ];
     }

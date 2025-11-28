@@ -12,8 +12,8 @@ namespace Slim\Tests\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
-use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpUnauthorizedException;
+use Slim\Factory\AppFactory;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class HttpUnauthorizedExceptionTest extends TestCase
@@ -22,7 +22,7 @@ final class HttpUnauthorizedExceptionTest extends TestCase
 
     public function testHttpUnauthorizedException()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -35,7 +35,7 @@ final class HttpUnauthorizedExceptionTest extends TestCase
 
     public function testHttpUnauthorizedExceptionWithMessage()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)

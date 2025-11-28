@@ -6,7 +6,7 @@ use Slim\Interfaces\MiddlewareCollectionInterface;
 
 final class Route implements MiddlewareCollectionInterface
 {
-    use MiddlewareAwareTrait;
+    use MiddlewareCollectionTrait;
 
     /**
      * @var array<string>

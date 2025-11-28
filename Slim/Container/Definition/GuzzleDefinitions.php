@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\ServerRequest;
@@ -23,7 +23,7 @@ use Slim\Interfaces\ServerRequestCreatorInterface;
 
 final class GuzzleDefinitions
 {
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         return [
             ServerRequestFactoryInterface::class => function (ContainerInterface $container) {

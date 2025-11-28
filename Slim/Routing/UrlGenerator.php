@@ -28,6 +28,10 @@ final class UrlGenerator implements UrlGeneratorInterface
         $this->routeParser = new Std();
     }
 
+    public static function fromRequest(\Psr\Http\Message\ServerRequestInterface $request)
+    {
+    }
+
     /**
      * {@inheritdoc}
      */

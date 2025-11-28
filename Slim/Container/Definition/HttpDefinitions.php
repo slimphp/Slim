@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use HttpSoft\Message\RequestFactory;
@@ -35,11 +35,11 @@ final class HttpDefinitions
         RequestFactory::class => HttpSoftDefinitions::class,
     ];
 
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         foreach ($this->classes as $factory => $definitionClass) {
             if (call_user_func($this->classExists, $factory)) {
-                return call_user_func(new $definitionClass());
+                return (new $definitionClass())->getDefinitions();
             }
         }
 

@@ -15,8 +15,8 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Routing\Strategies\RequestResponseNamedArgs;
+use Slim\Factory\AppFactory;
+use Slim\Strategies\RequestResponseNamedArgs;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class RequestResponseNamedArgsTest extends TestCase
@@ -28,7 +28,7 @@ final class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithEmptyArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -50,7 +50,7 @@ final class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithKnownArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -79,7 +79,7 @@ final class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithOptionalArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -107,7 +107,7 @@ final class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithUnknownAndVariadic()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -135,7 +135,7 @@ final class RequestResponseNamedArgsTest extends TestCase
 
     public function testCallingWithMixedKnownAndUnknownParametersAndVariadic()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)

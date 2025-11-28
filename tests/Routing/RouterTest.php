@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -29,7 +29,7 @@ class RouterTest extends TestCase
     #[DataProvider('httpMethodProvider')]
     public function testHttpMethods(string $methodName, string $path, callable $handler, array $expectedMethods): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
 
         // Define a route using the HTTP method from the data provider
@@ -114,7 +114,7 @@ class RouterTest extends TestCase
 
     public function testMapCreatesRoute(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
 
         $methods = ['GET'];
@@ -133,7 +133,7 @@ class RouterTest extends TestCase
 
     public function testGroupCreatesRouteGroup(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
 
         $pattern = '/group';
@@ -149,7 +149,7 @@ class RouterTest extends TestCase
 
     public function testGetRouteCollectorReturnsCollector(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
 
         $collector = $router->getRouteCollector();
@@ -158,7 +158,7 @@ class RouterTest extends TestCase
 
     public function testSetAndGetBasePath(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
 
         $basePath = '/base-path';
@@ -169,7 +169,7 @@ class RouterTest extends TestCase
 
     public function testMapWithBasePath(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
 
         $basePath = '/base-path';
@@ -191,8 +191,7 @@ class RouterTest extends TestCase
 
     public function testOptionsAnyCorsRoute(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
         $app->add(RoutingMiddleware::class);
@@ -214,8 +213,7 @@ class RouterTest extends TestCase
 
     public function testOptionsAnyRoute(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
         $app->add(RoutingMiddleware::class);
@@ -244,8 +242,7 @@ class RouterTest extends TestCase
 
     public function testRouteWithParameters(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
         $app->add(RoutingMiddleware::class);
@@ -267,8 +264,7 @@ class RouterTest extends TestCase
 
     public function testCustomRoute(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
         $app->add(RoutingMiddleware::class);
@@ -297,8 +293,7 @@ class RouterTest extends TestCase
 
     public function testRegexRoute(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
         $app->add(RoutingMiddleware::class);
@@ -323,8 +318,7 @@ class RouterTest extends TestCase
 
     public function testMultipleOptionalParameters(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
         $app->add(RoutingMiddleware::class);

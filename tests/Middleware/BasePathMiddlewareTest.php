@@ -16,7 +16,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
-use Slim\Builder\AppBuilder;
 use Slim\Middleware\BasePathMiddleware;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -28,17 +27,15 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testEmptyScriptName(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
                     $app = $container->get(App::class);
 
                     return new BasePathMiddleware($app, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = $this->createApp($definitions);
 
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
@@ -68,17 +65,15 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testScriptNameWithIndexPhp(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
                     $app = $container->get(App::class);
 
                     return new BasePathMiddleware($app, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = $this->createApp($definitions);
 
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
@@ -109,17 +104,15 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testScriptNameWithPublicIndexPhp(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
                     $app = $container->get(App::class);
 
                     return new BasePathMiddleware($app, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = $this->createApp($definitions);
 
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
@@ -150,17 +143,15 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithSlash(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
                     $app = $container->get(App::class);
 
                     return new BasePathMiddleware($app, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = $this->createApp($definitions);
 
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
@@ -191,17 +182,15 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithoutSlash(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
                     $app = $container->get(App::class);
 
                     return new BasePathMiddleware($app, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = $this->createApp($definitions);
 
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
@@ -233,17 +222,15 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithFooPath(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
                     $app = $container->get(App::class);
 
                     return new BasePathMiddleware($app, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = $this->createApp($definitions);
 
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);

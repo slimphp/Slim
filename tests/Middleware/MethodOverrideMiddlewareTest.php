@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -28,8 +28,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testHeader()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -62,8 +61,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testBodyParam()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -96,8 +94,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testHeaderPreferred()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -131,8 +128,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testNoOverride()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -164,8 +160,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testNoOverrideRewindEofBodyStream()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {

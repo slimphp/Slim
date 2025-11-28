@@ -14,9 +14,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 
@@ -24,7 +24,7 @@ class EndpointMiddlewareTest extends TestCase
 {
     public function testProcessRouteFound(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
@@ -50,7 +50,7 @@ class EndpointMiddlewareTest extends TestCase
     {
         $this->expectException(HttpNotFoundException::class);
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
@@ -66,7 +66,7 @@ class EndpointMiddlewareTest extends TestCase
     {
         $this->expectException(HttpMethodNotAllowedException::class);
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);

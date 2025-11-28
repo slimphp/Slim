@@ -6,7 +6,7 @@ namespace Slim\Routing;
 
 use Psr\Http\Server\MiddlewareInterface;
 
-trait MiddlewareAwareTrait
+trait MiddlewareCollectionTrait
 {
     /**
      * @var array<MiddlewareInterface|callable|string|array>
@@ -16,7 +16,7 @@ trait MiddlewareAwareTrait
     /**
      * @return array<MiddlewareInterface|callable|string|array>
      */
-    public function getMiddlewareStack(): array
+    public function getMiddleware(): array
     {
         return $this->middleware;
     }

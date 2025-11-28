@@ -18,7 +18,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Routing\RouteContext;
 use Slim\Routing\Router;
 use Slim\Routing\RoutingResults;
-use Slim\Routing\UrlGenerator;
 
 /**
  * Middleware for resolving routes.
@@ -30,12 +29,9 @@ final class RoutingMiddleware implements MiddlewareInterface
 {
     private Router $router;
 
-    private UrlGenerator $urlGenerator;
-
-    public function __construct(Router $router, UrlGenerator $urlGenerator)
+    public function __construct(Router $router)
     {
         $this->router = $router;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -49,15 +45,12 @@ final class RoutingMiddleware implements MiddlewareInterface
         // Determine base path
         $basePath = $request->getAttribute(RouteContext::BASE_PATH) ?? $this->router->getBasePath();
 
-        $dispatcherUri = $uri;
         if ($basePath) {
             // Remove base path for the dispatcher
-            $dispatcherUri = substr($dispatcherUri, strlen($basePath));
-            $dispatcherUri = $this->normalizePath($dispatcherUri);
+            $uri = $this->removeBasePath($uri, $basePath);
         }
 
-        $dispatcherUri = rawurldecode($dispatcherUri);
-        $routeInfo = $dispatcher->dispatch($httpMethod, $dispatcherUri);
+        $routeInfo = $dispatcher->dispatch($httpMethod, rawurldecode($uri));
         $routeStatus = (int)$routeInfo[0];
         $routingResults = null;
 
@@ -87,27 +80,19 @@ final class RoutingMiddleware implements MiddlewareInterface
 
         if ($routingResults) {
             $request = $request
-                ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults)
-                ->withAttribute(RouteContext::URL_GENERATOR, $this->urlGenerator);
+                ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
         }
 
         return $handler->handle($request);
     }
 
-    private function normalizePath(string $path): string
+    private function removeBasePath(string $uri, string $basePath): string
     {
-        // If path is empty or just a slash, return single slash
-        if ($path === '' || $path === '/') {
-            return '/';
+        // No base path configured
+        if (!$basePath || $basePath === '/') {
+            return $uri;
         }
 
-        // Ensure path starts with a slash
-        $path = '/' . ltrim($path, '/');
-
-        // Remove trailing slash unless it's the root path
-        $path = rtrim($path, '/');
-
-        // Replace multiple consecutive slashes with a single slash
-        return preg_replace('#/+#', '/', $path);
+        return '/' . ltrim(rtrim(substr($uri, strlen($basePath)), '/'), '/');
     }
 }

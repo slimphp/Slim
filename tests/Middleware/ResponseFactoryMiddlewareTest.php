@@ -14,14 +14,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\ResponseFactoryMiddleware;
 
 class ResponseFactoryMiddlewareTest extends TestCase
 {
     public function testWithoutEndpointMiddleware(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(function ($request, $handler) {
             $response = $handler->handle($request);
@@ -43,7 +43,7 @@ class ResponseFactoryMiddlewareTest extends TestCase
 
     public function testProcessReturnsResponseFromFactory(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $responseFactory = $app->getContainer()->get(ResponseFactoryInterface::class);
 

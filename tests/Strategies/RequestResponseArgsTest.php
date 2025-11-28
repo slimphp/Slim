@@ -13,8 +13,8 @@ namespace Slim\Tests\Strategies;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Routing\Strategies\RequestResponseArgs;
+use Slim\Factory\AppFactory;
+use Slim\Strategies\RequestResponseArgs;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class RequestResponseArgsTest extends TestCase
@@ -23,7 +23,7 @@ final class RequestResponseArgsTest extends TestCase
 
     public function testInvokeWithArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -53,7 +53,7 @@ final class RequestResponseArgsTest extends TestCase
 
     public function testInvokeWithSingleArgument()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -80,7 +80,7 @@ final class RequestResponseArgsTest extends TestCase
 
     public function testInvokeWithoutArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)

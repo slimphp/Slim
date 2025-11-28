@@ -16,9 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\EmitterInterface;
-use Slim\Interfaces\RouteCollectionInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
-use Slim\RequestHandler\MiddlewareRequestHandler;
 use Slim\Routing\Route;
 use Slim\Routing\RouteCollectionTrait;
 use Slim\Routing\RouteGroup;
@@ -31,11 +29,9 @@ use Slim\Routing\Router;
  * running the application. It provides methods for defining routes, adding middleware, and managing
  * the application's lifecycle, including handling HTTP requests and emitting responses.
  *
- * @template TContainerInterface of (ContainerInterface|null)
- *
  * @api
  */
-class App implements RequestHandlerInterface, RouteCollectionInterface
+class App implements RequestHandlerInterface
 {
     use RouteCollectionTrait;
 
@@ -78,14 +74,23 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
      * request handler, router, and emitter.
      *
      * @param ContainerInterface $container The dependency injection container
+     * @param ServerRequestCreatorInterface $serverRequestCreator
+     * @param RequestHandlerInterface $requestHandler
+     * @param Router $router
+     * @param EmitterInterface $emitter
      */
-    public function __construct(ContainerInterface $container)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        ServerRequestCreatorInterface $serverRequestCreator,
+        RequestHandlerInterface $requestHandler,
+        Router $router,
+        EmitterInterface $emitter
+    ) {
         $this->container = $container;
-        $this->serverRequestCreator = $container->get(ServerRequestCreatorInterface::class);
-        $this->requestHandler = $container->get(RequestHandlerInterface::class);
-        $this->router = $container->get(Router::class);
-        $this->emitter = $container->get(EmitterInterface::class);
+        $this->serverRequestCreator = $serverRequestCreator;
+        $this->requestHandler = $requestHandler;
+        $this->router = $router;
+        $this->emitter = $emitter;
     }
 
     /**
@@ -207,8 +212,6 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, $this->router->getMiddlewareStack());
-
         return $this->requestHandler->handle($request);
     }
 }

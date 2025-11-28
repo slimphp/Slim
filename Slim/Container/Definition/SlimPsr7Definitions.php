@@ -8,10 +8,8 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
-use Nyholm\Psr7\Factory\Psr17Factory;
-use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -20,43 +18,39 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
+use Slim\Psr7\Factory\ResponseFactory;
+use Slim\Psr7\Factory\ServerRequestFactory;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UploadedFileFactory;
+use Slim\Psr7\Factory\UriFactory;
 
-final class NyholmDefinitions
+final class SlimPsr7Definitions
 {
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         return [
             ServerRequestFactoryInterface::class => function (ContainerInterface $container) {
-                return $container->get(Psr17Factory::class);
+                return $container->get(ServerRequestFactory::class);
             },
-            ServerRequestCreatorInterface::class => function (ContainerInterface $container) {
-                $serverRequestCreator = $container->get(ServerRequestCreator::class);
-
-                return new class ($serverRequestCreator) implements ServerRequestCreatorInterface {
-                    private ServerRequestCreator $serverRequestCreator;
-
-                    public function __construct(ServerRequestCreator $serverRequestCreator)
-                    {
-                        $this->serverRequestCreator = $serverRequestCreator;
-                    }
-
+            ServerRequestCreatorInterface::class => function () {
+                return new class implements ServerRequestCreatorInterface {
                     public function createServerRequestFromGlobals(): ServerRequestInterface
                     {
-                        return $this->serverRequestCreator->fromGlobals();
+                        return ServerRequestFactory::createFromGlobals();
                     }
                 };
             },
             ResponseFactoryInterface::class => function (ContainerInterface $container) {
-                return $container->get(Psr17Factory::class);
+                return $container->get(ResponseFactory::class);
             },
             StreamFactoryInterface::class => function (ContainerInterface $container) {
-                return $container->get(Psr17Factory::class);
+                return $container->get(StreamFactory::class);
             },
             UriFactoryInterface::class => function (ContainerInterface $container) {
-                return $container->get(Psr17Factory::class);
+                return $container->get(UriFactory::class);
             },
             UploadedFileFactoryInterface::class => function (ContainerInterface $container) {
-                return $container->get(Psr17Factory::class);
+                return $container->get(UploadedFileFactory::class);
             },
         ];
     }

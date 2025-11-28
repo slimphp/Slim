@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use Slim\Interfaces\MiddlewareCollectionInterface;
-
 trait RouteCollectionTrait
 {
     abstract public function map(array $methods, string $path, callable|string $handler): Route;
 
-    abstract public function group(string $path, callable $handler): MiddlewareCollectionInterface;
+    abstract public function group(string $path, callable $handler): RouteGroup;
 
     public function get(string $path, callable|string $handler): Route
     {

@@ -13,18 +13,18 @@ namespace Slim\Tests\Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Factory\AppFactory;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class HttpExceptionTest extends TestCase
 {
     use AppTestTrait;
 
-    public function testHttpExceptionRequestReponseGetterSetters()
+    public function testHttpExceptionRequestResponseGetterSetters()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -37,7 +37,7 @@ final class HttpExceptionTest extends TestCase
 
     public function testHttpExceptionAttributeGettersSetters()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -53,7 +53,7 @@ final class HttpExceptionTest extends TestCase
 
     public function testHttpNotAllowedExceptionGetAllowedMethods()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)

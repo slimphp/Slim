@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\RequestHandler;
+namespace Slim\Routing;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -22,9 +22,9 @@ use function next;
 use function sprintf;
 
 /**
- * A PSR-15 request handler.
+ * A pipeline runner.
  */
-final class Runner implements RequestHandlerInterface
+final class PipelineRunner implements RequestHandlerInterface
 {
     private array $queue;
 

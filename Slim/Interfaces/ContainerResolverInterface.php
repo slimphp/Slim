@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
+use Psr\Http\Server\MiddlewareInterface;
+
 interface ContainerResolverInterface
 {
     /**
@@ -38,4 +40,13 @@ interface ContainerResolverInterface
      * @return callable A callable
      */
     public function resolveRoute(callable|array|string $identifier): callable;
+
+    /**
+     * Resolve the given $identifier to a middleware.
+     *
+     * @param MiddlewareInterface|callable|string|array $middleware
+     *
+     * @return MiddlewareInterface
+     */
+    public function resolveMiddleware(MiddlewareInterface|callable|string|array $middleware): MiddlewareInterface;
 }

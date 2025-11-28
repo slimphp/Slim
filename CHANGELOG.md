@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### New Features
 
-- New `AppBuilder` to create a Slim App instance for different scenarios. Replaces the `AppFactory`.
 - Unified DI container resolution. All the factory logic has been removed and moved to the DI container. This reduces the internal complexity by delegating the building logic into the DI container.
 - Provide FIFO (first in, first out) middleware order support. LIFO is not supported anymore.
 - Optimized internal routing concept for better separation of concern and flexibility.
@@ -73,7 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `Slim/Builder/AppBuilder.php`: Introduced to replace `Slim/Factory/AppFactory.php`.
 - `Slim/Container/CallableResolver.php`: New implementation of the Callable Resolver.
 - `Slim/Container/DefaultDefinitions.php`: Default container definitions.
 - `Slim/Handlers/ExceptionHandler.php`: New Exception Handler for better error handling.
@@ -115,7 +113,6 @@ New files for routing, middleware, and factories, including:
 
 - `Slim/CallableResolver.php`
 - `Slim/Handlers/ErrorHandler.php`
-- `Slim/Factory/AppFactory.php` and related `Psr17` factories.
 - `Slim/Interfaces/AdvancedCallableResolverInterface.php`
 - `Slim/Interfaces/RouteCollectorInterface.php`, 
 - `RouteCollectorProxyInterface.php`, 

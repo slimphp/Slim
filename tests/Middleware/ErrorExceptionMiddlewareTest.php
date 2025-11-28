@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ErrorExceptionMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -42,7 +42,7 @@ final class ErrorExceptionMiddlewareTest extends TestCase
         error_reporting(E_USER_WARNING);
 
         // Instantiate the middleware with a custom error level
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $middleware = $app
             ->getContainer()
             ->get(ErrorExceptionMiddleware::class);
@@ -55,8 +55,7 @@ final class ErrorExceptionMiddlewareTest extends TestCase
     {
         error_reporting(E_USER_ERROR);
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
         $middleware = $app
             ->getContainer()
             ->get(ErrorExceptionMiddleware::class);
@@ -96,7 +95,7 @@ final class ErrorExceptionMiddlewareTest extends TestCase
             });
 
         // Instantiate the middleware
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $middleware = $app->getContainer()->get(ErrorExceptionMiddleware::class);
 
         // Invoke the middleware process method
@@ -114,7 +113,7 @@ final class ErrorExceptionMiddlewareTest extends TestCase
             ->method('handle')
             ->willReturn($response);
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $middleware = $app->getContainer()->get(ErrorExceptionMiddleware::class);
 
         // Invoke the middleware process method and assert the response is returned

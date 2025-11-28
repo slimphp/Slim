@@ -13,16 +13,16 @@ namespace Slim\Tests\Traits;
 use PHPUnit\Framework\Constraint\IsIdentical;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
-use Slim\Builder\AppBuilder;
+use Slim\Container\DiContainerFactory;
+use Slim\Factory\AppFactory;
 
 trait AppTestTrait
 {
     protected function createApp(array $definitions = []): App
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions($definitions);
+        $containerFactory = new DiContainerFactory();
 
-        return $builder->build();
+        return AppFactory::createFromContainer($containerFactory->createContainer($definitions));
     }
 
     protected function assertJsonResponse(mixed $expected, ResponseInterface $actual, string $message = ''): void

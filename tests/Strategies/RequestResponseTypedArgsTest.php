@@ -14,8 +14,8 @@ use Invoker\Exception\NotEnoughParametersException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Routing\Strategies\RequestResponseTypedArgs;
+use Slim\Factory\AppFactory;
+use Slim\Strategies\RequestResponseTypedArgs;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class RequestResponseTypedArgsTest extends TestCase
@@ -24,7 +24,7 @@ final class RequestResponseTypedArgsTest extends TestCase
 
     public function testCallingWithEmptyArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -52,7 +52,7 @@ final class RequestResponseTypedArgsTest extends TestCase
     // https://github.com/slimphp/Slim/issues/3198
     public function testCallingWithKnownArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -83,7 +83,7 @@ final class RequestResponseTypedArgsTest extends TestCase
 
     public function testCallingWithOptionalArguments()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -113,7 +113,7 @@ final class RequestResponseTypedArgsTest extends TestCase
 
     public function testCallingWithNotEnoughParameters()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)

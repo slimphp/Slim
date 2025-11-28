@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\Routing\Strategies;
+namespace Slim\Strategies;
 
 use Invoker\InvokerInterface;
 use Psr\Http\Message\ResponseInterface;

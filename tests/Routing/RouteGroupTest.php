@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Routing;
 
 use PHPUnit\Framework\TestCase;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
 use Slim\Routing\Router;
@@ -24,7 +24,7 @@ class RouteGroupTest extends TestCase
         $callback = function () {
         };
         $prefix = '/test';
-        $routeGroup = new RouteGroup($prefix, $callback, $router);
+        $routeGroup = new RouteGroup($prefix, $callback, $router->getRouteCollector());
 
         $this->assertSame('/test', $routeGroup->getPrefix());
         $this->assertSame($callback, $routeGroup->getRouteGroup() === null ? $callback : null);
@@ -39,8 +39,8 @@ class RouteGroupTest extends TestCase
         };
         $childGroupCallback = function () {
         };
-        $parentGroup = new RouteGroup('/parent', $parentGroupCallback, $router);
-        $childGroup = new RouteGroup('/child', $childGroupCallback, $router, $parentGroup);
+        $parentGroup = new RouteGroup('/parent', $parentGroupCallback, $router->getRouteCollector());
+        $childGroup = new RouteGroup('/child', $childGroupCallback, $router->getRouteCollector(), $parentGroup);
 
         $this->assertSame('/child', $childGroup->getPrefix());
         $this->assertSame($parentGroup, $childGroup->getRouteGroup());
@@ -53,7 +53,7 @@ class RouteGroupTest extends TestCase
         $callback = function () use (&$called) {
             $called = true;
         };
-        $routeGroup = new RouteGroup('/test', $callback, $router);
+        $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
         $routeGroup();
         $this->assertTrue($called);
@@ -64,7 +64,7 @@ class RouteGroupTest extends TestCase
         $router = $this->createRouter();
         $callback = function () {
         };
-        $routeGroup = new RouteGroup('/test', $callback, $router);
+        $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
         $route = $routeGroup->map(['GET'], '/foo', 'handler');
         $this->assertInstanceOf(Route::class, $route);
@@ -77,7 +77,7 @@ class RouteGroupTest extends TestCase
         $router = $this->createRouter();
         $callback = function () {
         };
-        $routeGroup = new RouteGroup('/test', $callback, $router);
+        $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
         $route = $routeGroup->map(['GET'], '', 'handler');
         $this->assertInstanceOf(Route::class, $route);
@@ -90,9 +90,9 @@ class RouteGroupTest extends TestCase
         $router = $this->createRouter();
         $callback = function () {
         };
-        $routeGroup = new RouteGroup('/test', $callback, $router);
+        $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
-        $route = $routeGroup->map(['GET'], '/', 'handler');
+        $route = $routeGroup->map(['GET'], '', 'handler');
         $this->assertInstanceOf(Route::class, $route);
         $this->assertSame(['GET'], $route->getMethods());
         $this->assertSame('/test', $route->getPattern());
@@ -103,7 +103,7 @@ class RouteGroupTest extends TestCase
         $router = $this->createRouter();
         $callback = function () {
         };
-        $routeGroup = new RouteGroup('/test', $callback, $router);
+        $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
         $nestedGroup = $routeGroup->group('/nested', function () {
         });
@@ -115,7 +115,7 @@ class RouteGroupTest extends TestCase
 
     private function createRouter(): Router
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         return $app->getContainer()->get(Router::class);
     }
