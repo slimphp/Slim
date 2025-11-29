@@ -22,6 +22,7 @@ final class RouteInvoker implements RequestHandlerInterface
 
     /** @var callable|null */
     private $handler = null;
+
     /** @var array<string, mixed> */
     private array $args = [];
 
