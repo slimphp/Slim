@@ -74,29 +74,18 @@ class App implements RequestHandlerInterface
      * request handler, router, and emitter.
      *
      * @param ContainerInterface $container The dependency injection container
-     * @param ServerRequestCreatorInterface $serverRequestCreator
-     * @param RequestHandlerInterface $requestHandler
-     * @param RouterInterface $router
-     * @param EmitterInterface $emitter
      */
-    public function __construct(
-        ContainerInterface $container,
-        ServerRequestCreatorInterface $serverRequestCreator,
-        RequestHandlerInterface $requestHandler,
-        RouterInterface $router,
-        EmitterInterface $emitter
-    ) {
+    public function __construct(ContainerInterface $container)
+    {
         $this->container = $container;
-        $this->serverRequestCreator = $serverRequestCreator;
-        $this->requestHandler = $requestHandler;
-        $this->router = $router;
-        $this->emitter = $emitter;
+        $this->serverRequestCreator = $container->get(ServerRequestCreatorInterface::class);
+        $this->requestHandler = $container->get(RequestHandlerInterface::class);
+        $this->router = $container->get(RouterInterface::class);
+        $this->emitter = $container->get(EmitterInterface::class);
     }
 
     /**
      * Get the dependency injection container.
-     *
-     * @return ContainerInterface The DI container instance
      */
     public function getContainer(): ContainerInterface
     {
@@ -131,27 +120,21 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * Get the base path used for routing.
-     *
-     * @return string The base path used for routing
-     */
-    public function getBasePath(): string
-    {
-        return $this->router->getBasePath();
-    }
-
-    /**
      * Set the base path used for routing.
-     *
-     * @param string $basePath The base path to use for routing
-     *
-     * @return self The current App instance for method chaining
      */
     public function setBasePath(string $basePath): self
     {
         $this->router->setBasePath($basePath);
 
         return $this;
+    }
+
+    /**
+     * Get the base path used for routing.
+     */
+    public function getBasePath(): string
+    {
+        return $this->router->getBasePath();
     }
 
     /**
@@ -166,10 +149,6 @@ class App implements RequestHandlerInterface
 
     /**
      * Add a new middleware to the application's middleware stack.
-     *
-     * @param MiddlewareInterface $middleware The middleware to add
-     *
-     * @return self The current App instance for method chaining
      */
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
@@ -183,11 +162,6 @@ class App implements RequestHandlerInterface
      *
      * This method traverses the application's middleware stack, processes the incoming HTTP request,
      * and emits the resultant HTTP response to the client.
-     *
-     * @param ServerRequestInterface|null $request The HTTP request to handle.
-     *                                             If null, it creates a request from globals.
-     *
-     * @return void
      */
     public function run(?ServerRequestInterface $request = null): void
     {
@@ -195,9 +169,7 @@ class App implements RequestHandlerInterface
             $request = $this->serverRequestCreator->createServerRequestFromGlobals();
         }
 
-        $response = $this->handle($request);
-
-        $this->emitter->emit($response);
+        $this->emitter->emit($this->handle($request));
     }
 
     /**
@@ -205,10 +177,6 @@ class App implements RequestHandlerInterface
      *
      * This method processes the request through the application's middleware stack and router,
      * returning the resulting HTTP response.
-     *
-     * @param ServerRequestInterface $request The HTTP request to handle
-     *
-     * @return ResponseInterface The HTTP response
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

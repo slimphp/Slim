@@ -25,8 +25,7 @@ class RoutingResultsTest extends TestCase
 {
     public function testConstructAndGetters(): void
     {
-        $route = new Route(['GET'], '/test', function () {
-        });
+        $route = new Route(['GET'], '/test', function () {});
 
         // Define test parameters
         $status = RoutingResults::FOUND;
@@ -42,7 +41,7 @@ class RoutingResultsTest extends TestCase
             $method,
             $uri,
             $routeArguments,
-            $allowedMethods
+            $allowedMethods,
         );
 
         $this->assertSame($status, $routingResults->getRouteStatus());
@@ -71,7 +70,7 @@ class RoutingResultsTest extends TestCase
             $method,
             $uri,
             $routeArguments,
-            $allowedMethods
+            $allowedMethods,
         );
 
         $this->assertSame($status, $routingResults->getRouteStatus());
@@ -104,6 +103,6 @@ class RoutingResultsTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('ID: 123', (string)$response->getBody());
+        $this->assertSame('ID: 123', (string) $response->getBody());
     }
 }

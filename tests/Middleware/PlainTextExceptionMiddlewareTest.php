@@ -48,7 +48,7 @@ final class PlainTextExceptionMiddlewareTest extends TestCase
         };
 
         $response = $middleware->process($request, $handler);
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertSame('text/plain', $response->getHeaderLine('Content-Type'));
@@ -73,7 +73,7 @@ final class PlainTextExceptionMiddlewareTest extends TestCase
         };
 
         $response = $middleware->process($request, $handler);
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertStringContainsString('Application Error', $body);
@@ -99,7 +99,7 @@ final class PlainTextExceptionMiddlewareTest extends TestCase
         };
 
         $response = $middleware->process($request, $handler);
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertStringContainsString('Application Error', $body);
@@ -144,7 +144,7 @@ final class PlainTextExceptionMiddlewareTest extends TestCase
         };
 
         $response = $middleware->process($request, $handler);
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertSame('text/custom', $response->getHeaderLine('Content-Type'));
@@ -178,7 +178,7 @@ final class PlainTextExceptionMiddlewareTest extends TestCase
         };
 
         $response = $middleware->process($request, $handler);
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
 
         $this->assertStringContainsString('Outer exception', $body);
         $this->assertStringContainsString('Previous Exception:', $body);

@@ -21,8 +21,7 @@ class RouteGroupTest extends TestCase
     public function testConstructorInitializesPropertiesCorrectly(): void
     {
         $router = $this->createRouter();
-        $callback = function () {
-        };
+        $callback = function () {};
         $prefix = '/test';
         $routeGroup = new RouteGroup($prefix, $callback, $router->getRouteCollector());
 
@@ -35,10 +34,8 @@ class RouteGroupTest extends TestCase
     public function testConstructorWithParentGroup(): void
     {
         $router = $this->createRouter();
-        $parentGroupCallback = function () {
-        };
-        $childGroupCallback = function () {
-        };
+        $parentGroupCallback = function () {};
+        $childGroupCallback = function () {};
         $parentGroup = new RouteGroup('/parent', $parentGroupCallback, $router->getRouteCollector());
         $childGroup = new RouteGroup('/child', $childGroupCallback, $router->getRouteCollector(), $parentGroup);
 
@@ -62,8 +59,7 @@ class RouteGroupTest extends TestCase
     public function testMapCreatesAndRegistersRoute(): void
     {
         $router = $this->createRouter();
-        $callback = function () {
-        };
+        $callback = function () {};
         $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
         $route = $routeGroup->map(['GET'], '/foo', 'handler');
@@ -75,8 +71,7 @@ class RouteGroupTest extends TestCase
     public function testMapCreatesAndRegistersRouteWithEmptyRoute(): void
     {
         $router = $this->createRouter();
-        $callback = function () {
-        };
+        $callback = function () {};
         $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
         $route = $routeGroup->map(['GET'], '', 'handler');
@@ -88,8 +83,7 @@ class RouteGroupTest extends TestCase
     public function testMapCreatesAndRegistersRouteWithSlashRoute(): void
     {
         $router = $this->createRouter();
-        $callback = function () {
-        };
+        $callback = function () {};
         $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
         $route = $routeGroup->map(['GET'], '', 'handler');
@@ -101,12 +95,10 @@ class RouteGroupTest extends TestCase
     public function testGroupCreatesAndRegistersNestedRouteGroup(): void
     {
         $router = $this->createRouter();
-        $callback = function () {
-        };
+        $callback = function () {};
         $routeGroup = new RouteGroup('/test', $callback, $router->getRouteCollector());
 
-        $nestedGroup = $routeGroup->group('/nested', function () {
-        });
+        $nestedGroup = $routeGroup->group('/nested', function () {});
 
         $this->assertInstanceOf(RouteGroup::class, $nestedGroup);
         $this->assertSame('/test/nested', $nestedGroup->getPrefix());

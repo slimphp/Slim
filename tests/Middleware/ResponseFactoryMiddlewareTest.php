@@ -38,7 +38,7 @@ class ResponseFactoryMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('Expected Response', (string)$response->getBody());
+        $this->assertSame('Expected Response', (string) $response->getBody());
     }
 
     public function testProcessReturnsResponseFromFactory(): void
@@ -75,6 +75,6 @@ class ResponseFactoryMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('Expected Response', (string)$response->getBody());
+        $this->assertSame('Expected Response', (string) $response->getBody());
     }
 }

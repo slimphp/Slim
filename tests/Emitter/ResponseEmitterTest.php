@@ -239,7 +239,7 @@ final class ResponseEmitterTest extends TestCase
         $responseEmitter->isResponseEmpty($response);
 
         $this->assertFalse($body->isSeekable());
-        $this->assertSame('12', trim((string)$body));
+        $this->assertSame('12', trim((string) $body));
     }
 
     public function testAvoidReadFromSlowStreamAccordingToStatus(): void
@@ -326,7 +326,6 @@ final class ResponseEmitterTest extends TestCase
 
         $mirror = new ReflectionClass(ResponseEmitter::class);
         $emitBodyMethod = $mirror->getMethod('emitBody');
-        $emitBodyMethod->setAccessible(true);
         $emitBodyMethod->invoke($responseEmitter, $response);
 
         $this->expectOutputString('');

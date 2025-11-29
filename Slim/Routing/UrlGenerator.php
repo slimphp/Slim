@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 namespace Slim\Routing;
 
 use FastRoute\RouteParser\Std;
@@ -26,10 +32,6 @@ final class UrlGenerator implements UrlGeneratorInterface
     {
         $this->router = $router;
         $this->routeParser = new Std();
-    }
-
-    public static function fromRequest(\Psr\Http\Message\ServerRequestInterface $request)
-    {
     }
 
     /**
@@ -80,7 +82,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $routes = $this->router->getRouteCollector()->getData();
 
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveArrayIterator($routes, RecursiveArrayIterator::CHILD_ARRAYS_ONLY)
+            new RecursiveArrayIterator($routes, RecursiveArrayIterator::CHILD_ARRAYS_ONLY),
         );
 
         foreach ($iterator as $route) {

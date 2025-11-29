@@ -25,7 +25,7 @@ final class RouteContext
 
     private function __construct(
         RoutingResults $routingResults,
-        ?string $basePath = null
+        ?string $basePath = null,
     ) {
         $this->routingResults = $routingResults;
         $this->basePath = $basePath;
@@ -41,7 +41,7 @@ final class RouteContext
 
         if ($routingResults === null) {
             throw new RuntimeException(
-                'Cannot create RouteContext before routing has been completed. Add RoutingMiddleware to fix this.'
+                'Cannot create RouteContext before routing has been completed. Add RoutingMiddleware to fix this.',
             );
         }
 

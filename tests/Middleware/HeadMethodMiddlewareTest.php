@@ -43,7 +43,7 @@ class HeadMethodMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('', (string)$response->getBody());
+        $this->assertSame('', (string) $response->getBody());
     }
 
     public function testGetRequestResponseBodyIsUnchanged(): void
@@ -68,6 +68,6 @@ class HeadMethodMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('This is the body content', (string)$response->getBody());
+        $this->assertSame('This is the body content', (string) $response->getBody());
     }
 }

@@ -50,10 +50,10 @@ final class SlimHttpDefinitions
                     public function createServerRequest(
                         string $method,
                         $uri,
-                        array $serverParams = []
+                        array $serverParams = [],
                     ): ServerRequestInterface {
                         return new ServerRequest(
-                            $this->serverRequestFactory->createServerRequest($method, $uri, $serverParams)
+                            $this->serverRequestFactory->createServerRequest($method, $uri, $serverParams),
                         );
                     }
                 };

@@ -62,7 +62,7 @@ final class RoutingMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testRouteIsNotStoredOnMethodNotAllowed()

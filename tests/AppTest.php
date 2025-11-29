@@ -71,15 +71,16 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $app->get('/', fn () => throw new UnexpectedValueException('Test exception message'));
+        $app->get('/', fn() => throw new UnexpectedValueException('Test exception message'));
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
         $request = $request->withHeader(
             'Accept',
-            'text/html, application/xhtml+xml, application/xml;q=0.9, application/json , image/webp, */*;q=0.8'
+            'text/html, application/xhtml+xml, application/xml;q=0.9, application/json , image/webp, */*;q=0.8',
         );
 
         $response = $app->handle($request);
@@ -87,7 +88,7 @@ final class AppTest extends TestCase
         $this->assertSame('text/html', $response->getHeaderLine('content-type'));
 
         $expected = 'Test exception message';
-        $this->assertStringContainsString($expected, (string)$response->getBody());
+        $this->assertStringContainsString($expected, (string) $response->getBody());
     }
 
     public function testGetAppFromContainer(): void
@@ -130,7 +131,8 @@ final class AppTest extends TestCase
             return $response->withHeader('X-Test', 'action');
         });
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -155,7 +157,8 @@ final class AppTest extends TestCase
 
         $app->get('/', $action::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -183,7 +186,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest($method, '/');
 
@@ -195,7 +199,7 @@ final class AppTest extends TestCase
         });
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testAnyRoute(): void
@@ -204,7 +208,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('FOO', '/');
 
@@ -215,7 +220,7 @@ final class AppTest extends TestCase
         });
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public static function upperCaseRequestMethodsProvider(): array
@@ -238,7 +243,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest($method, '/');
 
@@ -250,7 +256,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testRouteWithInternationalCharacters(): void
@@ -261,7 +267,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', $path);
 
@@ -273,7 +280,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     /********************************************************************************
@@ -308,7 +315,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', $uri);
 
@@ -320,7 +328,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     /********************************************************************************
@@ -345,7 +353,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -357,7 +366,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testAddMiddlewareUsingClosure(): void
@@ -374,7 +383,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -386,7 +396,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
         $this->assertSame('Foo', $response->getHeaderLine('X-Foo'));
     }
 
@@ -420,22 +430,24 @@ final class AppTest extends TestCase
         };
         $app->add($middleware3);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
         // Add two middlewares
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('_ROUTE1_');
+        $app
+            ->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                $response->getBody()->write('_ROUTE1_');
 
-            return $response;
-        })
+                return $response;
+            })
             ->add($middleware)
             ->add($middleware2);
 
         $response = $app->handle($request);
 
-        $this->assertSame('_ROUTE1__MW2__MW1_', (string)$response->getBody());
+        $this->assertSame('_ROUTE1__MW2__MW1_', (string) $response->getBody());
     }
 
     public function testAddMiddlewareOnRouteGroup(): void
@@ -452,7 +464,7 @@ final class AppTest extends TestCase
 
         $outgoingMiddleware = function (
             ServerRequestInterface $request,
-            RequestHandlerInterface $handler
+            RequestHandlerInterface $handler,
         ) use ($trace) {
             $response = $handler->handle($request);
             $response->getBody()->write('_OUTGOING_');
@@ -464,7 +476,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/api/users');
 
@@ -472,7 +485,7 @@ final class AppTest extends TestCase
         $app->group('/api', function (RouteGroup $group) use ($trace) {
             $group->get('/users', function (
                 ServerRequestInterface $request,
-                ResponseInterface $response
+                ResponseInterface $response,
             ) use ($trace) {
                 $trace->push('_ROUTE1_');
                 $response->getBody()->write('_ROUTE1_');
@@ -483,14 +496,14 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('_ROUTE1__OUTGOING_', (string)$response->getBody());
+        $this->assertSame('_ROUTE1__OUTGOING_', (string) $response->getBody());
         $this->assertSame(
             [
                 2 => '_OUTGOING_',
                 1 => '_ROUTE1_',
                 0 => '_AUTH_',
             ],
-            iterator_to_array($trace)
+            iterator_to_array($trace),
         );
     }
 
@@ -524,7 +537,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/api/users/123');
 
@@ -538,14 +552,14 @@ final class AppTest extends TestCase
                         $response->getBody()->write('_ROUTE1_');
 
                         return $response;
-                    }
+                    },
                 );
             })->add($usersMiddleware);
         })->add($authMiddleware);
 
         $response = $app->handle($request);
 
-        $this->assertSame('_ROUTE1__USERS_', (string)$response->getBody());
+        $this->assertSame('_ROUTE1__USERS_', (string) $response->getBody());
 
         $this->assertSame(
             [
@@ -554,7 +568,7 @@ final class AppTest extends TestCase
                 '_USERS_',
                 '_ROUTE1_',
             ],
-            iterator_to_array($trace)
+            iterator_to_array($trace),
         );
     }
 
@@ -566,7 +580,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('POST', '/');
 
@@ -583,7 +598,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -595,7 +611,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseStrategy(): void
@@ -604,7 +620,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/hello/john');
 
@@ -615,24 +632,25 @@ final class AppTest extends TestCase
                 $response->getBody()->write("Hello {$args['name']}");
 
                 return $response;
-            }
+            },
         );
 
         $response = $app->handle($request);
-        $this->assertSame('Hello john', (string)$response->getBody());
+        $this->assertSame('Hello john', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy(): void
     {
         $definitions = [
-            RequestHandlerInvocationStrategyInterface::class => fn () => new RequestResponseArgs(),
+            RequestHandlerInvocationStrategyInterface::class => fn() => new RequestResponseArgs(),
         ];
         $app = $this->createApp($definitions);
 
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/hello/john');
 
@@ -642,25 +660,28 @@ final class AppTest extends TestCase
                 $response->getBody()->write("Hello {$name}");
 
                 return $response;
-            }
+            },
         );
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello john', (string)$response->getBody());
+        $this->assertSame('Hello john', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseNamedArgsStrategy(): void
     {
-        $definitions = [
-            RequestHandlerInvocationStrategyInterface::class => fn () => new RequestResponseNamedArgs(),
-        ];
+        $definitions =
+            [
+                RequestHandlerInvocationStrategyInterface::class => fn() => new RequestResponseNamedArgs(),
+            ];
+
         $app = $this->createApp($definitions);
 
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/hello/john');
 
@@ -670,12 +691,12 @@ final class AppTest extends TestCase
                 $response->getBody()->write("Hello {$name}");
 
                 return $response;
-            }
+            },
         );
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello john', (string)$response->getBody());
+        $this->assertSame('Hello john', (string) $response->getBody());
     }
 
     public function testInvokeWithoutMatchingRoute(): void
@@ -686,7 +707,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/nada');
 
@@ -717,7 +739,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -725,7 +748,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello handler:foo', (string)$response->getBody());
+        $this->assertSame('Hello handler:foo', (string) $response->getBody());
     }
 
     public function testInvokeWithCallableRegisteredInContainerAsFunction(): void
@@ -750,7 +773,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -758,7 +782,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello handler:foo', (string)$response->getBody());
+        $this->assertSame('Hello handler:foo', (string) $response->getBody());
     }
 
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer(): void
@@ -768,9 +792,7 @@ final class AppTest extends TestCase
 
         $definitions = [
             'handler' => new class {
-                public function foo()
-                {
-                }
+                public function foo() {}
             },
         ];
 
@@ -779,7 +801,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -794,7 +817,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -812,7 +836,7 @@ final class AppTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testAddMiddleware(): void
@@ -826,7 +850,8 @@ final class AppTest extends TestCase
         $app->addMiddleware($routing);
         $app->add($endpoint);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -859,7 +884,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
@@ -875,8 +901,8 @@ final class AppTest extends TestCase
 
     public function testRunWithoutPassingInServerRequest(): void
     {
-        $definitions =
-            [
+        $definitions
+            = [
                 ServerRequestCreatorInterface::class => function () {
                     return new class implements ServerRequestCreatorInterface {
                         public function createServerRequestFromGlobals(): ServerRequestInterface
@@ -887,7 +913,7 @@ final class AppTest extends TestCase
                                 new Headers(),
                                 [],
                                 [],
-                                new Stream(fopen('php://memory', 'w+'))
+                                new Stream(fopen('php://memory', 'w+')),
                             );
                         }
                     };
@@ -918,7 +944,8 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('HEAD', '/');
 
@@ -929,7 +956,7 @@ final class AppTest extends TestCase
         });
 
         $response = $app->handle($request);
-        $this->assertEmpty((string)$response->getBody());
+        $this->assertEmpty((string) $response->getBody());
     }
 
     public function testPathWithOptionalArgs(): void
@@ -938,25 +965,27 @@ final class AppTest extends TestCase
         $app->add(RoutingMiddleware::class);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/hello/friend');
 
         $app->get('/hello[/{name}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write((string)count($args));
+            $response->getBody()->write((string) count($args));
 
             return $response;
         });
 
         $response = $app->handle($request);
-        $this->assertSame('1', (string)$response->getBody());
+        $this->assertSame('1', (string) $response->getBody());
 
         // 2. test without value
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/hello');
 
         $response = $app->handle($request);
-        $this->assertSame('0', (string)$response->getBody());
+        $this->assertSame('0', (string) $response->getBody());
     }
 }

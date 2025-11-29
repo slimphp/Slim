@@ -40,7 +40,7 @@ class CorsMiddlewareTest extends TestCase
         $this->assertSame('*', $response->getHeaderLine('Access-Control-Allow-Headers'));
         $this->assertSame(
             'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-            $response->getHeaderLine('Access-Control-Allow-Methods')
+            $response->getHeaderLine('Access-Control-Allow-Methods'),
         );
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'));
     }
@@ -73,7 +73,7 @@ class CorsMiddlewareTest extends TestCase
         $this->assertSame('*', $response->getHeaderLine('Access-Control-Allow-Headers'));
         $this->assertSame(
             'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-            $response->getHeaderLine('Access-Control-Allow-Methods')
+            $response->getHeaderLine('Access-Control-Allow-Methods'),
         );
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'));
     }

@@ -79,7 +79,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('BodyTest', (string)$response->getBody());
+        $this->assertSame('BodyTest', (string) $response->getBody());
     }
 
     public function testPrepend()
@@ -114,7 +114,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('TestBody', (string)$response->getBody());
+        $this->assertSame('TestBody', (string) $response->getBody());
     }
 
     public function testOutputBufferIsCleanedWhenThrowableIsCaught()

@@ -39,13 +39,13 @@ final class XmlBodyParserMiddlewareTest extends TestCase
             {
                 $parsed = $request->getParsedBody();
                 $response = new Response();
-                $response->getBody()->write((string)$parsed->foo);
+                $response->getBody()->write((string) $parsed->foo);
 
                 return $response;
             }
         });
 
-        $this->assertSame('bar', (string)$response->getBody());
+        $this->assertSame('bar', (string) $response->getBody());
     }
 
     public function testParsesValidTextXml(): void
@@ -65,13 +65,13 @@ final class XmlBodyParserMiddlewareTest extends TestCase
             {
                 $parsed = $request->getParsedBody();
                 $response = new Response();
-                $response->getBody()->write((string)$parsed->name);
+                $response->getBody()->write((string) $parsed->name);
 
                 return $response;
             }
         });
 
-        $this->assertSame('Test', (string)$response->getBody());
+        $this->assertSame('Test', (string) $response->getBody());
     }
 
     public function testSkipsParsingForNonXmlContentType(): void
@@ -96,7 +96,7 @@ final class XmlBodyParserMiddlewareTest extends TestCase
             }
         });
 
-        $this->assertSame('no-parse', (string)$response->getBody());
+        $this->assertSame('no-parse', (string) $response->getBody());
     }
 
     public function testThrowsExceptionOnInvalidXml(): void

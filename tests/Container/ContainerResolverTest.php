@@ -50,9 +50,9 @@ final class ContainerResolverTest extends TestCase
 
     public function testClosureContainer(): void
     {
-        $definitions =
-            [
-                'ultimateAnswer' => fn () => 42,
+        $definitions
+            = [
+                'ultimateAnswer' => fn() => 42,
             ];
         $app = $this->createApp($definitions);
         $container = $app->getContainer();
@@ -83,7 +83,7 @@ final class ContainerResolverTest extends TestCase
                 $that->assertSame($container, $this);
 
                 return 42;
-            }
+            },
         );
 
         $test = [$class, '__invoke'];
@@ -131,9 +131,9 @@ final class ContainerResolverTest extends TestCase
 
     public function testContainer(): void
     {
-        $definitions =
-            [
-                'callable_service' => fn () => new CallableTester(),
+        $definitions
+            = [
+                'callable_service' => fn() => new CallableTester(),
             ];
         $app = $this->createApp($definitions);
         $resolver = $app->getContainer()->get(ContainerResolver::class);
@@ -144,9 +144,9 @@ final class ContainerResolverTest extends TestCase
 
     public function testResolutionToAnInvokableClassInContainer(): void
     {
-        $definitions =
-            [
-                'an_invokable' => fn () => new InvokableTester(),
+        $definitions
+            = [
+                'an_invokable' => fn() => new InvokableTester(),
             ];
         $app = $this->createApp($definitions);
 
@@ -180,8 +180,8 @@ final class ContainerResolverTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The definition "a_requesthandler" is not a callable');
 
-        $definitions =
-            [
+        $definitions
+            = [
                 'a_requesthandler' => function ($container) {
                     return new RequestHandlerTester($container->get(ResponseFactoryInterface::class));
                 },
@@ -219,9 +219,9 @@ final class ContainerResolverTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The definition "callable_service" is not a callable');
 
-        $definitions =
-            [
-                'callable_service' => fn () => 'NOT AN OBJECT',
+        $definitions
+            = [
+                'callable_service' => fn() => 'NOT AN OBJECT',
             ];
         $app = $this->createApp($definitions);
 
@@ -234,9 +234,9 @@ final class ContainerResolverTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The method "notFound" does not exists');
 
-        $definitions =
-            [
-                'callable_service' => fn () => new CallableTester(),
+        $definitions
+            = [
+                'callable_service' => fn() => new CallableTester(),
             ];
         $app = $this->createApp($definitions);
 
@@ -318,7 +318,7 @@ final class ContainerResolverTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(
-            'A middleware must be an object or callable that implements "MiddlewareInterface".'
+            'A middleware must be an object or callable that implements "MiddlewareInterface".',
         );
 
         $app = AppFactory::create();

@@ -34,7 +34,7 @@ final class CorsMiddleware implements MiddlewareInterface
 
     public function process(
         ServerRequestInterface $request,
-        RequestHandlerInterface $handler
+        RequestHandlerInterface $handler,
     ): ResponseInterface {
         $origin = $request->getHeaderLine('Origin');
 
@@ -61,7 +61,7 @@ final class CorsMiddleware implements MiddlewareInterface
         if (!empty($this->allowedMethods)) {
             $response = $response->withHeader(
                 'Access-Control-Allow-Methods',
-                implode(', ', $this->allowedMethods)
+                implode(', ', $this->allowedMethods),
             );
         }
 
@@ -69,7 +69,7 @@ final class CorsMiddleware implements MiddlewareInterface
         if (!empty($this->allowedHeaders)) {
             $response = $response->withHeader(
                 'Access-Control-Allow-Headers',
-                implode(', ', $this->allowedHeaders)
+                implode(', ', $this->allowedHeaders),
             );
         }
 
@@ -77,13 +77,13 @@ final class CorsMiddleware implements MiddlewareInterface
         if (!empty($this->exposedHeaders)) {
             $response = $response->withHeader(
                 'Access-Control-Expose-Headers',
-                implode(', ', $this->exposedHeaders)
+                implode(', ', $this->exposedHeaders),
             );
         }
 
         // Add max age header if configured
         if ($this->maxAge !== null) {
-            $response = $response->withHeader('Access-Control-Max-Age', (string)$this->maxAge);
+            $response = $response->withHeader('Access-Control-Max-Age', (string) $this->maxAge);
         }
 
         // Add cache control headers if enabled
@@ -99,6 +99,8 @@ final class CorsMiddleware implements MiddlewareInterface
     /**
      * Set the Access-Control-Max-Age header value in seconds.
      * Set to null to disable the header.
+     *
+     * @param ?int $maxAge
      */
     public function withMaxAge(?int $maxAge): self
     {
@@ -111,6 +113,8 @@ final class CorsMiddleware implements MiddlewareInterface
     /**
      * Set allowed origins. Null means allow all (*).
      * Pass an array of strings to specify allowed origins.
+     *
+     * @param ?array $origins
      */
     public function withAllowedOrigins(?array $origins = null): self
     {
@@ -122,6 +126,8 @@ final class CorsMiddleware implements MiddlewareInterface
 
     /**
      * Set whether to allow credentials.
+     *
+     * @param bool $allow
      */
     public function withAllowCredentials(bool $allow): self
     {
@@ -133,6 +139,8 @@ final class CorsMiddleware implements MiddlewareInterface
 
     /**
      * Set allowed methods.
+     *
+     * @param array $methods
      */
     public function withAllowedMethods(array $methods): self
     {
@@ -144,6 +152,8 @@ final class CorsMiddleware implements MiddlewareInterface
 
     /**
      * Set allowed headers.
+     *
+     * @param array $headers
      */
     public function withAllowedHeaders(array $headers): self
     {
@@ -155,6 +165,8 @@ final class CorsMiddleware implements MiddlewareInterface
 
     /**
      * Set exposed headers.
+     *
+     * @param array $headers
      */
     public function withExposedHeaders(array $headers): self
     {
@@ -166,6 +178,8 @@ final class CorsMiddleware implements MiddlewareInterface
 
     /**
      * Set whether to use cache control headers.
+     *
+     * @param bool $useCache
      */
     public function withCache(bool $useCache): self
     {
@@ -177,6 +191,8 @@ final class CorsMiddleware implements MiddlewareInterface
 
     /**
      * Check if origin is allowed.
+     *
+     * @param string $origin
      */
     private function isOriginAllowed(string $origin): bool
     {

@@ -56,7 +56,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testBodyParam()
@@ -89,7 +89,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testHeaderPreferred()
@@ -119,11 +119,11 @@ final class MethodOverrideMiddlewareTest extends TestCase
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('POST', '/')
             ->withHeader('X-Http-Method-Override', 'DELETE')
-            ->withParsedBody((object)['_METHOD' => 'PUT']);
+            ->withParsedBody((object) ['_METHOD' => 'PUT']);
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testNoOverride()
@@ -155,7 +155,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testNoOverrideRewindEofBodyStream()
@@ -200,6 +200,6 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string)$response->getBody());
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 }

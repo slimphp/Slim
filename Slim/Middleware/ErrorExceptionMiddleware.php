@@ -16,6 +16,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class ErrorExceptionMiddleware implements MiddlewareInterface
 {
     /**
+     * Process.
+     *
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
      * @throws ErrorException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

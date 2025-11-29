@@ -24,14 +24,13 @@ class HttpDefinitionsTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         // Create a mock for the class_exists function
-        $classExistsMock = fn () => false;
+        $classExistsMock = fn() => false;
 
         $httpDefinitions = new HttpDefinitions();
 
         // Use reflection to inject the mock callable into the $classExists property
         $reflection = new ReflectionClass($httpDefinitions);
         $classExistsProperty = $reflection->getProperty('classExists');
-        $classExistsProperty->setAccessible(true);
         $classExistsProperty->setValue($httpDefinitions, $classExistsMock);
 
         $httpDefinitions->getDefinitions();

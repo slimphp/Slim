@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 declare(strict_types=1);
 
 namespace Slim\Routing;
@@ -29,7 +35,7 @@ final class RouteGroup implements MiddlewareCollectionInterface, RouteCollection
         string $prefix,
         callable $callback,
         RouteCollector $routeCollector,
-        ?RouteGroup $group = null
+        ?RouteGroup $group = null,
     ) {
         $this->prefix = $prefix;
         $this->callback = $callback;
@@ -58,6 +64,8 @@ final class RouteGroup implements MiddlewareCollectionInterface, RouteCollection
 
     /**
      * @param array<string> $methods
+     * @param string $path
+     * @param callable|string $handler
      */
     public function map(array $methods, string $path, callable|string $handler): Route
     {

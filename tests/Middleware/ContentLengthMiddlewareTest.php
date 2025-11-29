@@ -45,6 +45,6 @@ final class ContentLengthMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame('4', $response->getHeaderLine('Content-Length'));
-        $this->assertSame('Body', (string)$response->getBody());
+        $this->assertSame('Body', (string) $response->getBody());
     }
 }

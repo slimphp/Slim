@@ -28,7 +28,7 @@ trait AppTestTrait
     protected function assertJsonResponse(mixed $expected, ResponseInterface $actual, string $message = ''): void
     {
         self::assertThat(
-            json_decode((string)$actual->getBody(), true),
+            json_decode((string) $actual->getBody(), true),
             new IsIdentical($expected),
             $message,
         );

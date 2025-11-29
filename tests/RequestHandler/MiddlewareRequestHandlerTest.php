@@ -31,7 +31,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
                 $response = $handler->handle($req);
 
                 return $response->withHeader('X-Middleware-1', 'Processed-1');
-            }
+            },
         );
 
         $app->add(function ($req, $handler) {
@@ -88,7 +88,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
 
                     return $response->withHeader('X-Middleware-1', 'Processed-1');
                 }
-            }
+            },
         );
 
         $app->add(ResponseFactoryMiddleware::class);
@@ -121,7 +121,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
 
                     return $response;
                 }
-            }
+            },
         );
 
         $app->add(
@@ -135,7 +135,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
 
                     return $response;
                 }
-            }
+            },
         );
 
         $app->add(ResponseFactoryMiddleware::class);
@@ -145,6 +145,6 @@ final class MiddlewareRequestHandlerTest extends TestCase
 
         $response = $handler->handle($request);
 
-        $this->assertSame('12', (string)$response->getBody());
+        $this->assertSame('12', (string) $response->getBody());
     }
 }

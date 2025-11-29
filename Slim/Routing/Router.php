@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 namespace Slim\Routing;
 
 use FastRoute\DataGenerator\GroupCountBased;
@@ -25,6 +31,8 @@ final class Router implements RouterInterface
 
     /**
      * @param array<string> $methods
+     * @param string $path
+     * @param callable|string $handler
      *
      * @throws InvalidArgumentException
      */
@@ -71,6 +79,8 @@ final class Router implements RouterInterface
      * - Starts with a forward slash
      * - No trailing slash (unless root path)
      * - No double slashes
+     *
+     * @param string $path
      */
     private function normalizePath(string $path): string
     {

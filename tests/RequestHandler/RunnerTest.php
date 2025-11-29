@@ -48,7 +48,7 @@ final class RunnerTest extends TestCase
                 function () use ($response) {
                     return $response->withHeader('X-Result', 'Success');
                 },
-            ]
+            ],
         );
 
         $result = $runner->handle($request);

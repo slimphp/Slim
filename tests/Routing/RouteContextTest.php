@@ -148,8 +148,7 @@ class RouteContextTest extends TestCase
             ->createServerRequest('GET', '/');
 
         // Create a route for testing
-        $route = $app->get('/test', function () {
-        })->setName('test-route');
+        $route = $app->get('/test', function () {})->setName('test-route');
         $routingResults = new RoutingResults(200, $route, 'GET', '/test', []);
 
         $request = $request

@@ -26,6 +26,8 @@ interface RouterInterface
 
     /**
      * @param array<string> $methods
+     * @param string $path
+     * @param callable|string $handler
      *
      * @throws InvalidArgumentException
      */

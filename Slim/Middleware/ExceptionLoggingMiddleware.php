@@ -31,6 +31,10 @@ final class ExceptionLoggingMiddleware implements MiddlewareInterface
     }
 
     /**
+     * Process.
+     *
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
      * @throws Throwable
      * @throws ErrorException
      */

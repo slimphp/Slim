@@ -58,7 +58,7 @@ final class HtmlExceptionMiddlewareTest extends TestCase
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('Application Error', (string)$response->getBody());
+        $this->assertStringContainsString('Application Error', (string) $response->getBody());
     }
 
     public function testProcessWithHttpMethodNotAllowedAddsAllowHeader(): void

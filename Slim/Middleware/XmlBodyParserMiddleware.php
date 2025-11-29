@@ -29,7 +29,7 @@ final class XmlBodyParserMiddleware implements MiddlewareInterface
 
         if ($this->isXmlMediaType($contentType)) {
             $backup = libxml_use_internal_errors(true);
-            $body = (string)$request->getBody();
+            $body = (string) $request->getBody();
             $xml = simplexml_load_string($body);
 
             libxml_clear_errors();

@@ -46,7 +46,7 @@ final class EndpointMiddleware implements MiddlewareInterface
 
         if (!$routingResults instanceof RoutingResults) {
             throw new RuntimeException(
-                'An unexpected error occurred while handling routing results. Routing results are not available.'
+                'An unexpected error occurred while handling routing results. Routing results are not available.',
             );
         }
 
@@ -108,7 +108,7 @@ final class EndpointMiddleware implements MiddlewareInterface
     private function createRouteHandlerMiddleware(
         ServerRequestInterface $request,
         ResponseInterface $response,
-        RoutingResults $routingResults
+        RoutingResults $routingResults,
     ): callable {
         $containerResolver = $this->containerResolver;
         $invocationStrategy = $this->invocationStrategy;

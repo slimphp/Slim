@@ -43,7 +43,7 @@ class EndpointMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('Route found', (string)$response->getBody());
+        $this->assertSame('Route found', (string) $response->getBody());
     }
 
     public function testProcessRouteNotFound(): void

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 namespace Slim\Factory;
 
 use Psr\Container\ContainerInterface;
@@ -29,12 +35,6 @@ final class AppFactory
 
     public static function createFromContainer(ContainerInterface $container): App
     {
-        return new App(
-            $container,
-            $container->get(ServerRequestCreatorInterface::class),
-            $container->get(RequestHandlerInterface::class),
-            $container->get(RouterInterface::class),
-            $container->get(EmitterInterface::class)
-        );
+        return new App($container);
     }
 }

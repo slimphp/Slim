@@ -59,7 +59,7 @@ final class XmlExceptionMiddleware implements MiddlewareInterface
                 $exceptionElement->appendChild($typeElement);
 
                 $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();
-                $codeElement = $dom->createElement('code', (string)$code);
+                $codeElement = $dom->createElement('code', (string) $code);
                 $exceptionElement->appendChild($codeElement);
 
                 $messageElement = $dom->createElement('message', $exception->getMessage());
@@ -68,13 +68,13 @@ final class XmlExceptionMiddleware implements MiddlewareInterface
                 $fileElement = $dom->createElement('file', $exception->getFile());
                 $exceptionElement->appendChild($fileElement);
 
-                $lineElement = $dom->createElement('line', (string)$exception->getLine());
+                $lineElement = $dom->createElement('line', (string) $exception->getLine());
                 $exceptionElement->appendChild($lineElement);
 
                 $errorElement->appendChild($exceptionElement);
             } while ($exception = $exception->getPrevious());
         }
 
-        return (string)$dom->saveXML();
+        return (string) $dom->saveXML();
     }
 }

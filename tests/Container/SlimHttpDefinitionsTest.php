@@ -122,8 +122,7 @@ class SlimHttpDefinitionsTest extends TestCase
         // Use reflection to inject the mock callable into the $classExists property
         $reflection = new ReflectionClass($definitions);
         $classExistsProperty = $reflection->getProperty('classExists');
-        $classExistsProperty->setAccessible(true);
-        $classExistsProperty->setValue($definitions, fn () => false);
+        $classExistsProperty->setValue($definitions, fn() => false);
 
         $container = new Container($definitions->getDefinitions());
         $container->get(ResponseFactoryInterface::class);
@@ -139,8 +138,7 @@ class SlimHttpDefinitionsTest extends TestCase
         // Use reflection to inject the mock callable into the $classExists property
         $reflection = new ReflectionClass($definitions);
         $classExistsProperty = $reflection->getProperty('classExists');
-        $classExistsProperty->setAccessible(true);
-        $classExistsProperty->setValue($definitions, fn () => false);
+        $classExistsProperty->setValue($definitions, fn() => false);
 
         $container = new Container($definitions->getDefinitions());
         $container->get(StreamFactoryInterface::class);
@@ -156,8 +154,7 @@ class SlimHttpDefinitionsTest extends TestCase
         // Use reflection to inject the mock callable into the $classExists property
         $reflection = new ReflectionClass($definitions);
         $classExistsProperty = $reflection->getProperty('classExists');
-        $classExistsProperty->setAccessible(true);
-        $classExistsProperty->setValue($definitions, fn () => false);
+        $classExistsProperty->setValue($definitions, fn() => false);
 
         $container = new Container($definitions->getDefinitions());
         $container->get(UriFactoryInterface::class);
@@ -173,8 +170,7 @@ class SlimHttpDefinitionsTest extends TestCase
         // Use reflection to inject the mock callable into the $classExists property
         $reflection = new ReflectionClass($definitions);
         $classExistsProperty = $reflection->getProperty('classExists');
-        $classExistsProperty->setAccessible(true);
-        $classExistsProperty->setValue($definitions, fn () => false);
+        $classExistsProperty->setValue($definitions, fn() => false);
 
         $container = new Container($definitions->getDefinitions());
         $container->get(UploadedFileFactoryInterface::class);

@@ -45,7 +45,7 @@ class RouterTest extends TestCase
             $this->assertContains(
                 $expectedMethod,
                 $route->getMethods(),
-                "Method $expectedMethod not found in route methods"
+                "Method $expectedMethod not found in route methods",
             );
         }
     }
@@ -208,7 +208,7 @@ class RouterTest extends TestCase
             ->createServerRequest('OPTIONS', '/test');
 
         $response = $app->handle($request);
-        $this->assertSame('Body', (string)$response->getBody());
+        $this->assertSame('Body', (string) $response->getBody());
     }
 
     public function testOptionsAnyRoute(): void
@@ -230,14 +230,14 @@ class RouterTest extends TestCase
             ->createServerRequest('OPTIONS', '/test');
 
         $response = $app->handle($request);
-        $this->assertSame('Body', (string)$response->getBody());
+        $this->assertSame('Body', (string) $response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('OPTIONS', '/');
 
         $response = $app->handle($request);
-        $this->assertSame('Body', (string)$response->getBody());
+        $this->assertSame('Body', (string) $response->getBody());
     }
 
     public function testRouteWithParameters(): void
@@ -259,7 +259,7 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/books/123');
 
         $response = $app->handle($request);
-        $this->assertSame('{"id":"123"}', (string)$response->getBody());
+        $this->assertSame('{"id":"123"}', (string) $response->getBody());
     }
 
     public function testCustomRoute(): void
@@ -281,14 +281,14 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/books');
 
         $response = $app->handle($request);
-        $this->assertSame('OK', (string)$response->getBody());
+        $this->assertSame('OK', (string) $response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('POST', '/books');
 
         $response = $app->handle($request);
-        $this->assertSame('OK', (string)$response->getBody());
+        $this->assertSame('OK', (string) $response->getBody());
     }
 
     public function testRegexRoute(): void
@@ -305,7 +305,7 @@ class RouterTest extends TestCase
                 $response->getBody()->write($args['id']);
 
                 return $response;
-            }
+            },
         );
 
         $request = $app->getContainer()
@@ -313,7 +313,7 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/users/123');
 
         $response = $app->handle($request);
-        $this->assertSame('123', (string)$response->getBody());
+        $this->assertSame('123', (string) $response->getBody());
     }
 
     public function testMultipleOptionalParameters(): void
@@ -330,7 +330,7 @@ class RouterTest extends TestCase
                 $response->getBody()->write(json_encode($args));
 
                 return $response;
-            }
+            },
         );
 
         $request = $app->getContainer()
@@ -338,20 +338,20 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/news');
 
         $response = $app->handle($request);
-        $this->assertSame('[]', (string)$response->getBody());
+        $this->assertSame('[]', (string) $response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/news/2038');
 
         $response = $app->handle($request);
-        $this->assertSame('{"year":"2038"}', (string)$response->getBody());
+        $this->assertSame('{"year":"2038"}', (string) $response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/news/2038/01');
 
         $response = $app->handle($request);
-        $this->assertSame('{"year":"2038","month":"01"}', (string)$response->getBody());
+        $this->assertSame('{"year":"2038","month":"01"}', (string) $response->getBody());
     }
 }

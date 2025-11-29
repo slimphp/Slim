@@ -32,19 +32,21 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             ->withBody($stream);
 
         $middleware = new FormUrlEncodedBodyParserMiddleware();
-        $response = $middleware->process($request, new class implements RequestHandlerInterface {
-            public function handle(
-                ServerRequestInterface $request
-            ): ResponseInterface {
-                $parsed = $request->getParsedBody();
-                $response = new Response();
-                $response->getBody()->write($parsed['foo'] . ',' . $parsed['baz']);
+        $response = $middleware->process(
+            $request,
+            new class implements RequestHandlerInterface {
+                public function handle(ServerRequestInterface $request): ResponseInterface
+                {
+                    $parsed = $request->getParsedBody();
+                    $response = new Response();
+                    $response->getBody()->write($parsed['foo'] . ',' . $parsed['baz']);
 
-                return $response;
-            }
-        });
+                    return $response;
+                }
+            },
+        );
 
-        $this->assertSame('bar,qux', (string)$response->getBody());
+        $this->assertSame('bar,qux', (string) $response->getBody());
     }
 
     public function testSkipsParsingForNonFormContentType(): void
@@ -57,19 +59,22 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             ->withBody($stream);
 
         $middleware = new FormUrlEncodedBodyParserMiddleware();
-        $response = $middleware->process($request, new class implements RequestHandlerInterface {
-            public function handle(
-                ServerRequestInterface $request
-            ): ResponseInterface {
-                $parsed = $request->getParsedBody();
-                $response = new Response();
-                $response->getBody()->write($parsed === null ? 'no-parse' : 'parsed');
+        $response = $middleware->process(
+            $request,
+            new class implements RequestHandlerInterface {
+                public function handle(
+                    ServerRequestInterface $request,
+                ): ResponseInterface {
+                    $parsed = $request->getParsedBody();
+                    $response = new Response();
+                    $response->getBody()->write($parsed === null ? 'no-parse' : 'parsed');
 
-                return $response;
-            }
-        });
+                    return $response;
+                }
+            },
+        );
 
-        $this->assertSame('no-parse', (string)$response->getBody());
+        $this->assertSame('no-parse', (string) $response->getBody());
     }
 
     public function testSkipsParsingForEmptyBody(): void
@@ -82,19 +87,22 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             ->withBody($stream);
 
         $middleware = new FormUrlEncodedBodyParserMiddleware();
-        $response = $middleware->process($request, new class implements RequestHandlerInterface {
-            public function handle(
-                ServerRequestInterface $request
-            ): ResponseInterface {
-                $parsed = $request->getParsedBody();
-                $response = new Response();
-                $response->getBody()->write(json_encode($parsed));
+        $response = $middleware->process(
+            $request,
+            new class implements RequestHandlerInterface {
+                public function handle(
+                    ServerRequestInterface $request,
+                ): ResponseInterface {
+                    $parsed = $request->getParsedBody();
+                    $response = new Response();
+                    $response->getBody()->write(json_encode($parsed));
 
-                return $response;
-            }
-        });
+                    return $response;
+                }
+            },
+        );
 
         // empty
-        $this->assertSame('[]', (string)$response->getBody());
+        $this->assertSame('[]', (string) $response->getBody());
     }
 }

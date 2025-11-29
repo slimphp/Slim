@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 namespace Slim\Routing;
 
 final class RoutingResults
@@ -32,6 +38,11 @@ final class RoutingResults
 
     /**
      * @param array<string, string> $routeArguments
+     * @param int $routeStatus
+     * @param ?Route $route
+     * @param string $method
+     * @param string $uri
+     * @param array $allowedMethods
      */
     public function __construct(
         int $routeStatus,

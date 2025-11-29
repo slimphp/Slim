@@ -65,7 +65,7 @@ final class ContainerResolver implements ContainerResolverInterface
             // Replace the container entry name by the actual object
             $identifier[0] = $this->container->get($identifier[0]);
 
-            if (!method_exists($identifier[0], (string)$identifier[1])) {
+            if (!method_exists($identifier[0], (string) $identifier[1])) {
                 throw new RuntimeException(sprintf('The method "%s" does not exists', $identifier[1]));
             }
         }
@@ -86,7 +86,7 @@ final class ContainerResolver implements ContainerResolverInterface
 
         // Unrecognized stuff, we let it fail
         throw new RuntimeException(
-            sprintf('The definition "%s" is not a callable.', implode(':', (array)$identifier))
+            sprintf('The definition "%s" is not a callable.', implode(':', (array) $identifier)),
         );
     }
 
@@ -119,7 +119,7 @@ final class ContainerResolver implements ContainerResolverInterface
 
         if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this->container) ?? throw new RuntimeException(
-                'Unable to bind callable to DI container.'
+                'Unable to bind callable to DI container.',
             );
         }
 
@@ -147,6 +147,8 @@ final class ContainerResolver implements ContainerResolverInterface
     /**
      * Create a (non-standard) callable middleware.
      *
+     * @param callable $middleware
+     *
      * @throws RuntimeException
      */
     private function createMiddlewareFromCallable(callable $middleware): MiddlewareInterface
@@ -154,7 +156,7 @@ final class ContainerResolver implements ContainerResolverInterface
         if ($middleware instanceof Closure) {
             /** @var Closure $middleware */
             $middleware = $middleware->bindTo($this->container) ?? throw new RuntimeException(
-                'Unable to bind middleware to DI container.'
+                'Unable to bind middleware to DI container.',
             );
         }
 

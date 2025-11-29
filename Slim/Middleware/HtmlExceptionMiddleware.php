@@ -55,25 +55,25 @@ final class HtmlExceptionMiddleware implements MiddlewareInterface
     {
         $html = sprintf(
             '<div><strong>Type:</strong> %s</div>',
-            $this->escapeHtml(get_class($exception))
+            $this->escapeHtml(get_class($exception)),
         );
 
         $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();
-        $html .= sprintf('<div><strong>Code:</strong> %s</div>', $this->escapeHtml((string)$code));
+        $html .= sprintf('<div><strong>Code:</strong> %s</div>', $this->escapeHtml((string) $code));
 
         $html .= sprintf(
             '<div><strong>Message:</strong> %s</div>',
-            $this->escapeHtml($exception->getMessage())
+            $this->escapeHtml($exception->getMessage()),
         );
 
         $html .= sprintf(
             '<div><strong>File:</strong> %s</div>',
-            $this->escapeHtml($exception->getFile())
+            $this->escapeHtml($exception->getFile()),
         );
 
         $html .= sprintf(
             '<div><strong>Line:</strong> %s</div>',
-            $this->escapeHtml((string)$exception->getLine())
+            $this->escapeHtml((string) $exception->getLine()),
         );
 
         $html .= '<h2>Trace</h2>';
@@ -85,29 +85,29 @@ final class HtmlExceptionMiddleware implements MiddlewareInterface
     private function renderHtmlBody(string $title = '', string $html = ''): string
     {
         return sprintf(
-            '<!doctype html>' .
-            '<html lang="en">' .
-            '    <head>' .
-            '        <meta charset="utf-8">' .
-            '        <meta name="viewport" content="width=device-width, initial-scale=1">' .
-            '        <title>%s</title>' .
-            '        <style>' .
-            '            body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif}' .
-            '            h1{margin:0;font-size:48px;font-weight:normal;line-height:48px}' .
-            '            strong{display:inline-block;width:65px}' .
-            '            a{color:#007BFF;text-decoration:none}' .
-            '            a:hover{text-decoration:underline}' .
-            '        </style>' .
-            '    </head>' .
-            '    <body>' .
-            '        <h1>%s</h1>' .
-            '        <div>%s</div>' .
-            '        <a href="#" onclick="window.history.go(-1); return false;">Go Back</a>' .
-            '    </body>' .
-            '</html>',
+            '<!doctype html>'
+            . '<html lang="en">'
+            . '    <head>'
+            . '        <meta charset="utf-8">'
+            . '        <meta name="viewport" content="width=device-width, initial-scale=1">'
+            . '        <title>%s</title>'
+            . '        <style>'
+            . '            body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif}'
+            . '            h1{margin:0;font-size:48px;font-weight:normal;line-height:48px}'
+            . '            strong{display:inline-block;width:65px}'
+            . '            a{color:#007BFF;text-decoration:none}'
+            . '            a:hover{text-decoration:underline}'
+            . '        </style>'
+            . '    </head>'
+            . '    <body>'
+            . '        <h1>%s</h1>'
+            . '        <div>%s</div>'
+            . '        <a href="#" onclick="window.history.go(-1); return false;">Go Back</a>'
+            . '    </body>'
+            . '</html>',
             $this->escapeHtml($title),
             $this->escapeHtml($title),
-            $html
+            $html,
         );
     }
 

@@ -29,11 +29,8 @@ final class OutputBufferingMiddleware implements MiddlewareInterface
 
     public const PREPEND = 'prepend';
 
-    private StreamFactoryInterface $streamFactory;
-
-    private string $style;
-
     /**
+     * @param StreamFactoryInterface $streamFactory The stream factory
      * @param string $style Either "append" or "prepend"
      */
     public function __construct(StreamFactoryInterface $streamFactory, string $style = 'append')
@@ -46,7 +43,14 @@ final class OutputBufferingMiddleware implements MiddlewareInterface
         }
     }
 
+    private StreamFactoryInterface $streamFactory;
+
+    private string $style;
+
     /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     *
      * @throws Throwable
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

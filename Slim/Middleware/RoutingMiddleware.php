@@ -51,7 +51,7 @@ final class RoutingMiddleware implements MiddlewareInterface
         }
 
         $routeInfo = $dispatcher->dispatch($httpMethod, rawurldecode($uri));
-        $routeStatus = (int)$routeInfo[0];
+        $routeStatus = (int) $routeInfo[0];
         $routingResults = null;
 
         if ($routeStatus === RoutingResults::FOUND) {
@@ -60,7 +60,7 @@ final class RoutingMiddleware implements MiddlewareInterface
                 $routeInfo[1],
                 $request->getMethod(),
                 $uri,
-                $routeInfo[2]
+                $routeInfo[2],
             );
         }
 

@@ -104,7 +104,7 @@ class MockStream implements Stringable, StreamInterface
             $body = $resource;
         }
 
-        if ('resource' === gettype($body)) {
+        if (gettype($body) === 'resource') {
             $this->stream = $body;
             $meta = stream_get_meta_data($this->stream);
             $this->seekable = $meta['seekable'];
@@ -113,7 +113,7 @@ class MockStream implements Stringable, StreamInterface
             $this->uri = $this->getMetadata('uri');
         } else {
             throw new InvalidArgumentException(
-                'First argument to Stream::create() must be a string, resource or StreamInterface.'
+                'First argument to Stream::create() must be a string, resource or StreamInterface.',
             );
         }
     }
@@ -165,7 +165,7 @@ class MockStream implements Stringable, StreamInterface
 
     public function getSize(): ?int
     {
-        if (null !== $this->size) {
+        if ($this->size !== null) {
             return $this->size;
         }
 
@@ -216,7 +216,7 @@ class MockStream implements Stringable, StreamInterface
         if (fseek($this->stream, $offset, $whence) === -1) {
             throw new RuntimeException(
                 'Unable to seek to stream position '
-                . $offset . ' with whence ' . var_export($whence, true)
+                . $offset . ' with whence ' . var_export($whence, true),
             );
         }
     }
@@ -280,7 +280,7 @@ class MockStream implements Stringable, StreamInterface
             return $key ? null : [];
         }
 
-        if (null === $key) {
+        if ($key === null) {
             return stream_get_meta_data($this->stream);
         }
 
