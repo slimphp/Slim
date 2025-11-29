@@ -2,7 +2,6 @@
 
 namespace Slim\Middleware;
 
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -10,8 +9,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Interfaces\ContainerResolverInterface;
-use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Routing\PipelineRunner;
 use Slim\Routing\Route;
 use Slim\Routing\RouteContext;
@@ -25,16 +22,16 @@ use Slim\Routing\RoutingResults;
  */
 final class EndpointMiddleware implements MiddlewareInterface
 {
-    private ContainerResolverInterface $resolver;
-
     private RouteInvokerMiddleware $routeInvokerMiddleware;
 
+    private PipelineRunner $pipelineRunner;
+
     public function __construct(
-        ContainerResolverInterface $containerResolver,
         RouteInvokerMiddleware $routeInvokerMiddleware,
+        PipelineRunner $pipelineRunner,
     ) {
-        $this->resolver = $containerResolver;
         $this->routeInvokerMiddleware = $routeInvokerMiddleware;
+        $this->pipelineRunner = $pipelineRunner;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -76,20 +73,20 @@ final class EndpointMiddleware implements MiddlewareInterface
         $route = $routingResults->getRoute() ?? throw new RuntimeException('Route not found.');
 
         // Collect route specific middleware
-        $middlewares = $this->collectRouteMiddleware($route);
+        $pipeline = $this->collectRouteMiddleware($route);
 
         // Invoke the route/group specific middleware stack
-        $middlewares[] = $this->routeInvokerMiddleware->withHandler(
-            $this->resolver->resolveRoute($route->getHandler()),
+        $pipeline[] = $this->routeInvokerMiddleware->withHandler(
+            $route->getHandler(),
             $routingResults->getRouteArguments(),
         );
 
-        return (new PipelineRunner($middlewares))->handle($request);
+        return $this->pipelineRunner->withPipeline($pipeline)->handle($request);
     }
 
     /**
      * @param Route $route
-     * @return array<MiddlewareInterface|callable> List of middleware
+     * @return array<MiddlewareInterface|callable|string> List of middleware
      */
     private function collectRouteMiddleware(Route $route): array
     {
@@ -105,14 +102,7 @@ final class EndpointMiddleware implements MiddlewareInterface
         }
 
         // Append endpoint-specific middleware
-        $middlewares = array_merge($middlewares, $route->getMiddleware());
-
-        // Resolve middleware
-        foreach ($middlewares as $key => $value) {
-            $middlewares[$key] = $this->resolver->resolveMiddleware($value);
-        }
-
-        return $middlewares;
+        return array_merge($middlewares, $route->getMiddleware());
     }
 
 }

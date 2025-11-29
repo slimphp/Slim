@@ -18,7 +18,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 use Slim\Container\ContainerResolver;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\ContainerResolverInterface;
@@ -64,7 +63,7 @@ final class ContainerResolverTest extends TestCase
         };
 
         $resolver = $container->get(ContainerResolverInterface::class);
-        $callable = $resolver->resolveRoute($test);
+        $callable = $resolver->resolveCallable($test);
 
         $this->assertSame(42, $callable());
     }
@@ -86,7 +85,7 @@ final class ContainerResolverTest extends TestCase
         $test = [$class, '__invoke'];
 
         $resolver = $container->get(ContainerResolverInterface::class);
-        $callable = $resolver->resolveRoute($test);
+        $callable = $resolver->resolveCallable($test);
 
         $this->assertSame(42, $callable());
     }
@@ -226,22 +225,11 @@ final class ContainerResolverTest extends TestCase
         $middleware1 = $this->createCallableMiddleware();
         $middleware2 = $this->resolveMiddleware();
 
-        $queue = [$middleware1, $middleware2];
+        $resolved1 = $resolver->resolve($middleware1);
+        $this->assertTrue(is_callable($resolved1));
+        $resolved2 = $resolver->resolve($middleware2);
 
-        $resolved1 = $resolver->resolveMiddleware($middleware1);
-        $this->assertInstanceOf(MiddlewareInterface::class, $resolved1);
-
-        $resolved2 = $resolver->resolveMiddleware($middleware2);
         $this->assertInstanceOf(MiddlewareInterface::class, $resolved2);
-
-        $request = $this->createMock(ServerRequestInterface::class);
-        $handler = $this->createMock(RequestHandlerInterface::class);
-
-        $response = $resolved1->process($request, $handler);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-
-        $response = $resolved2->process($request, $handler);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testResolveMiddlewareWithValidMiddleware()
@@ -252,23 +240,21 @@ final class ContainerResolverTest extends TestCase
 
         $middleware = $this->resolveMiddleware();
 
-        $resolvedMiddleware = $resolver->resolveMiddleware($middleware);
+        $resolvedMiddleware = $resolver->resolve($middleware);
 
         $this->assertInstanceOf(MiddlewareInterface::class, $resolvedMiddleware);
     }
 
-    public function testResolveStackWithException(): void
+    public function testUnresolvableWithSameResult(): void
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(
-            'A middleware must be an object or callable that implements "MiddlewareInterface".',
-        );
-
         $app = AppFactory::create();
         $container = $app->getContainer();
         $resolver = $container->get(ContainerResolverInterface::class);
 
-        $resolver->resolveMiddleware([[null]]);
+        $input = [[null]];
+        $actual = $resolver->resolve($input);
+
+        $this->assertEquals($input, $actual);
     }
 
     private function createCallableMiddleware(): callable

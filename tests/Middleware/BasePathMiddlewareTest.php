@@ -14,7 +14,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\App;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\BasePathMiddleware;

@@ -15,8 +15,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Interfaces\RouterInterface;
 use Slim\Routing\RouteContext;
-use Slim\Routing\Router;
 use Slim\Routing\RoutingResults;
 
 /**
@@ -27,9 +27,9 @@ use Slim\Routing\RoutingResults;
  */
 final class RoutingMiddleware implements MiddlewareInterface
 {
-    private Router $router;
+    private RouterInterface $router;
 
-    public function __construct(Router $router)
+    public function __construct(RouterInterface $router)
     {
         $this->router = $router;
     }

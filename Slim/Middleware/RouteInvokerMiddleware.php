@@ -10,6 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 
 final class RouteInvokerMiddleware implements MiddlewareInterface
@@ -23,27 +24,30 @@ final class RouteInvokerMiddleware implements MiddlewareInterface
 
     /** @var array<string, mixed> */
     private array $args = [];
+    private ContainerResolverInterface $containerResolver;
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         RequestHandlerInvocationStrategyInterface $invocationStrategy,
+        ContainerResolverInterface $containerResolver,
     ) {
         $this->responseFactory = $responseFactory;
         $this->invocationStrategy = $invocationStrategy;
+        $this->containerResolver = $containerResolver;
     }
 
     /**
      * Add handler.
      *
-     * @param callable $handler
+     * @param callable|string $handler
      * @param array<string, mixed> $args
      *
      * @return self
      */
-    public function withHandler(callable $handler, array $args = []): self
+    public function withHandler(callable|string $handler, array $args = []): self
     {
         $clone = clone $this;
-        $clone->handler = $handler;
+        $clone->handler = $this->containerResolver->resolveCallable($handler);
         $clone->args = $args;
 
         return $clone;

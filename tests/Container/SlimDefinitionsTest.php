@@ -39,7 +39,6 @@ use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Strategy\RequestResponse;
 
 final class SlimDefinitionsTest extends TestCase
 {

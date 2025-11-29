@@ -23,7 +23,6 @@ use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\UrlGeneratorInterface;
 use Slim\Routing\Router;
-use Slim\Routing\RouterDispatcher;
 use Slim\Routing\UrlGenerator;
 use Slim\Strategy\RequestResponse;
 
@@ -58,7 +57,7 @@ final class SlimDefinitions implements DefinitionsInterface
             },
 
             RequestHandlerInterface::class => function (ContainerInterface $container) {
-                return $container->get(RouterDispatcher::class);
+                return $container->get(Router::class);
             },
 
             RouterInterface::class => function (ContainerInterface $container) {

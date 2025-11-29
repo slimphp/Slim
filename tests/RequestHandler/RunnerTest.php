@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\RequestHandler;
 
+use DI\NotFoundException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -22,19 +23,21 @@ final class RunnerTest extends TestCase
     {
         $app = AppFactory::create();
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/')
             ->withHeader('X-Test', 'Modified');
 
-        $response = $app->getContainer()
+        $response = $app
+            ->getContainer()
             ->get(ResponseFactoryInterface::class)
             ->createResponse();
 
         $middleware = new class implements MiddlewareInterface {
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $handler
+                RequestHandlerInterface $handler,
             ): ResponseInterface {
                 $response = $handler->handle($request);
 
@@ -42,14 +45,15 @@ final class RunnerTest extends TestCase
             }
         };
 
-        $runner = new PipelineRunner(
-            [
+        $runner = $app
+            ->getContainer()
+            ->get(PipelineRunner::class)
+            ->withPipeline([
                 $middleware,
                 function () use ($response) {
                     return $response->withHeader('X-Result', 'Success');
                 },
-            ],
-        );
+            ]);
 
         $result = $runner->handle($request);
 
@@ -61,11 +65,13 @@ final class RunnerTest extends TestCase
     {
         $app = AppFactory::create();
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $response = $app->getContainer()
+        $response = $app
+            ->getContainer()
             ->get(ResponseFactoryInterface::class)
             ->createResponse();
 
@@ -83,7 +89,10 @@ final class RunnerTest extends TestCase
             }
         };
 
-        $runner = new PipelineRunner([$handler]);
+        $runner = $app
+            ->getContainer()
+            ->get(PipelineRunner::class)
+            ->withPipeline([$handler]);
 
         $result = $runner->handle($request);
 
@@ -94,19 +103,24 @@ final class RunnerTest extends TestCase
     {
         $app = AppFactory::create();
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $response = $app->getContainer()
+        $response = $app
+            ->getContainer()
             ->get(ResponseFactoryInterface::class)
             ->createResponse();
 
-        $runner = new PipelineRunner([
-            function (ServerRequestInterface $req, RequestHandlerInterface $handler) use ($response) {
-                return $response->withHeader('X-Callable', 'Called');
-            },
-        ]);
+        $runner = $app
+            ->getContainer()
+            ->get(PipelineRunner::class)
+            ->withPipeline([
+                function (ServerRequestInterface $req, RequestHandlerInterface $handler) use ($response) {
+                    return $response->withHeader('X-Callable', 'Called');
+                },
+            ]);
 
         $result = $runner->handle($request);
 
@@ -120,11 +134,18 @@ final class RunnerTest extends TestCase
 
         $app = AppFactory::create();
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $runner = new PipelineRunner([]);
+        $runner = $app
+            ->getContainer()
+            ->get(PipelineRunner::class)
+            ->withPipeline([
+
+            ]);
+
         $runner->handle($request);
     }
 
@@ -135,26 +156,36 @@ final class RunnerTest extends TestCase
 
         $app = AppFactory::create();
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $runner = new PipelineRunner([new stdClass()]);
+        $runner = $app
+            ->getContainer()
+            ->get(PipelineRunner::class)
+            ->withPipeline([new stdClass()]);
+
         $runner->handle($request);
     }
 
     public function testHandleWithInvalidMiddlewareStringThrowsException()
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Invalid middleware queue entry "foo"');
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage("No entry or class found for 'foo'");
 
         $app = AppFactory::create();
 
-        $request = $app->getContainer()
+        $request = $app
+            ->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $runner = new PipelineRunner(['foo']);
+        $runner = $app
+            ->getContainer()
+            ->get(PipelineRunner::class)
+            ->withPipeline(['foo']);
+
         $runner->handle($request);
     }
 }

@@ -11,10 +11,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Slim\Enums\MiddlewareOrder;
 use Slim\Factory\AppFactory;
 use Slim\Middleware\ResponseFactoryMiddleware;
-use Slim\Routing\RouterDispatcher;
+use Slim\Routing\Router;
 
 final class MiddlewareRequestHandlerTest extends TestCase
 {
@@ -43,7 +42,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
         $app->add(ResponseFactoryMiddleware::class);
 
         $handler = $app->getContainer()
-            ->get(RouterDispatcher::class);
+            ->get(Router::class);
 
         $response = $handler->handle($request);
 
@@ -63,7 +62,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
             ->createServerRequest('GET', '/');
 
         $handler = $app->getContainer()
-            ->get(RouterDispatcher::class);
+            ->get(Router::class);
 
         $response = $handler->handle($request);
 
@@ -94,7 +93,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
         $app->add(ResponseFactoryMiddleware::class);
 
         $handler = $app->getContainer()
-            ->get(RouterDispatcher::class);
+            ->get(Router::class);
 
         $response = $handler->handle($request);
 
@@ -141,7 +140,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
         $app->add(ResponseFactoryMiddleware::class);
 
         $handler = $app->getContainer()
-            ->get(RouterDispatcher::class);
+            ->get(Router::class);
 
         $response = $handler->handle($request);
 

@@ -12,21 +12,27 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use InvalidArgumentException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\RouterInterface;
 
-final class Router implements RouterInterface
+final class Router implements RouterInterface, RequestHandlerInterface
 {
     use RouteCollectionTrait;
 
     use MiddlewareCollectionTrait;
 
+    private PipelineRunner $pipelineRunner;
+
     private RouteCollector $collector;
 
     private string $basePath = '';
 
-    public function __construct()
+    public function __construct(PipelineRunner $pipelineRunner)
     {
         $this->collector = new RouteCollector(new Std(), new GroupCountBased());
+        $this->pipelineRunner = $pipelineRunner;
     }
 
     /**
@@ -72,6 +78,13 @@ final class Router implements RouterInterface
     public function getBasePath(): string
     {
         return $this->basePath;
+    }
+
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->pipelineRunner
+            ->withPipeline($this->getMiddleware())
+            ->handle($request);
     }
 
     /**

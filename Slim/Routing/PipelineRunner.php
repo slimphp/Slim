@@ -16,6 +16,8 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 
+use Slim\Interfaces\ContainerResolverInterface;
+
 use function current;
 use function is_callable;
 use function next;
@@ -26,28 +28,40 @@ use function sprintf;
  */
 final class PipelineRunner implements RequestHandlerInterface
 {
-    /**
-     * @var array<MiddlewareInterface|RequestHandlerInterface|callable>
-     */
-    private array $queue;
+    private ContainerResolverInterface $resolver;
 
     /**
-     * @param array<MiddlewareInterface|RequestHandlerInterface|callable> $queue
+     * @var array<MiddlewareInterface|RequestHandlerInterface|callable|string>
      */
-    public function __construct(array $queue)
+    private array $pipeline = [];
+
+    public function __construct(ContainerResolverInterface $resolver)
     {
-        $this->queue = array_values($queue);
+        $this->resolver = $resolver;
+    }
+
+    /**
+     * @param array<MiddlewareInterface|RequestHandlerInterface|callable|string> $pipeline
+     */
+    public function withPipeline(array $pipeline): self
+    {
+        $clone = clone $this;
+        $clone->pipeline = $pipeline;
+
+        return $clone;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $middleware = current($this->queue);
+        $middleware = current($this->pipeline);
 
         if (!$middleware) {
             throw new RuntimeException('No middleware found. Add a response factory middleware.');
         }
 
-        next($this->queue);
+        $middleware = $this->resolver->resolve($middleware);
+
+        next($this->pipeline);
 
         if ($middleware instanceof MiddlewareInterface) {
             return $middleware->process($request, $this);
@@ -61,7 +75,6 @@ final class PipelineRunner implements RequestHandlerInterface
             return $middleware($request, $this);
         }
 
-        // @phpstan-ignore-next-line
         throw new RuntimeException(
             sprintf(
                 'Invalid middleware queue entry "%s". Middleware must either be callable or implement %s.',
