@@ -14,12 +14,12 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Middleware\FormUrlEncodedBodyParserMiddleware;
+use Slim\Middleware\FormBodyParserMiddleware;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Response;
 
-final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
+final class FormBodyParserMiddlewareTest extends TestCase
 {
     public function testParsesValidFormData(): void
     {
@@ -31,7 +31,7 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withBody($stream);
 
-        $middleware = new FormUrlEncodedBodyParserMiddleware();
+        $middleware = new FormBodyParserMiddleware();
         $response = $middleware->process(
             $request,
             new class implements RequestHandlerInterface {
@@ -58,7 +58,7 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             ->withHeader('Content-Type', 'text/plain')
             ->withBody($stream);
 
-        $middleware = new FormUrlEncodedBodyParserMiddleware();
+        $middleware = new FormBodyParserMiddleware();
         $response = $middleware->process(
             $request,
             new class implements RequestHandlerInterface {
@@ -86,7 +86,7 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withBody($stream);
 
-        $middleware = new FormUrlEncodedBodyParserMiddleware();
+        $middleware = new FormBodyParserMiddleware();
         $response = $middleware->process(
             $request,
             new class implements RequestHandlerInterface {

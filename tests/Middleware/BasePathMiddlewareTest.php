@@ -29,9 +29,9 @@ final class BasePathMiddlewareTest extends TestCase
         $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
             ];
         $app = AppFactory::create($definitions);
@@ -52,7 +52,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '',
         ];
 
-        $request = $this->getServerRequestFactory($app)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/', $serverParams);
 
         $response = $app->handle($request);
@@ -66,9 +67,9 @@ final class BasePathMiddlewareTest extends TestCase
         $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
             ];
         $app = AppFactory::create($definitions);
@@ -89,7 +90,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '/index.php',
         ];
 
-        $request = $this->getServerRequestFactory($app)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/', $serverParams);
 
         $response = $app->handle($request);
@@ -100,12 +102,12 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testScriptNameWithPublicIndexPhp(): void
     {
-        $definitions
-            = [
+        $definitions =
+            [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
             ];
         $app = AppFactory::create($definitions);
@@ -126,7 +128,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '/public/index.php',
         ];
 
-        $request = $this->getServerRequestFactory($app)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/', $serverParams);
 
         $response = $app->handle($request);
@@ -137,12 +140,12 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithSlash(): void
     {
-        $definitions
-            = [
+        $definitions =
+            [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
             ];
         $app = AppFactory::create($definitions);
@@ -161,7 +164,8 @@ final class BasePathMiddlewareTest extends TestCase
             'REQUEST_URI' => '/slim-hello-world/',
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
-        $request = $this->getServerRequestFactory($app)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/slim-hello-world/?key=value', $serverParams);
 
         $response = $app->handle($request);
@@ -174,12 +178,12 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithoutSlash(): void
     {
-        $definitions
-            = [
+        $definitions =
+            [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
             ];
         $app = AppFactory::create($definitions);
@@ -199,7 +203,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
 
-        $request = $this->getServerRequestFactory($app)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/slim-hello-world/foo?key=value', $serverParams);
 
         $response = $app->handle($request);
@@ -215,9 +220,9 @@ final class BasePathMiddlewareTest extends TestCase
         $definitions
             = [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
             ];
         $app = AppFactory::create($definitions);
@@ -236,7 +241,8 @@ final class BasePathMiddlewareTest extends TestCase
             'REQUEST_URI' => '/slim-hello-world/foo',
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
-        $request = $this->getServerRequestFactory($app)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/slim-hello-world/foo/?key=value', $serverParams);
 
         $response = $app->handle($request);
