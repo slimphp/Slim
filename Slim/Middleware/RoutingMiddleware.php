@@ -45,13 +45,13 @@ final class RoutingMiddleware implements MiddlewareInterface
         // Determine base path
         $basePath = $request->getAttribute(RouteContext::BASE_PATH) ?? $this->router->getBasePath();
 
-        if ($basePath) {
+        if (is_string($basePath)) {
             // Remove base path for the dispatcher
             $uri = $this->removeBasePath($uri, $basePath);
         }
 
         $routeInfo = $dispatcher->dispatch($httpMethod, rawurldecode($uri));
-        $routeStatus = (int) $routeInfo[0];
+        $routeStatus = (int)$routeInfo[0];
         $routingResults = null;
 
         if ($routeStatus === RoutingResults::FOUND) {

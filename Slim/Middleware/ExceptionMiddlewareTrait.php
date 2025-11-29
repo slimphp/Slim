@@ -27,6 +27,9 @@ trait ExceptionMiddlewareTrait
 
     private bool $displayErrorDetails = false;
 
+    /**
+     * @var array|int[]
+     */
     private array $mimeTypes = [self::DEFAULT_TYPE => 1];
 
     public function __construct(ResponseFactoryInterface $responseFactory)
@@ -111,7 +114,7 @@ trait ExceptionMiddlewareTrait
      *
      * @param string|null $accept The value of the 'Accept' header
      *
-     * @return array An array of normalized media types from the 'Accept' header
+     * @return array<string> An array of normalized media types from the 'Accept' header
      */
     public function parseAcceptHeader(?string $accept): array
     {

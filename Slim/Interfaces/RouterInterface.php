@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
+use Slim\Routing\Router;
 
 interface RouterInterface
 {
@@ -42,11 +43,11 @@ interface RouterInterface
     public function getBasePath(): string;
 
     /**
-     * @return array<MiddlewareInterface|callable|string|array>
+     * @return array<MiddlewareInterface|callable|string>
      */
     public function getMiddleware(): array;
 
-    public function add(MiddlewareInterface|callable|string $middleware): \Slim\Routing\Router;
+    public function add(MiddlewareInterface|callable|string $middleware): Router;
 
-    public function addMiddleware(MiddlewareInterface $middleware): \Slim\Routing\Router;
+    public function addMiddleware(MiddlewareInterface $middleware): Router;
 }

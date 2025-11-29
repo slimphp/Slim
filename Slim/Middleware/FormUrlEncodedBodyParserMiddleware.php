@@ -21,7 +21,7 @@ final class FormUrlEncodedBodyParserMiddleware implements MiddlewareInterface
         }
 
         if ($this->isFormUrlEncodedMediaType($contentType)) {
-            $body = (string) $request->getBody();
+            $body = (string)$request->getBody();
             parse_str($body, $parsed);
             $request = $request->withParsedBody($parsed);
         }

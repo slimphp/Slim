@@ -17,6 +17,7 @@ use Psr\Log\NullLogger;
 use Slim\Container\ContainerResolver;
 use Slim\Emitter\ResponseEmitter;
 use Slim\Interfaces\ContainerResolverInterface;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Interfaces\RouterInterface;
@@ -24,18 +25,18 @@ use Slim\Interfaces\UrlGeneratorInterface;
 use Slim\Routing\Router;
 use Slim\Routing\RouterDispatcher;
 use Slim\Routing\UrlGenerator;
-use Slim\Strategies\RequestResponse;
+use Slim\Strategy\RequestResponse;
 
 /**
- * This class provides the default dependency definitions for a Slim application. It implements the
- * `__invoke()` method to return an array of service definitions that are used to set up the Slim
- * framework’s core components, including the application instance, middleware, request and response
- * factories, and other essential services.
+ * Provides service definitions for the Slim core components.
  *
- * This class ensures that the Slim application can be properly instantiated with the necessary
- * components and services.
+ * The returned definitions include services for routing, dispatching,
+ * resolving handlers, emitting responses, generating URLs.
+ *
+ * These defaults allow a Slim application to be instantiated with all
+ * essential framework services ready for use.
  */
-final class SlimDefinitions
+final class SlimDefinitions implements DefinitionsInterface
 {
     public function getDefinitions(): array
     {

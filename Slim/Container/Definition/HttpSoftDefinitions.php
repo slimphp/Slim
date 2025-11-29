@@ -23,9 +23,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 
-final class HttpSoftDefinitions
+final class HttpSoftDefinitions implements DefinitionsInterface
 {
     public function getDefinitions(): array
     {

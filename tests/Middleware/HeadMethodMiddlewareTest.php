@@ -15,9 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\HeadMethodMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 
 class HeadMethodMiddlewareTest extends TestCase
 {
@@ -26,8 +24,7 @@ class HeadMethodMiddlewareTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(HeadMethodMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route that returns a non-empty body
         $app->get('/test', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -43,7 +40,7 @@ class HeadMethodMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('', (string) $response->getBody());
+        $this->assertSame('', (string)$response->getBody());
     }
 
     public function testGetRequestResponseBodyIsUnchanged(): void
@@ -51,8 +48,7 @@ class HeadMethodMiddlewareTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(HeadMethodMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route that returns a non-empty body
         $app->get('/test', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -68,6 +64,6 @@ class HeadMethodMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('This is the body content', (string) $response->getBody());
+        $this->assertSame('This is the body content', (string)$response->getBody());
     }
 }

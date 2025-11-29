@@ -42,7 +42,9 @@ class SlowPokeStream implements Stringable, StreamInterface
         return $content;
     }
 
-    public function close(): void {}
+    public function close(): void
+    {
+    }
 
     public function detach()
     {

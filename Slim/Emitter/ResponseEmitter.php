@@ -35,6 +35,7 @@ final class ResponseEmitter implements EmitterInterface
 
     /**
      * Send the response the client.
+     * @param ResponseInterface $response
      */
     public function emit(ResponseInterface $response): void
     {
@@ -98,7 +99,7 @@ final class ResponseEmitter implements EmitterInterface
             $body->rewind();
         }
 
-        $amountToRead = (int) $response->getHeaderLine('Content-Length');
+        $amountToRead = (int)$response->getHeaderLine('Content-Length');
         if (!$amountToRead) {
             $amountToRead = $body->getSize();
         }

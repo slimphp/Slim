@@ -19,9 +19,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\OutputBufferingMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
 use function ob_get_contents;
@@ -34,7 +32,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $app = $this->createApp();
+        $app = AppFactory::create();
         $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
         new OutputBufferingMiddleware($streamFactory, OutputBufferingMiddleware::APPEND);
@@ -70,8 +68,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
         };
         $app->add($middleware);
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -79,7 +76,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('BodyTest', (string) $response->getBody());
+        $this->assertSame('BodyTest', (string)$response->getBody());
     }
 
     public function testPrepend()
@@ -101,8 +98,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $app->add($outputBufferingMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
@@ -114,7 +110,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('TestBody', (string) $response->getBody());
+        $this->assertSame('TestBody', (string)$response->getBody());
     }
 
     public function testOutputBufferIsCleanedWhenThrowableIsCaught()
@@ -134,8 +130,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $app->add($outputBufferingMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;

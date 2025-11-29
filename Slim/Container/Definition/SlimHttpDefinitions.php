@@ -21,13 +21,16 @@ use RuntimeException;
 use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Http\Factory\DecoratedUriFactory;
 use Slim\Http\ServerRequest;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
-final class SlimHttpDefinitions
+final class SlimHttpDefinitions implements DefinitionsInterface
 {
     /**
-     * @var callable
+     * Callable used to check whether a class exists.
+     *
+     * @var callable(string): bool
      */
     private $classExists = 'class_exists';
 
@@ -47,6 +50,11 @@ final class SlimHttpDefinitions
                         $this->serverRequestFactory = $serverRequestFactory;
                     }
 
+                    /**
+                     * @param array<string, mixed> $serverParams
+                     * @param string $method
+                     * @param mixed $uri
+                     */
                     public function createServerRequest(
                         string $method,
                         $uri,
@@ -93,7 +101,7 @@ final class SlimHttpDefinitions
                 return $responseFactory ?? throw new RuntimeException(
                     'Could not detect any PSR-17 ResponseFactory implementations. ' .
                     'Please install a supported implementation. ' .
-                    'See https://github.com/slimphp/Slim/blob/5.x/README.md for a list of supported implementations.'
+                    'See https://github.com/slimphp/Slim/blob/5.x/README.md for a list of supported implementations.',
                 );
             },
             StreamFactoryInterface::class => function (ContainerInterface $container) use ($that) {

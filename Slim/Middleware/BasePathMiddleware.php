@@ -55,6 +55,7 @@ final class BasePathMiddleware implements MiddlewareInterface
 
     /**
      * Return basePath for most common webservers, such as Apache.
+     * @param ServerRequestInterface $request
      */
     private function getBasePathByRequestUri(ServerRequestInterface $request): string
     {

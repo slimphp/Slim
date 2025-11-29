@@ -32,7 +32,7 @@ final class ErrorExceptionMiddleware implements MiddlewareInterface
             }
 
             throw new ErrorException($message, 0, $code, $file, $line);
-        }, E_ALL);
+        });
 
         try {
             $response = $handler->handle($request);

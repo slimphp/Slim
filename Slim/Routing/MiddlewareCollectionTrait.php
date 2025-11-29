@@ -15,12 +15,12 @@ use Psr\Http\Server\MiddlewareInterface;
 trait MiddlewareCollectionTrait
 {
     /**
-     * @var array<MiddlewareInterface|callable|string|array>
+     * @var array<MiddlewareInterface|callable|string>
      */
     private array $middleware = [];
 
     /**
-     * @return array<MiddlewareInterface|callable|string|array>
+     * @return array<MiddlewareInterface|callable|string>
      */
     public function getMiddleware(): array
     {

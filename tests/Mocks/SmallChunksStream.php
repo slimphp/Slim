@@ -24,10 +24,7 @@ class SmallChunksStream implements Stringable, StreamInterface
     public const CHUNK_SIZE = 10;
     public const SIZE = 40;
 
-    /**
-     * @var int
-     */
-    private $amountToRead;
+    private int $amountToRead;
 
     public function __construct()
     {
@@ -39,7 +36,9 @@ class SmallChunksStream implements Stringable, StreamInterface
         return str_repeat('.', self::SIZE);
     }
 
-    public function close(): void {}
+    public function close(): void
+    {
+    }
 
     public function detach()
     {

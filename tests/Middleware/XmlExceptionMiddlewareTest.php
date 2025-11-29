@@ -51,8 +51,8 @@ final class XmlExceptionMiddlewareTest extends TestCase
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertSame('application/xml', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('<message>Application Error</message>', (string) $response->getBody());
-        $this->assertStringContainsString('<error>', (string) $response->getBody());
+        $this->assertStringContainsString('<message>Application Error</message>', (string)$response->getBody());
+        $this->assertStringContainsString('<error>', (string)$response->getBody());
     }
 
     public function testWithErrorDetailsTrueIncludesExceptionDetails(): void
@@ -72,7 +72,7 @@ final class XmlExceptionMiddlewareTest extends TestCase
         };
 
         $response = $middleware->process($request, $handler);
-        $body = (string) $response->getBody();
+        $body = (string)$response->getBody();
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertStringContainsString('<exception>', $body);
@@ -98,7 +98,7 @@ final class XmlExceptionMiddlewareTest extends TestCase
         };
 
         $response = $middleware->process($request, $handler);
-        $body = (string) $response->getBody();
+        $body = (string)$response->getBody();
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertStringContainsString('<message>Application Error</message>', $body);
@@ -145,7 +145,7 @@ final class XmlExceptionMiddlewareTest extends TestCase
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertSame('application/xhtml+xml', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('<message>Application Error</message>', (string) $response->getBody());
-        $this->assertStringContainsString('<error>', (string) $response->getBody());
+        $this->assertStringContainsString('<message>Application Error</message>', (string)$response->getBody());
+        $this->assertStringContainsString('<error>', (string)$response->getBody());
     }
 }

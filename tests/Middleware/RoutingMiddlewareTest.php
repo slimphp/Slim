@@ -13,7 +13,6 @@ namespace Slim\Tests\Middleware;
 use FastRoute\Dispatcher;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
@@ -21,12 +20,16 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\UrlGeneratorInterface;
 use Slim\Middleware\EndpointMiddleware;
+use Slim\Middleware\JsonBodyParserMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\RouteContext;
 use Slim\Routing\RoutingResults;
+use Slim\Tests\Traits\AppTestTrait;
 
 final class RoutingMiddlewareTest extends TestCase
 {
+    use AppTestTrait;
+
     public function testRouteIsStoredOnSuccessfulMatch()
     {
         $app = AppFactory::create();
@@ -50,8 +53,8 @@ final class RoutingMiddlewareTest extends TestCase
         $app->add($middleware);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', 'https://example.com:443/hello/foo');
 
         $app->get('/hello/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -62,7 +65,28 @@ final class RoutingMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string)$response->getBody());
+    }
+
+    public function testRouteWithMiddlewareAsString()
+    {
+        $app = AppFactory::create();
+
+        $app->addRoutingMiddleware();
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', 'https://example.com:443/hello/foo');
+
+        $app->get('/hello/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+
+            return $response;
+        })->add(JsonBodyParserMiddleware::class);
+
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testRouteIsNotStoredOnMethodNotAllowed()
@@ -103,8 +127,8 @@ final class RoutingMiddlewareTest extends TestCase
             return $response;
         });
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/foo');
 
         $app->handle($request);
@@ -144,8 +168,8 @@ final class RoutingMiddlewareTest extends TestCase
 
         // No route is defined for '/hello/foo'
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/foo');
 
         $app->handle($request);
@@ -156,8 +180,7 @@ final class RoutingMiddlewareTest extends TestCase
         $app = AppFactory::create();
         $app->setBasePath('/api');
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Define a route with arguments
         $app->get('/users/{id}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -172,8 +195,8 @@ final class RoutingMiddlewareTest extends TestCase
             return $response;
         })->setName('user.show');
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/api/users/123');
 
         $response = $app->handle($request);

@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Slim\Factory\AppFactory;
-use Slim\Strategies\RequestResponseArgs;
+use Slim\Strategy\RequestResponseArgs;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class RequestResponseArgsTest extends TestCase

@@ -59,7 +59,7 @@ final class HtmlExceptionMiddleware implements MiddlewareInterface
         );
 
         $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();
-        $html .= sprintf('<div><strong>Code:</strong> %s</div>', $this->escapeHtml((string) $code));
+        $html .= sprintf('<div><strong>Code:</strong> %s</div>', $this->escapeHtml((string)$code));
 
         $html .= sprintf(
             '<div><strong>Message:</strong> %s</div>',
@@ -73,7 +73,7 @@ final class HtmlExceptionMiddleware implements MiddlewareInterface
 
         $html .= sprintf(
             '<div><strong>Line:</strong> %s</div>',
-            $this->escapeHtml((string) $exception->getLine()),
+            $this->escapeHtml((string)$exception->getLine()),
         );
 
         $html .= '<h2>Trace</h2>';

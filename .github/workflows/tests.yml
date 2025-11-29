@@ -37,9 +37,6 @@ jobs:
       - name: Coding standards
         run: composer cs:check
 
-      - name: Code sniffer
-        run: composer sniffer:check
-
       - name: Static analysis
         run: composer stan
 

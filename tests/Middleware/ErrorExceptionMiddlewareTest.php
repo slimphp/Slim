@@ -18,9 +18,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ErrorExceptionMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 
 final class ErrorExceptionMiddlewareTest extends TestCase
 {
@@ -61,8 +59,7 @@ final class ErrorExceptionMiddlewareTest extends TestCase
             ->get(ErrorExceptionMiddleware::class);
 
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function ($request, $response) {
             trigger_error('Test warning', E_USER_WARNING);

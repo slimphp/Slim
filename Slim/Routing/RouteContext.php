@@ -39,9 +39,15 @@ final class RouteContext
         /* @var string|null $basePath */
         $basePath = $request->getAttribute(self::BASE_PATH);
 
-        if ($routingResults === null) {
+        if (!$routingResults instanceof RoutingResults) {
             throw new RuntimeException(
                 'Cannot create RouteContext before routing has been completed. Add RoutingMiddleware to fix this.',
+            );
+        }
+
+        if ($basePath !== null && !is_string($basePath)) {
+            throw new RuntimeException(
+                sprintf('Invalid basePath attribute type: %s', gettype($basePath)),
             );
         }
 
@@ -63,6 +69,9 @@ final class RouteContext
         return $this->routingResults->getRoute();
     }
 
+    /**
+     * @return array<string|int,mixed>
+     */
     public function getArguments(): array
     {
         return $this->routingResults->getRouteArguments();

@@ -1,5 +1,5 @@
 parameters:
-    level: 5
+    level: 8
     paths:
         - Slim
 includes:

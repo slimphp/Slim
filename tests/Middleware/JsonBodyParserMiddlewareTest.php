@@ -46,7 +46,7 @@ final class JsonBodyParserMiddlewareTest extends TestCase
             }
         });
 
-        $this->assertSame($expected, (string) $response->getBody());
+        $this->assertSame($expected, (string)$response->getBody());
     }
 
     public function testParsesStructuredJsonType(): void
@@ -71,7 +71,7 @@ final class JsonBodyParserMiddlewareTest extends TestCase
             }
         });
 
-        $this->assertSame('{"hello":"world"}', (string) $response->getBody());
+        $this->assertSame('{"hello":"world"}', (string)$response->getBody());
     }
 
     #[DataProvider('invalidJsonProvider')]
@@ -119,7 +119,7 @@ final class JsonBodyParserMiddlewareTest extends TestCase
             }
         });
 
-        $this->assertSame('no-parse', (string) $response->getBody());
+        $this->assertSame('no-parse', (string)$response->getBody());
     }
 
     public static function validJsonProvider(): array

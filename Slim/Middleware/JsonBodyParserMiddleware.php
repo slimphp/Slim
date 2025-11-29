@@ -35,7 +35,7 @@ final class JsonBodyParserMiddleware implements MiddlewareInterface
         }
 
         if ($this->isJsonMediaType($contentType)) {
-            $body = (string) $request->getBody();
+            $body = (string)$request->getBody();
             $parsed = json_decode($body, true, 512, $this->flags);
 
             if (json_last_error() !== JSON_ERROR_NONE) {

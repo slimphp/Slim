@@ -18,6 +18,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
+use Slim\Middleware\EndpointMiddleware;
+use Slim\Middleware\ErrorExceptionMiddleware;
+use Slim\Middleware\HtmlExceptionMiddleware;
+use Slim\Middleware\JsonExceptionMiddleware;
+use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\Route;
 use Slim\Routing\RouteCollectionTrait;
 use Slim\Routing\RouteGroup;
@@ -95,7 +100,7 @@ class App implements RequestHandlerInterface
     /**
      * Define a new route with the specified HTTP methods and URI pattern.
      *
-     * @param array $methods The HTTP methods the route should respond to
+     * @param array<string> $methods The HTTP methods the route should respond to
      * @param string $path The URI pattern for the route
      * @param callable|string $handler The route handler callable or controller method
      *
@@ -121,6 +126,7 @@ class App implements RequestHandlerInterface
 
     /**
      * Set the base path used for routing.
+     * @param string $basePath
      */
     public function setBasePath(string $basePath): self
     {
@@ -139,6 +145,7 @@ class App implements RequestHandlerInterface
 
     /**
      * Add a new middleware to the stack.
+     * @param MiddlewareInterface|callable|string $middleware
      */
     public function add(MiddlewareInterface|callable|string $middleware): self
     {
@@ -149,6 +156,7 @@ class App implements RequestHandlerInterface
 
     /**
      * Add a new middleware to the application's middleware stack.
+     * @param MiddlewareInterface $middleware
      */
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
@@ -158,10 +166,36 @@ class App implements RequestHandlerInterface
     }
 
     /**
+     * Add routing middleware.
+     *
+     * @return self
+     */
+    public function addRoutingMiddleware(): self
+    {
+        return $this
+            ->add(RoutingMiddleware::class)
+            ->add(EndpointMiddleware::class);
+    }
+
+    /**
+     * Add set of default error handling middleware.
+     *
+     * @return self
+     */
+    public function addErrorMiddleware(): self
+    {
+        return $this
+            ->add(ErrorExceptionMiddleware::class)
+            ->add(HtmlExceptionMiddleware::class)
+            ->add(JsonExceptionMiddleware::class);
+    }
+
+    /**
      * Run the Slim application.
      *
      * This method traverses the application's middleware stack, processes the incoming HTTP request,
      * and emits the resultant HTTP response to the client.
+     * @param ?ServerRequestInterface $request
      */
     public function run(?ServerRequestInterface $request = null): void
     {
@@ -177,6 +211,7 @@ class App implements RequestHandlerInterface
      *
      * This method processes the request through the application's middleware stack and router,
      * returning the resulting HTTP response.
+     * @param ServerRequestInterface $request
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

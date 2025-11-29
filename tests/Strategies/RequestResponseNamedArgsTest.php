@@ -16,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
-use Slim\Strategies\RequestResponseNamedArgs;
+use Slim\Strategy\RequestResponseNamedArgs;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class RequestResponseNamedArgsTest extends TestCase

@@ -66,6 +66,9 @@ final class Route implements MiddlewareCollectionInterface
         return $this->pattern;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getMethods(): array
     {
         return $this->methods;

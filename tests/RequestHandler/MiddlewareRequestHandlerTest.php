@@ -145,6 +145,6 @@ final class MiddlewareRequestHandlerTest extends TestCase
 
         $response = $handler->handle($request);
 
-        $this->assertSame('12', (string) $response->getBody());
+        $this->assertSame('12', (string)$response->getBody());
     }
 }

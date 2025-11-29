@@ -22,9 +22,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 
-final class LaminasDefinitions
+final class LaminasDefinitions implements DefinitionsInterface
 {
     public function getDefinitions(): array
     {

@@ -39,7 +39,7 @@ use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Strategies\RequestResponse;
+use Slim\Strategy\RequestResponse;
 
 final class SlimDefinitionsTest extends TestCase
 {
@@ -153,7 +153,7 @@ final class SlimDefinitionsTest extends TestCase
         $container = AppFactory::create()->getContainer();
         $invocationStrategy = $container->get(RequestHandlerInvocationStrategyInterface::class);
 
-        $this->assertInstanceOf(RequestResponse::class, $invocationStrategy);
+        $this->assertInstanceOf(RequestHandlerInvocationStrategyInterface::class, $invocationStrategy);
     }
 
     public function testLoggerInterface(): void

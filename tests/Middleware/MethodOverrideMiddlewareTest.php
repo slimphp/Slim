@@ -17,9 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class MethodOverrideMiddlewareTest extends TestCase
@@ -40,8 +38,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->put('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -56,7 +53,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testBodyParam()
@@ -73,8 +70,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->put('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -89,7 +85,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testHeaderPreferred()
@@ -106,8 +102,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->delete('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -119,11 +114,11 @@ final class MethodOverrideMiddlewareTest extends TestCase
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('POST', '/')
             ->withHeader('X-Http-Method-Override', 'DELETE')
-            ->withParsedBody((object) ['_METHOD' => 'PUT']);
+            ->withParsedBody((object)['_METHOD' => 'PUT']);
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testNoOverride()
@@ -140,8 +135,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->post('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -155,7 +149,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testNoOverrideRewindEofBodyStream()
@@ -172,8 +166,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->post('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -200,6 +193,6 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $response = $app->handle($request);
 
-        $this->assertSame('Hello World', (string) $response->getBody());
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 }

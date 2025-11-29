@@ -17,8 +17,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 
 class EndpointMiddlewareTest extends TestCase
 {
@@ -26,8 +24,7 @@ class EndpointMiddlewareTest extends TestCase
     {
         $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route that will be found
         $app->get('/test', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -43,7 +40,7 @@ class EndpointMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('Route found', (string) $response->getBody());
+        $this->assertSame('Route found', (string)$response->getBody());
     }
 
     public function testProcessRouteNotFound(): void
@@ -52,8 +49,7 @@ class EndpointMiddlewareTest extends TestCase
 
         $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -68,8 +64,7 @@ class EndpointMiddlewareTest extends TestCase
 
         $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route with POST method only
         $app->post('/test', function (ServerRequestInterface $request, ResponseInterface $response) {

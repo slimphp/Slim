@@ -19,10 +19,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LogLevel;
 use RuntimeException;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ErrorExceptionMiddleware;
 use Slim\Middleware\ExceptionLoggingMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Logging\TestLogger;
 
 class ExceptionLoggingMiddlewareTest extends TestCase
@@ -38,8 +36,7 @@ class ExceptionLoggingMiddlewareTest extends TestCase
         $middleware = new ExceptionLoggingMiddleware($logger);
         $app->add($middleware->withLogErrorDetails(true));
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route that throws an ErrorException
         $app->get('/error', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -75,8 +72,7 @@ class ExceptionLoggingMiddlewareTest extends TestCase
         $middleware = new ExceptionLoggingMiddleware($logger);
         $app->add($middleware->withLogErrorDetails(true));
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route that throws a generic Throwable
         $app->get('/throwable', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -118,8 +114,7 @@ class ExceptionLoggingMiddlewareTest extends TestCase
         $middleware = new ExceptionLoggingMiddleware($logger);
 
         $app->add($middleware->withLogErrorDetails(true));
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/error', function () {
             trigger_error('This is an error', E_USER_ERROR);

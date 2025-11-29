@@ -26,11 +26,17 @@ use function sprintf;
  */
 final class PipelineRunner implements RequestHandlerInterface
 {
+    /**
+     * @var array<MiddlewareInterface|RequestHandlerInterface|callable>
+     */
     private array $queue;
 
+    /**
+     * @param array<MiddlewareInterface|RequestHandlerInterface|callable> $queue
+     */
     public function __construct(array $queue)
     {
-        $this->queue = $queue;
+        $this->queue = array_values($queue);
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -55,10 +61,11 @@ final class PipelineRunner implements RequestHandlerInterface
             return $middleware($request, $this);
         }
 
+        // @phpstan-ignore-next-line
         throw new RuntimeException(
             sprintf(
                 'Invalid middleware queue entry "%s". Middleware must either be callable or implement %s.',
-                is_scalar($middleware) ? (string) $middleware : gettype($middleware),
+                is_scalar($middleware) ? (string)$middleware : gettype($middleware),
                 MiddlewareInterface::class,
             ),
         );

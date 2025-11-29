@@ -15,8 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\Route;
 use Slim\Routing\RouteContext;
 use Slim\Routing\RoutingResults;
@@ -85,8 +83,7 @@ class RoutingResultsTest extends TestCase
     {
         $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Define a route with arguments
         $app->get('/test/{id}', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -103,6 +100,6 @@ class RoutingResultsTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('ID: 123', (string) $response->getBody());
+        $this->assertSame('ID: 123', (string)$response->getBody());
     }
 }

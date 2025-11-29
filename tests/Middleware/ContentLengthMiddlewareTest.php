@@ -16,8 +16,6 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
 use Slim\Middleware\ContentLengthMiddleware;
-use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class ContentLengthMiddlewareTest extends TestCase
@@ -29,8 +27,7 @@ final class ContentLengthMiddlewareTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Body');
@@ -45,6 +42,6 @@ final class ContentLengthMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame('4', $response->getHeaderLine('Content-Length'));
-        $this->assertSame('Body', (string) $response->getBody());
+        $this->assertSame('Body', (string)$response->getBody());
     }
 }

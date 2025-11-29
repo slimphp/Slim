@@ -8,8 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Slim\Factory\AppFactory;
 use Slim\Middleware\CorsMiddleware;
-use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 
 class CorsMiddlewareTest extends TestCase
 {
@@ -19,8 +17,7 @@ class CorsMiddlewareTest extends TestCase
 
         // Add CORS middleware with default config
         $app->add(CorsMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Add test route
         $app->get('/test', function ($request, $response) {
@@ -51,8 +48,7 @@ class CorsMiddlewareTest extends TestCase
 
         // Add CORS middleware with default config
         $app->add(CorsMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Add test route
         $app->get('/test', function ($request, $response) {
@@ -90,8 +86,7 @@ class CorsMiddlewareTest extends TestCase
             ->withMaxAge(3600);
 
         $app->add($cors);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Add test routes
         $app->get('/test', function ($request, $response) {
@@ -129,8 +124,7 @@ class CorsMiddlewareTest extends TestCase
                 ->withAllowCredentials(true);
 
         $app->add($cors);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Add test route
         $app->get('/test', function ($request, $response) {
@@ -166,8 +160,7 @@ class CorsMiddlewareTest extends TestCase
             ->withCache(false);
 
         $app->add($cors);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Add test routes
         $app->get('/test', function ($request, $response) {
@@ -210,8 +203,7 @@ class CorsMiddlewareTest extends TestCase
             ->withAllowCredentials(true);
 
         $app->add($cors);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Add test route
         $app->get('/test', function ($request, $response) {

@@ -12,7 +12,17 @@ namespace Slim\Interfaces;
 
 use Psr\Container\ContainerInterface;
 
+/**
+ * Factory interface for creating a service container.
+ */
 interface ContainerFactoryInterface
 {
+    /**
+     * Create a container instance.
+     *
+     * @param array<string, mixed> $definitions The service definitions.
+     *
+     * @return ContainerInterface
+     */
     public function createContainer(array $definitions = []): ContainerInterface;
 }

@@ -32,17 +32,17 @@ final class RoutingResults
     private array $routeArguments;
 
     /**
-     * @var array<int, string>
+     * @var array<string>
      */
     private array $allowedMethods;
 
     /**
-     * @param array<string, string> $routeArguments
      * @param int $routeStatus
      * @param ?Route $route
      * @param string $method
      * @param string $uri
-     * @param array $allowedMethods
+     * @param array<string, mixed> $routeArguments
+     * @param array<string> $allowedMethods
      */
     public function __construct(
         int $routeStatus,

@@ -15,18 +15,27 @@ use HttpSoft\Message\RequestFactory;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use RuntimeException;
 use Slim\Http\Factory\DecoratedServerRequestFactory;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
 /**
- * Selects the appropriate PSR-17 implementations based on the available libraries.
+ * Selects the appropriate PSR-7/PSR-17 implementation based on
+ * which libraries are available at runtime.
  */
-final class HttpDefinitions
+final class HttpDefinitions implements DefinitionsInterface
 {
     /**
-     * @var callable
+     * Callable used to check whether a class exists.
+     *
+     * @var callable(string): bool
      */
     private $classExists = 'class_exists';
 
+    /**
+     * Mapping of PSR-17/PSR-7 factory classes to their DI definition providers.
+     *
+     * @var array<string, string>
+     */
     private array $classes = [
         DecoratedServerRequestFactory::class => SlimHttpDefinitions::class,
         ServerRequestFactory::class => SlimPsr7Definitions::class,
@@ -39,6 +48,7 @@ final class HttpDefinitions
     {
         foreach ($this->classes as $factory => $definitionClass) {
             if (call_user_func($this->classExists, $factory)) {
+                /** @var DefinitionsInterface $definitionClass */
                 return (new $definitionClass())->getDefinitions();
             }
         }

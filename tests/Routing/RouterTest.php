@@ -18,8 +18,6 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
 use Slim\Middleware\ContentLengthMiddleware;
-use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
 use Slim\Routing\Router;
@@ -194,8 +192,7 @@ class RouterTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->options('/{routes:.+}', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Body');
@@ -208,7 +205,7 @@ class RouterTest extends TestCase
             ->createServerRequest('OPTIONS', '/test');
 
         $response = $app->handle($request);
-        $this->assertSame('Body', (string) $response->getBody());
+        $this->assertSame('Body', (string)$response->getBody());
     }
 
     public function testOptionsAnyRoute(): void
@@ -216,8 +213,7 @@ class RouterTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->options('/{any:.*}', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Body');
@@ -230,14 +226,14 @@ class RouterTest extends TestCase
             ->createServerRequest('OPTIONS', '/test');
 
         $response = $app->handle($request);
-        $this->assertSame('Body', (string) $response->getBody());
+        $this->assertSame('Body', (string)$response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('OPTIONS', '/');
 
         $response = $app->handle($request);
-        $this->assertSame('Body', (string) $response->getBody());
+        $this->assertSame('Body', (string)$response->getBody());
     }
 
     public function testRouteWithParameters(): void
@@ -245,8 +241,7 @@ class RouterTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/books/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) {
             $response->getBody()->write(json_encode($args));
@@ -259,7 +254,7 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/books/123');
 
         $response = $app->handle($request);
-        $this->assertSame('{"id":"123"}', (string) $response->getBody());
+        $this->assertSame('{"id":"123"}', (string)$response->getBody());
     }
 
     public function testCustomRoute(): void
@@ -267,8 +262,7 @@ class RouterTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->map(['GET', 'POST'], '/books', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('OK');
@@ -281,14 +275,14 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/books');
 
         $response = $app->handle($request);
-        $this->assertSame('OK', (string) $response->getBody());
+        $this->assertSame('OK', (string)$response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('POST', '/books');
 
         $response = $app->handle($request);
-        $this->assertSame('OK', (string) $response->getBody());
+        $this->assertSame('OK', (string)$response->getBody());
     }
 
     public function testRegexRoute(): void
@@ -296,8 +290,7 @@ class RouterTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get(
             '/users/{id:[0-9]+}',
@@ -313,7 +306,7 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/users/123');
 
         $response = $app->handle($request);
-        $this->assertSame('123', (string) $response->getBody());
+        $this->assertSame('123', (string)$response->getBody());
     }
 
     public function testMultipleOptionalParameters(): void
@@ -321,8 +314,7 @@ class RouterTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(new ContentLengthMiddleware());
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get(
             '/news[/{year}[/{month}]]',
@@ -338,20 +330,20 @@ class RouterTest extends TestCase
             ->createServerRequest('GET', '/news');
 
         $response = $app->handle($request);
-        $this->assertSame('[]', (string) $response->getBody());
+        $this->assertSame('[]', (string)$response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/news/2038');
 
         $response = $app->handle($request);
-        $this->assertSame('{"year":"2038"}', (string) $response->getBody());
+        $this->assertSame('{"year":"2038"}', (string)$response->getBody());
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/news/2038/01');
 
         $response = $app->handle($request);
-        $this->assertSame('{"year":"2038","month":"01"}', (string) $response->getBody());
+        $this->assertSame('{"year":"2038","month":"01"}', (string)$response->getBody());
     }
 }

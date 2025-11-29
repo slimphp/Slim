@@ -59,8 +59,8 @@ final class JsonExceptionMiddlewareTest extends TestCase
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertJson((string) $response->getBody());
-        $this->assertStringContainsString('Something went wrong', (string) $response->getBody());
+        $this->assertJson((string)$response->getBody());
+        $this->assertStringContainsString('Something went wrong', (string)$response->getBody());
     }
 
     public function testProcessWithHttpMethodNotAllowedIncludesAllowHeader(): void
@@ -113,7 +113,7 @@ final class JsonExceptionMiddlewareTest extends TestCase
 
         $this->assertSame(500, $response->getStatusCode());
 
-        $body = (string) $response->getBody();
+        $body = (string)$response->getBody();
         $this->assertJson($body);
         $this->assertStringContainsString('exception', $body);
         $this->assertStringContainsString('Application Error', $body);
@@ -147,10 +147,10 @@ final class JsonExceptionMiddlewareTest extends TestCase
         $response = $middleware->process($request, $handler);
 
         $this->assertSame(500, $response->getStatusCode());
-        $this->assertJson((string) $response->getBody());
-        $this->assertStringNotContainsString('exception', (string) $response->getBody());
-        $this->assertStringContainsString('Application Error', (string) $response->getBody());
-        $this->assertStringNotContainsString('Hidden error', (string) $response->getBody());
+        $this->assertJson((string)$response->getBody());
+        $this->assertStringNotContainsString('exception', (string)$response->getBody());
+        $this->assertStringContainsString('Application Error', (string)$response->getBody());
+        $this->assertStringNotContainsString('Hidden error', (string)$response->getBody());
     }
 
     public function testRethrowsExceptionWhenNoAcceptableContentTypeDetected(): void
@@ -194,8 +194,8 @@ final class JsonExceptionMiddlewareTest extends TestCase
 
         $this->assertSame(500, $response->getStatusCode());
         $this->assertSame('application/vnd.api+json', $response->getHeaderLine('Content-Type'));
-        $this->assertJson((string) $response->getBody());
-        $this->assertStringContainsString('Test message', (string) $response->getBody());
+        $this->assertJson((string)$response->getBody());
+        $this->assertStringContainsString('Test message', (string)$response->getBody());
     }
 
     public function testWithJsonOptionsChangesEncoding(): void
@@ -218,7 +218,7 @@ final class JsonExceptionMiddlewareTest extends TestCase
         $response = $middleware->process($request, $handler);
 
         $this->assertSame(500, $response->getStatusCode());
-        $this->assertJson((string) $response->getBody());
-        $this->assertStringContainsString('\u003Cscript\u003E', (string) $response->getBody());
+        $this->assertJson((string)$response->getBody());
+        $this->assertStringContainsString('\u003Cscript\u003E', (string)$response->getBody());
     }
 }

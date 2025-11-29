@@ -46,7 +46,7 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             },
         );
 
-        $this->assertSame('bar,qux', (string) $response->getBody());
+        $this->assertSame('bar,qux', (string)$response->getBody());
     }
 
     public function testSkipsParsingForNonFormContentType(): void
@@ -74,7 +74,7 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
             },
         );
 
-        $this->assertSame('no-parse', (string) $response->getBody());
+        $this->assertSame('no-parse', (string)$response->getBody());
     }
 
     public function testSkipsParsingForEmptyBody(): void
@@ -103,6 +103,6 @@ final class FormUrlEncodedBodyParserMiddlewareTest extends TestCase
         );
 
         // empty
-        $this->assertSame('[]', (string) $response->getBody());
+        $this->assertSame('[]', (string)$response->getBody());
     }
 }

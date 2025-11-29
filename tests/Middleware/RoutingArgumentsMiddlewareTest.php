@@ -45,7 +45,7 @@ class RoutingArgumentsMiddlewareTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('ID: 123', (string) $response->getBody());
+        $this->assertSame('ID: 123', (string)$response->getBody());
     }
 
     public function testProcessNoRoutingArguments(): void
@@ -53,8 +53,7 @@ class RoutingArgumentsMiddlewareTest extends TestCase
         $app = AppFactory::create();
 
         $app->add(RoutingArgumentsMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Define a route without any arguments
         $app->get('/no-args', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -73,6 +72,6 @@ class RoutingArgumentsMiddlewareTest extends TestCase
 
         // Assertions
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('ID: No arguments', (string) $response->getBody());
+        $this->assertSame('ID: No arguments', (string)$response->getBody());
     }
 }

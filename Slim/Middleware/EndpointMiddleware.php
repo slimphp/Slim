@@ -25,7 +25,7 @@ use Slim\Routing\RoutingResults;
  */
 final class EndpointMiddleware implements MiddlewareInterface
 {
-    private ContainerResolverInterface $containerResolver;
+    private ContainerResolverInterface $resolver;
     private ResponseFactoryInterface $responseFactory;
     private RequestHandlerInvocationStrategyInterface $invocationStrategy;
 
@@ -34,7 +34,7 @@ final class EndpointMiddleware implements MiddlewareInterface
         ResponseFactoryInterface $responseFactory,
         RequestHandlerInvocationStrategyInterface $invocationStrategy,
     ) {
-        $this->containerResolver = $containerResolver;
+        $this->resolver = $containerResolver;
         $this->responseFactory = $responseFactory;
         $this->invocationStrategy = $invocationStrategy;
     }
@@ -86,15 +86,24 @@ final class EndpointMiddleware implements MiddlewareInterface
         // Tunnel the response object through the route/group specific middleware stack
         $middlewares[] = $this->createResponseMiddleware($response);
 
+        foreach ($middlewares as $key => $value) {
+            $middlewares[$key] = $this->resolver->resolveMiddleware($value);
+        }
+
         return (new PipelineRunner($middlewares))->handle($request);
     }
 
+    /**
+     * @param Route $route
+     * @return array<MiddlewareInterface|callable|string> List of middleware
+     */
     private function getRouteMiddleware(Route $route): array
     {
         $middlewares = [];
 
         // Append group specific middleware from all parent route groups
         $group = $route->getRouteGroup();
+
         while ($group) {
             // Prepend group middleware so outer groups come first
             $middlewares = array_merge($group->getMiddleware(), $middlewares);
@@ -110,7 +119,7 @@ final class EndpointMiddleware implements MiddlewareInterface
         ResponseInterface $response,
         RoutingResults $routingResults,
     ): callable {
-        $containerResolver = $this->containerResolver;
+        $containerResolver = $this->resolver;
         $invocationStrategy = $this->invocationStrategy;
 
         return function () use (
@@ -118,10 +127,12 @@ final class EndpointMiddleware implements MiddlewareInterface
             $response,
             $routingResults,
             $containerResolver,
-            $invocationStrategy
+            $invocationStrategy,
         ) {
             // Get handler
-            $actionHandler = $routingResults->getRoute()->getHandler();
+            $actionHandler = ($routingResults->getRoute() ?? throw new RuntimeException(
+                'No matching route found.',
+            ))->getHandler();
             $vars = $routingResults->getRouteArguments();
             $actionHandler = $containerResolver->resolveRoute($actionHandler);
 

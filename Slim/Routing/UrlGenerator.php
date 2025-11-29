@@ -94,6 +94,12 @@ final class UrlGenerator implements UrlGeneratorInterface
         throw new UnexpectedValueException('Named route does not exist for name: ' . $name);
     }
 
+    /**
+     * @param string $pattern
+     * @param array<string, mixed> $data
+     *
+     * @return array<int, mixed>
+     */
     private function getSegments(string $pattern, array $data): array
     {
         $segments = [];

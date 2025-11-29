@@ -34,7 +34,7 @@ final class Router implements RouterInterface
      * @param string $path
      * @param callable|string $handler
      *
-     * @throws InvalidArgumentException
+     * @return Route
      */
     public function map(array $methods, string $path, callable|string $handler): Route
     {
@@ -79,7 +79,6 @@ final class Router implements RouterInterface
      * - Starts with a forward slash
      * - No trailing slash (unless root path)
      * - No double slashes
-     *
      * @param string $path
      */
     private function normalizePath(string $path): string
@@ -96,6 +95,6 @@ final class Router implements RouterInterface
         $path = rtrim($path, '/');
 
         // Replace multiple consecutive slashes with a single slash
-        return preg_replace('#/+#', '/', $path);
+        return preg_replace('#/+#', '/', $path) ?? '';
     }
 }

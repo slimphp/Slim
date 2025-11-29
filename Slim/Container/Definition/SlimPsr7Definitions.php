@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\Factory\ServerRequestFactory;
@@ -24,7 +25,7 @@ use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UploadedFileFactory;
 use Slim\Psr7\Factory\UriFactory;
 
-final class SlimPsr7Definitions
+final class SlimPsr7Definitions implements DefinitionsInterface
 {
     public function getDefinitions(): array
     {

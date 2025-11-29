@@ -12,25 +12,22 @@ namespace Slim\Tests\Traits;
 
 use PHPUnit\Framework\Constraint\IsIdentical;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestFactoryInterface;
 use Slim\App;
-use Slim\Container\DiContainerFactory;
-use Slim\Factory\AppFactory;
 
 trait AppTestTrait
 {
-    protected function createApp(array $definitions = []): App
-    {
-        $containerFactory = new DiContainerFactory();
-
-        return AppFactory::createFromContainer($containerFactory->createContainer($definitions));
-    }
-
     protected function assertJsonResponse(mixed $expected, ResponseInterface $actual, string $message = ''): void
     {
         self::assertThat(
-            json_decode((string) $actual->getBody(), true),
+            json_decode((string)$actual->getBody(), true),
             new IsIdentical($expected),
             $message,
         );
+    }
+
+    protected function getServerRequestFactory(App $app): ServerRequestFactoryInterface
+    {
+        return $app->getContainer()->get(ServerRequestFactoryInterface::class);
     }
 }
