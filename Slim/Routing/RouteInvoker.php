@@ -18,12 +18,12 @@ final class RouteInvoker implements RequestHandlerInterface
 
     private RequestHandlerInvocationStrategyInterface $invocationStrategy;
 
+    private ContainerResolverInterface $resolver;
+
     /** @var callable|null */
     private $handler = null;
-
     /** @var array<string, mixed> */
     private array $args = [];
-    private ContainerResolverInterface $resolver;
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
