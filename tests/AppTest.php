@@ -750,9 +750,7 @@ final class AppTest extends TestCase
 
         $definitions = [
             'handler' => new class {
-                public function foo()
-                {
-                }
+                public function foo() {}
             },
         ];
 
@@ -855,22 +853,22 @@ final class AppTest extends TestCase
     {
         $definitions
             = [
-                ServerRequestCreatorInterface::class => function () {
-                    return new class implements ServerRequestCreatorInterface {
-                        public function createServerRequestFromGlobals(): ServerRequestInterface
-                        {
-                            return new Request(
-                                'GET',
-                                new Uri('http', 'localhost', 80, '/'),
-                                new Headers(),
-                                [],
-                                [],
-                                new Stream(fopen('php://memory', 'w+')),
-                            );
-                        }
-                    };
-                },
-            ];
+            ServerRequestCreatorInterface::class => function () {
+                return new class implements ServerRequestCreatorInterface {
+                    public function createServerRequestFromGlobals(): ServerRequestInterface
+                    {
+                        return new Request(
+                            'GET',
+                            new Uri('http', 'localhost', 80, '/'),
+                            new Headers(),
+                            [],
+                            [],
+                            new Stream(fopen('php://memory', 'w+')),
+                        );
+                    }
+                };
+            },
+        ];
 
         $app = AppFactory::create($definitions);
 
