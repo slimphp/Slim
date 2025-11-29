@@ -12,6 +12,7 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Routing\PipelineRunner;
 use Slim\Routing\Route;
 use Slim\Routing\RouteContext;
+use Slim\Routing\RouteInvoker;
 use Slim\Routing\RoutingResults;
 
 /**
@@ -22,15 +23,15 @@ use Slim\Routing\RoutingResults;
  */
 final class EndpointMiddleware implements MiddlewareInterface
 {
-    private RouteInvokerMiddleware $routeInvokerMiddleware;
+    private RouteInvoker $routeInvoker;
 
     private PipelineRunner $pipelineRunner;
 
     public function __construct(
-        RouteInvokerMiddleware $routeInvokerMiddleware,
+        RouteInvoker $routeInvoker,
         PipelineRunner $pipelineRunner,
     ) {
-        $this->routeInvokerMiddleware = $routeInvokerMiddleware;
+        $this->routeInvoker = $routeInvoker;
         $this->pipelineRunner = $pipelineRunner;
     }
 
@@ -76,7 +77,7 @@ final class EndpointMiddleware implements MiddlewareInterface
         $pipeline = $this->collectRouteMiddleware($route);
 
         // Invoke the route/group specific middleware stack
-        $pipeline[] = $this->routeInvokerMiddleware->withHandler(
+        $pipeline[] = $this->routeInvoker->withHandler(
             $route->getHandler(),
             $routingResults->getRouteArguments(),
         );

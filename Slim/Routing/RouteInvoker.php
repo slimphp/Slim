@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Slim\Middleware;
+namespace Slim\Routing;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 
-final class RouteInvokerMiddleware implements MiddlewareInterface
+final class RouteInvoker implements RequestHandlerInterface
 {
     private ResponseFactoryInterface $responseFactory;
 
@@ -24,7 +23,7 @@ final class RouteInvokerMiddleware implements MiddlewareInterface
 
     /** @var array<string, mixed> */
     private array $args = [];
-    private ContainerResolverInterface $containerResolver;
+    private ContainerResolverInterface $resolver;
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
@@ -33,7 +32,7 @@ final class RouteInvokerMiddleware implements MiddlewareInterface
     ) {
         $this->responseFactory = $responseFactory;
         $this->invocationStrategy = $invocationStrategy;
-        $this->containerResolver = $containerResolver;
+        $this->resolver = $containerResolver;
     }
 
     /**
@@ -47,16 +46,14 @@ final class RouteInvokerMiddleware implements MiddlewareInterface
     public function withHandler(callable|string $handler, array $args = []): self
     {
         $clone = clone $this;
-        $clone->handler = $this->containerResolver->resolveCallable($handler);
+        $clone->handler = $this->resolver->resolveCallable($handler);
         $clone->args = $args;
 
         return $clone;
     }
 
-    public function process(
-        ServerRequestInterface $request,
-        RequestHandlerInterface $handler,
-    ): ResponseInterface {
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
         if ($this->handler === null) {
             throw new RuntimeException(
                 'RouteInvokerMiddleware: no handler has been assigned. ' .
