@@ -53,7 +53,7 @@ final class MiddlewareRequestHandlerTest extends TestCase
     public function testHandleWithoutMiddlewareStack()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('No middleware found. Add a response factory middleware.');
+        $this->expectExceptionMessage('The middleware pipeline is empty.');
 
         $app = AppFactory::create();
 

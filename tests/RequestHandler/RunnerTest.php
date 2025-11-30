@@ -14,12 +14,13 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Factory\AppFactory;
+use Slim\Routing\PipelineOrder;
 use Slim\Routing\PipelineRunner;
 use stdClass;
 
 final class RunnerTest extends TestCase
 {
-    public function testHandleWithMiddlewareInterface()
+    public function testHandleWithMiddlewareInterface(): void
     {
         $app = AppFactory::create();
 
@@ -61,7 +62,7 @@ final class RunnerTest extends TestCase
         $this->assertSame('Success', $result->getHeaderLine('X-Result'));
     }
 
-    public function testHandleWithRequestHandlerInterface()
+    public function testHandleWithRequestHandlerInterface(): void
     {
         $app = AppFactory::create();
 
@@ -99,7 +100,7 @@ final class RunnerTest extends TestCase
         $this->assertSame('Handled', $result->getHeaderLine('X-Handler'));
     }
 
-    public function testHandleWithCallableMiddleware()
+    public function testHandleWithCallableMiddleware(): void
     {
         $app = AppFactory::create();
 
@@ -127,10 +128,10 @@ final class RunnerTest extends TestCase
         $this->assertSame('Called', $result->getHeaderLine('X-Callable'));
     }
 
-    public function testHandleWithEmptyQueueThrowsException()
+    public function testHandleWithEmptyQueueThrowsException(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('No middleware found. Add a response factory middleware.');
+        $this->expectExceptionMessage('The middleware pipeline is empty.');
 
         $app = AppFactory::create();
 
@@ -149,10 +150,12 @@ final class RunnerTest extends TestCase
         $runner->handle($request);
     }
 
-    public function testHandleWithInvalidObjectMiddlewareThrowsException()
+    public function testHandleWithInvalidObjectMiddlewareThrowsException(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Invalid middleware queue entry "object"');
+        $this->expectExceptionMessage(
+            'Invalid pipeline entry of type "stdClass". Expected one of: callable, Psr\Http\Server\MiddlewareInterface, or Psr\Http\Server\RequestHandlerInterface.',
+        );
 
         $app = AppFactory::create();
 
@@ -169,7 +172,7 @@ final class RunnerTest extends TestCase
         $runner->handle($request);
     }
 
-    public function testHandleWithInvalidMiddlewareStringThrowsException()
+    public function testHandleWithInvalidMiddlewareStringThrowsException(): void
     {
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage("No entry or class found for 'foo'");
@@ -188,4 +191,58 @@ final class RunnerTest extends TestCase
 
         $runner->handle($request);
     }
+
+    public function testHandleExecutesPipelineInLifoOrder(): void
+    {
+        $app = AppFactory::create();
+        $container = $app->getContainer();
+
+        $request = $container
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
+
+        $responseFactory = $container->get(ResponseFactoryInterface::class);
+
+        // This middleware will be executed LAST in LIFO mode (because it was added first).
+        $first = new class implements MiddlewareInterface {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $response = $handler->handle($request);
+                return $response->withHeader('X-Order', 'First');
+            }
+        };
+
+        // This middleware will be executed FIRST in LIFO mode.
+        $second = new class implements MiddlewareInterface {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $response = $handler->handle($request);
+                return $response->withHeader('X-Order', 'Second');
+            }
+        };
+
+        // Final handler that produces a basic response
+        $finalHandler = fn() => $responseFactory->createResponse();
+
+        $runner = $container
+            ->get(PipelineRunner::class)
+            ->withOrder(PipelineOrder::LIFO)
+            ->withPipeline(
+                [
+                    $finalHandler,  // end
+                    $second,        // ^ second
+                    $first,         // ^ start
+                ],
+            );
+
+        $response = $runner->handle($request);
+
+        $this->assertSame('First', $response->getHeaderLine('X-Order'));
+    }
+
+
 }

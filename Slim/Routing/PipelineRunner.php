@@ -15,12 +15,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-
 use Slim\Interfaces\ContainerResolverInterface;
 
-use function current;
 use function is_callable;
-use function next;
 use function sprintf;
 
 /**
@@ -30,14 +27,17 @@ final class PipelineRunner implements RequestHandlerInterface
 {
     private ContainerResolverInterface $resolver;
 
+    private PipelineOrder $order;
+
     /**
-     * @var array<MiddlewareInterface|RequestHandlerInterface|callable|string>
+     * @var array<int, mixed>
      */
     private array $pipeline = [];
 
-    public function __construct(ContainerResolverInterface $resolver)
+    public function __construct(ContainerResolverInterface $resolver, PipelineOrder $order = PipelineOrder::FIFO)
     {
         $this->resolver = $resolver;
+        $this->order = $order;
     }
 
     /**
@@ -46,40 +46,49 @@ final class PipelineRunner implements RequestHandlerInterface
     public function withPipeline(array $pipeline): self
     {
         $clone = clone $this;
-        $clone->pipeline = $pipeline;
+        $clone->pipeline = array_values($pipeline);
+
+        return $clone;
+    }
+
+    public function withOrder(PipelineOrder $order): self
+    {
+        $clone = clone $this;
+        $clone->order = $order;
 
         return $clone;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $middleware = current($this->pipeline);
+        $entry = $this->order === PipelineOrder::FIFO
+            ? array_shift($this->pipeline)
+            : array_pop($this->pipeline);
 
-        if (!$middleware) {
-            throw new RuntimeException('No middleware found. Add a response factory middleware.');
+        if (!$entry) {
+            throw new RuntimeException('The middleware pipeline is empty.');
         }
 
-        $middleware = $this->resolver->resolve($middleware);
+        $entry = $this->resolver->resolve($entry);
 
-        next($this->pipeline);
-
-        if ($middleware instanceof MiddlewareInterface) {
-            return $middleware->process($request, $this);
+        if ($entry instanceof MiddlewareInterface) {
+            return $entry->process($request, $this);
         }
 
-        if ($middleware instanceof RequestHandlerInterface) {
-            return $middleware->handle($request);
+        if ($entry instanceof RequestHandlerInterface) {
+            return $entry->handle($request);
         }
 
-        if (is_callable($middleware)) {
-            return $middleware($request, $this);
+        if (is_callable($entry)) {
+            return $entry($request, $this);
         }
 
         throw new RuntimeException(
             sprintf(
-                'Invalid middleware queue entry "%s". Middleware must either be callable or implement %s.',
-                is_scalar($middleware) ? (string)$middleware : gettype($middleware),
+                'Invalid pipeline entry of type "%s". Expected one of: callable, %s, or %s.',
+                is_object($entry) ? $entry::class : gettype($entry),
                 MiddlewareInterface::class,
+                RequestHandlerInterface::class,
             ),
         );
     }
