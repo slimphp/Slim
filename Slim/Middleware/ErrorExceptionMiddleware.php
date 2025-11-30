@@ -16,6 +16,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class ErrorExceptionMiddleware implements MiddlewareInterface
 {
     /**
+     * Process.
+     *
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
      * @throws ErrorException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -28,7 +32,7 @@ final class ErrorExceptionMiddleware implements MiddlewareInterface
             }
 
             throw new ErrorException($message, 0, $code, $file, $line);
-        }, E_ALL);
+        });
 
         try {
             $response = $handler->handle($request);

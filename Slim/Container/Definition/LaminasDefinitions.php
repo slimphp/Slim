@@ -8,14 +8,13 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
-use HttpSoft\Message\ResponseFactory;
-use HttpSoft\Message\ServerRequestFactory;
-use HttpSoft\Message\StreamFactory;
-use HttpSoft\Message\UploadedFileFactory;
-use HttpSoft\Message\UriFactory;
-use HttpSoft\ServerRequest\ServerRequestCreator;
+use Laminas\Diactoros\ResponseFactory;
+use Laminas\Diactoros\ServerRequestFactory;
+use Laminas\Diactoros\StreamFactory;
+use Laminas\Diactoros\UploadedFileFactory;
+use Laminas\Diactoros\UriFactory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -23,11 +22,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 
-final class HttpSoftDefinitions
+final class LaminasDefinitions implements DefinitionsInterface
 {
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         return [
             ServerRequestFactoryInterface::class => function (ContainerInterface $container) {
@@ -37,7 +37,7 @@ final class HttpSoftDefinitions
                 return new class implements ServerRequestCreatorInterface {
                     public function createServerRequestFromGlobals(): ServerRequestInterface
                     {
-                        return ServerRequestCreator::createFromGlobals();
+                        return ServerRequestFactory::fromGlobals();
                     }
                 };
             },

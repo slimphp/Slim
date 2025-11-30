@@ -52,7 +52,7 @@
         "slack": "https://slimphp.slack.com/"
     },
     "require": {
-        "php": "8.2.* || 8.3.* || 8.4.*",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "ext-json": "*",
         "nikic/fast-route": "^1.3",
         "psr/container": "^2.0",
@@ -77,13 +77,12 @@
         "phpstan/phpstan": "^2",
         "phpunit/phpunit": "^11",
         "slim/http": "^1.3",
-        "slim/psr7": "^1.6",
-        "squizlabs/php_codesniffer": "^3.10"
+        "slim/psr7": "^1.6"
     },
     "suggest": {
-        "ext-simplexml": "Needed to support XML format in BodyParsingMiddleware",
-        "ext-libxml": "Needed to support XML format in BodyParsingMiddleware",
         "ext-dom": "Needed to support XML format in XmlErrorFormatter",
+        "ext-libxml": "Needed to support XML format in BodyParsingMiddleware",
+        "ext-simplexml": "Needed to support XML format in BodyParsingMiddleware",
         "php-di/php-di": "PHP-DI is the recommended container library to be used with Slim",
         "slim/psr7": "Slim PSR-7 implementation. See https://www.slimframework.com/docs/v5/start/installation.html for more information."
     },
@@ -101,21 +100,12 @@
         "sort-packages": true
     },
     "scripts": {
-        "cs:check": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
-            "php-cs-fixer fix --dry-run --format=txt --verbose --config=.cs.php --ansi"
-        ],
-        "cs:fix": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
-            "php-cs-fixer fix --config=.cs.php --ansi --verbose"
-        ],
-        "sniffer:check": "phpcs --standard=phpcs.xml",
-        "sniffer:fix": "phpcbf --standard=phpcs.xml",
+        "cs:check": "php-cs-fixer fix --dry-run --format=txt --verbose --diff --config=.cs.php --ansi --allow-unsupported-php-version=yes",
+        "cs:fix": "php-cs-fixer fix --config=.cs.php --ansi --verbose --allow-unsupported-php-version=yes",
         "stan": "phpstan analyse -c phpstan.neon --no-progress --ansi",
         "test": "phpunit --configuration phpunit.xml --do-not-cache-result --colors=always --display-warnings --display-deprecations --no-coverage",
         "test:all": [
             "@cs:check",
-            "@sniffer:check",
             "@stan",
             "@test"
         ],

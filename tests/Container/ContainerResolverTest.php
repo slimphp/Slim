@@ -14,16 +14,17 @@ use Closure;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Slim\Builder\AppBuilder;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Container\ContainerResolver;
+use Slim\Factory\AppFactory;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Tests\Mocks\CallableTester;
 use Slim\Tests\Mocks\InvokableTester;
-use Slim\Tests\Mocks\MiddlewareTester;
 use Slim\Tests\Mocks\RequestHandlerTester;
 use Slim\Tests\Traits\AppTestTrait;
-use TypeError;
 
 final class ContainerResolverTest extends TestCase
 {
@@ -35,23 +36,21 @@ final class ContainerResolverTest extends TestCase
             return true;
         };
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $resolver = $app->getContainer()->get(ContainerResolver::class);
 
-        $callable = $resolver->resolveCallable($test);
+        $callable = $resolver->resolve($test);
 
         $this->assertTrue($callable());
     }
 
     public function testClosureContainer(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
-            [
-                'ultimateAnswer' => fn () => 42,
-            ]
-        );
-        $app = $builder->build();
+        $definitions
+            = [
+                'ultimateAnswer' => fn() => 42,
+            ];
+        $app = AppFactory::create($definitions);
         $container = $app->getContainer();
 
         $that = $this;
@@ -64,15 +63,14 @@ final class ContainerResolverTest extends TestCase
         };
 
         $resolver = $container->get(ContainerResolverInterface::class);
-        $callable = $resolver->resolveRoute($test);
+        $callable = $resolver->resolveCallable($test);
 
         $this->assertSame(42, $callable());
     }
 
     public function testClosureFromCallable(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
         $container = $app->getContainer();
 
         $that = $this;
@@ -81,22 +79,22 @@ final class ContainerResolverTest extends TestCase
                 $that->assertSame($container, $this);
 
                 return 42;
-            }
+            },
         );
 
         $test = [$class, '__invoke'];
 
         $resolver = $container->get(ContainerResolverInterface::class);
-        $callable = $resolver->resolveRoute($test);
+        $callable = $resolver->resolveCallable($test);
 
         $this->assertSame(42, $callable());
     }
 
     public function testFunctionName(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $callable = $resolver->resolveCallable(__NAMESPACE__ . '\testAdvancedCallable');
+        $callable = $resolver->resolve(__NAMESPACE__ . '\testAdvancedCallable');
 
         $this->assertTrue($callable());
     }
@@ -104,155 +102,88 @@ final class ContainerResolverTest extends TestCase
     public function testObjMethodArray(): void
     {
         $obj = new CallableTester();
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $callable = $resolver->resolveCallable([$obj, 'toCall']);
+        $callable = $resolver->resolve([$obj, 'toCall']);
         $this->assertSame(true, $callable());
     }
 
     public function testSlimCallable(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $callable = $resolver->resolveCallable('Slim\Tests\Mocks\CallableTester:toCall');
+        $callable = $resolver->resolve('Slim\Tests\Mocks\CallableTester:toCall');
         $this->assertSame(true, $callable());
     }
 
     public function testSlimCallableAsArray(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $callable = $resolver->resolveCallable([CallableTester::class, 'toCall']);
+        $callable = $resolver->resolve([CallableTester::class, 'toCall']);
 
         $this->assertSame(true, $callable());
     }
 
     public function testContainer(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
-            [
-                'callable_service' => fn () => new CallableTester(),
-            ]
-        );
-        $app = $builder->build();
+        $definitions
+            = [
+                'callable_service' => fn() => new CallableTester(),
+            ];
+        $app = AppFactory::create($definitions);
         $resolver = $app->getContainer()->get(ContainerResolver::class);
 
-        $callable = $resolver->resolveCallable('callable_service:toCall');
+        $callable = $resolver->resolve('callable_service:toCall');
         $this->assertSame(true, $callable());
     }
 
     public function testResolutionToAnInvokableClassInContainer(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
-            [
-                'an_invokable' => fn () => new InvokableTester(),
-            ]
-        );
-        $app = $builder->build();
+        $definitions
+            = [
+                'an_invokable' => fn() => new InvokableTester(),
+            ];
+        $app = AppFactory::create($definitions);
+
         $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $callable = $resolver->resolveCallable('an_invokable');
+        $callable = $resolver->resolve('an_invokable');
 
         $this->assertSame(true, $callable());
     }
 
     public function testResolutionToAnInvokableClass(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $callable = $resolver->resolveCallable(InvokableTester::class);
+        $app = AppFactory::create();
+        $resolver = $app->getContainer()->get(ContainerResolverInterface::class);
+        $callable = $resolver->resolve(InvokableTester::class);
         $this->assertSame(true, $callable());
-    }
-
-    public function testResolutionToRequestHandler(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The definition "Slim\Tests\Mocks\RequestHandlerTester" is not a callable');
-
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-
-        $resolver->resolveCallable(RequestHandlerTester::class);
-    }
-
-    public function testObjRequestHandlerInContainer(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The definition "a_requesthandler" is not a callable');
-
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
-            [
-                'a_requesthandler' => function ($container) {
-                    return new RequestHandlerTester($container->get(ResponseFactoryInterface::class));
-                },
-            ]
-        );
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-
-        $resolver->resolveCallable('a_requesthandler');
     }
 
     public function testResolutionToAPsrRequestHandlerClassWithCustomMethod(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $callable = $resolver->resolveCallable(RequestHandlerTester::class . ':custom');
+        $app = AppFactory::create();
+        $resolver = $app->getContainer()->get(ContainerResolverInterface::class);
+        $callable = $resolver->resolve(RequestHandlerTester::class . ':custom');
 
         $this->assertIsArray($callable);
         $this->assertInstanceOf(RequestHandlerTester::class, $callable[0]);
         $this->assertSame('custom', $callable[1]);
     }
 
-    public function testObjMiddlewareClass(): void
-    {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessage('must be of type callable|array|string');
-
-        $obj = new MiddlewareTester();
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $resolver->resolveCallable($obj);
-    }
-
-    public function testNotObjectInContainerThrowException(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The definition "callable_service" is not a callable');
-
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
-            [
-                'callable_service' => fn () => 'NOT AN OBJECT',
-            ]
-        );
-        $app = $builder->build();
-
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $resolver->resolveCallable('callable_service');
-    }
-
     public function testMethodNotFoundThrowException(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The method "notFound" does not exists');
+        $this->expectExceptionMessage('The method "notFound" does not exist');
 
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
-            [
-                'callable_service' => fn () => new CallableTester(),
-            ]
-        );
-        $app = $builder->build();
+        $definitions
+            = [
+                'callable_service' => fn() => new CallableTester(),
+            ];
+        $app = AppFactory::create($definitions);
 
         $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $resolver->resolveCallable('callable_service:notFound');
+        $resolver->resolve('callable_service:notFound');
     }
 
     public function testFunctionNotFoundThrowException(): void
@@ -260,10 +191,9 @@ final class ContainerResolverTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("No entry or class found for 'notFound'");
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $resolver->resolveCallable('notFound');
+        $app = AppFactory::create();
+        $resolver = $app->getContainer()->get(ContainerResolverInterface::class);
+        $resolver->resolve('notFound');
     }
 
     public function testClassNotFoundThrowException(): void
@@ -271,10 +201,9 @@ final class ContainerResolverTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("No entry or class found for 'Unknown'");
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $resolver->resolveCallable('Unknown:notFound');
+        $app = AppFactory::create();
+        $resolver = $app->getContainer()->get(ContainerResolverInterface::class);
+        $resolver->resolve('Unknown:notFound');
     }
 
     public function testCallableClassNotFoundThrowException(): void
@@ -282,10 +211,80 @@ final class ContainerResolverTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("No entry or class found for 'Unknown'");
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $resolver = $app->getContainer()->get(ContainerResolver::class);
-        $resolver->resolveCallable(['Unknown', 'notFound']);
+        $app = AppFactory::create();
+        $resolver = $app->getContainer()->get(ContainerResolverInterface::class);
+        $resolver->resolve(['Unknown', 'notFound']);
+    }
+
+    public function testResolveStackWithFifoOrder()
+    {
+        $app = AppFactory::create();
+        $container = $app->getContainer();
+        $resolver = $container->get(ContainerResolverInterface::class);
+
+        $middleware1 = $this->createCallableMiddleware();
+        $middleware2 = $this->resolveMiddleware();
+
+        $resolved1 = $resolver->resolve($middleware1);
+        $this->assertTrue(is_callable($resolved1));
+        $resolved2 = $resolver->resolve($middleware2);
+
+        $this->assertInstanceOf(MiddlewareInterface::class, $resolved2);
+    }
+
+    public function testResolveMiddlewareWithValidMiddleware()
+    {
+        $app = AppFactory::create();
+        $container = $app->getContainer();
+        $resolver = $container->get(ContainerResolverInterface::class);
+
+        $middleware = $this->resolveMiddleware();
+
+        $resolvedMiddleware = $resolver->resolve($middleware);
+
+        $this->assertInstanceOf(MiddlewareInterface::class, $resolvedMiddleware);
+    }
+
+    public function testUnresolvableWithSameResult(): void
+    {
+        $app = AppFactory::create();
+        $container = $app->getContainer();
+        $resolver = $container->get(ContainerResolverInterface::class);
+
+        $input = [[null]];
+        $actual = $resolver->resolve($input);
+
+        $this->assertEquals($input, $actual);
+    }
+
+    private function createCallableMiddleware(): callable
+    {
+        $response = $this->createMock(ResponseInterface::class);
+
+        return function () use ($response): ResponseInterface {
+            return $response;
+        };
+    }
+
+    private function resolveMiddleware(): MiddlewareInterface
+    {
+        $response = $this->createMock(ResponseInterface::class);
+
+        return new class ($response) implements MiddlewareInterface {
+            private ResponseInterface $response;
+
+            public function __construct(ResponseInterface $response)
+            {
+                $this->response = $response;
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                return $this->response;
+            }
+        };
     }
 }
 

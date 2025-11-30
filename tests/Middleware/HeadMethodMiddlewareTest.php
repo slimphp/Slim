@@ -14,20 +14,17 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Middleware\EndpointMiddleware;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\HeadMethodMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 
 class HeadMethodMiddlewareTest extends TestCase
 {
     public function testHeadRequestResponseBodyIsEmpty(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(HeadMethodMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route that returns a non-empty body
         $app->get('/test', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -48,11 +45,10 @@ class HeadMethodMiddlewareTest extends TestCase
 
     public function testGetRequestResponseBodyIsUnchanged(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(HeadMethodMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Set up a route that returns a non-empty body
         $app->get('/test', function (ServerRequestInterface $request, ResponseInterface $response) {

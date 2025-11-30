@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use ReflectionClass;
 use RuntimeException;
-use Slim\Container\HttpDefinitions;
+use Slim\Container\Definition\HttpDefinitions;
 
 class HttpDefinitionsTest extends TestCase
 {
@@ -24,22 +24,21 @@ class HttpDefinitionsTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         // Create a mock for the class_exists function
-        $classExistsMock = fn () => false;
+        $classExistsMock = fn() => false;
 
         $httpDefinitions = new HttpDefinitions();
 
         // Use reflection to inject the mock callable into the $classExists property
         $reflection = new ReflectionClass($httpDefinitions);
         $classExistsProperty = $reflection->getProperty('classExists');
-        $classExistsProperty->setAccessible(true);
         $classExistsProperty->setValue($httpDefinitions, $classExistsMock);
 
-        $httpDefinitions();
+        $httpDefinitions->getDefinitions();
     }
 
     public function testServerRequestFactoryInterface()
     {
-        $definitions = (new HttpDefinitions())->__invoke();
+        $definitions = (new HttpDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $serverRequestFactory = $container->get(ServerRequestFactoryInterface::class);

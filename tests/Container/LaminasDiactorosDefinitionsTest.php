@@ -23,14 +23,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
-use Slim\Container\LaminasDiactorosDefinitions;
+use Slim\Container\Definition\LaminasDefinitions;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 
 class LaminasDiactorosDefinitionsTest extends TestCase
 {
     public function testInvokeReturnsCorrectDefinitions()
     {
-        $definitions = (new LaminasDiactorosDefinitions())->__invoke();
+        $definitions = (new LaminasDefinitions())->getDefinitions();
         $container = new Container($definitions);
 
         $this->assertTrue($container->has(ServerRequestFactoryInterface::class));
@@ -43,7 +43,7 @@ class LaminasDiactorosDefinitionsTest extends TestCase
 
     public function testServerRequestFactoryInterface()
     {
-        $definitions = (new LaminasDiactorosDefinitions())->__invoke();
+        $definitions = (new LaminasDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $serverRequestFactory = $container->get(ServerRequestFactoryInterface::class);
@@ -53,7 +53,7 @@ class LaminasDiactorosDefinitionsTest extends TestCase
 
     public function testServerRequestCreatorInterface()
     {
-        $definitions = (new LaminasDiactorosDefinitions())->__invoke();
+        $definitions = (new LaminasDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $serverRequestCreator = $container->get(ServerRequestCreatorInterface::class);
@@ -64,7 +64,7 @@ class LaminasDiactorosDefinitionsTest extends TestCase
 
     public function testResponseFactoryInterface()
     {
-        $definitions = (new LaminasDiactorosDefinitions())->__invoke();
+        $definitions = (new LaminasDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $responseFactory = $container->get(ResponseFactoryInterface::class);
@@ -74,7 +74,7 @@ class LaminasDiactorosDefinitionsTest extends TestCase
 
     public function testStreamFactoryInterface()
     {
-        $definitions = (new LaminasDiactorosDefinitions())->__invoke();
+        $definitions = (new LaminasDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $streamFactory = $container->get(StreamFactoryInterface::class);
@@ -84,7 +84,7 @@ class LaminasDiactorosDefinitionsTest extends TestCase
 
     public function testUriFactoryInterface()
     {
-        $definitions = (new LaminasDiactorosDefinitions())->__invoke();
+        $definitions = (new LaminasDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $uriFactory = $container->get(UriFactoryInterface::class);
@@ -94,7 +94,7 @@ class LaminasDiactorosDefinitionsTest extends TestCase
 
     public function testUploadedFileFactoryInterface()
     {
-        $definitions = (new LaminasDiactorosDefinitions())->__invoke();
+        $definitions = (new LaminasDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $uploadedFileFactory = $container->get(UploadedFileFactoryInterface::class);

@@ -45,6 +45,7 @@ final class JsonExceptionMiddleware implements MiddlewareInterface
      *
      * @see https://php.net/manual/function.json-encode.php
      * @see https://php.net/manual/json.constants.php
+     * @param int $options
      */
     public function withJsonOptions(int $options): self
     {
@@ -68,6 +69,10 @@ final class JsonExceptionMiddleware implements MiddlewareInterface
         return (string)json_encode($payload, $this->jsonOptions);
     }
 
+    /**
+     * @param Throwable $exception
+     * @return array{type: string, code: mixed, message: string, file: string, line: int}
+     */
     private function formatExceptionFragment(Throwable $exception): array
     {
         $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();

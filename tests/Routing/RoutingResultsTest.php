@@ -14,9 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\RoutingMiddleware;
+use Slim\Factory\AppFactory;
 use Slim\Routing\Route;
 use Slim\Routing\RouteContext;
 use Slim\Routing\RoutingResults;
@@ -25,8 +23,7 @@ class RoutingResultsTest extends TestCase
 {
     public function testConstructAndGetters(): void
     {
-        $route = new Route(['GET'], '/test', function () {
-        });
+        $route = new Route(['GET'], '/test', function () {});
 
         // Define test parameters
         $status = RoutingResults::FOUND;
@@ -42,7 +39,7 @@ class RoutingResultsTest extends TestCase
             $method,
             $uri,
             $routeArguments,
-            $allowedMethods
+            $allowedMethods,
         );
 
         $this->assertSame($status, $routingResults->getRouteStatus());
@@ -71,7 +68,7 @@ class RoutingResultsTest extends TestCase
             $method,
             $uri,
             $routeArguments,
-            $allowedMethods
+            $allowedMethods,
         );
 
         $this->assertSame($status, $routingResults->getRouteStatus());
@@ -84,10 +81,9 @@ class RoutingResultsTest extends TestCase
 
     public function testRoutingArgumentsFromRouteContext(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Define a route with arguments
         $app->get('/test/{id}', function (ServerRequestInterface $request, ResponseInterface $response) {

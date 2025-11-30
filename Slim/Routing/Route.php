@@ -1,12 +1,18 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 namespace Slim\Routing;
 
 use Slim\Interfaces\MiddlewareCollectionInterface;
 
 final class Route implements MiddlewareCollectionInterface
 {
-    use MiddlewareAwareTrait;
+    use MiddlewareCollectionTrait;
 
     /**
      * @var array<string>
@@ -26,6 +32,9 @@ final class Route implements MiddlewareCollectionInterface
 
     /**
      * @param array<string> $methods
+     * @param string $pattern
+     * @param callable|string $handler
+     * @param ?RouteGroup $group
      */
     public function __construct(array $methods, string $pattern, callable|string $handler, ?RouteGroup $group = null)
     {
@@ -57,6 +66,9 @@ final class Route implements MiddlewareCollectionInterface
         return $this->pattern;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getMethods(): array
     {
         return $this->methods;

@@ -16,8 +16,8 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use ReflectionClass;
-use Slim\Builder\AppBuilder;
 use Slim\Emitter\ResponseEmitter;
+use Slim\Factory\AppFactory;
 use Slim\Tests\Mocks\MockStream;
 use Slim\Tests\Mocks\SlowPokeStream;
 use Slim\Tests\Mocks\SmallChunksStream;
@@ -57,7 +57,7 @@ final class ResponseEmitterTest extends TestCase
 
     private function createResponse(int $statusCode = 200, string $reasonPhrase = ''): ResponseInterface
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         return $app->getContainer()
             ->get(ResponseFactoryInterface::class)
@@ -77,8 +77,8 @@ final class ResponseEmitterTest extends TestCase
 
     public function testRespondWithPaddedStreamFilterOutput(): void
     {
-        $builder = new AppBuilder();
-        $streamFactory = $builder->build()->getContainer()->get(StreamFactoryInterface::class);
+        $app = AppFactory::create();
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
         $availableFilter = stream_get_filters();
 
@@ -191,7 +191,7 @@ final class ResponseEmitterTest extends TestCase
 
     public function testIsResponseEmptyWithNonEmptyBodyAndTriggeringStatusCode(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $body = $app->getContainer()
             ->get(StreamFactoryInterface::class)
@@ -207,7 +207,7 @@ final class ResponseEmitterTest extends TestCase
 
     public function testIsResponseEmptyDoesNotReadAllDataFromNonEmptySeekableResponse(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $body = $app->getContainer()
             ->get(StreamFactoryInterface::class)
@@ -228,8 +228,8 @@ final class ResponseEmitterTest extends TestCase
 
     public function testIsResponseEmptyDoesNotDrainNonSeekableResponseWithContent(): void
     {
-        $builder = new AppBuilder();
-        $streamFactory = $builder->build()->getContainer()->get(StreamFactoryInterface::class);
+        $app = AppFactory::create();
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
         $resource = popen('echo 12', 'r');
         $body = $streamFactory->createStreamFromResource($resource);
@@ -266,7 +266,7 @@ final class ResponseEmitterTest extends TestCase
 
     public function testIsResponseEmptyWithZeroAsBody(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $body = $app->getContainer()
             ->get(StreamFactoryInterface::class)
@@ -284,8 +284,8 @@ final class ResponseEmitterTest extends TestCase
 
     public function testWillHandleInvalidConnectionStatusWithADeterminateBody(): void
     {
-        $builder = new AppBuilder();
-        $streamFactory = $builder->build()->getContainer()->get(StreamFactoryInterface::class);
+        $app = AppFactory::create();
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
         $body = $streamFactory->createStreamFromResource(fopen('php://temp', 'r+'));
         $body->write('Hello!' . "\n");
@@ -310,8 +310,8 @@ final class ResponseEmitterTest extends TestCase
 
     public function testWillHandleInvalidConnectionStatusWithAnIndeterminateBody(): void
     {
-        $builder = new AppBuilder();
-        $streamFactory = $builder->build()->getContainer()->get(StreamFactoryInterface::class);
+        $app = AppFactory::create();
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
         $body = $streamFactory->createStreamFromResource(fopen('php://input', 'r+'));
 
@@ -326,7 +326,6 @@ final class ResponseEmitterTest extends TestCase
 
         $mirror = new ReflectionClass(ResponseEmitter::class);
         $emitBodyMethod = $mirror->getMethod('emitBody');
-        $emitBodyMethod->setAccessible(true);
         $emitBodyMethod->invoke($responseEmitter, $response);
 
         $this->expectOutputString('');

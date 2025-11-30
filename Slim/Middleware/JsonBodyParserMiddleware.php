@@ -52,6 +52,8 @@ final class JsonBodyParserMiddleware implements MiddlewareInterface
 
     /**
      * Check whether the content type is JSON or has a +json structured suffix.
+     *
+     * @param string $contentType
      */
     private function isJsonMediaType(string $contentType): bool
     {

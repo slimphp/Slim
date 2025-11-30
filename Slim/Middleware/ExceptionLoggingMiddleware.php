@@ -30,10 +30,6 @@ final class ExceptionLoggingMiddleware implements MiddlewareInterface
         $this->logger = $logger;
     }
 
-    /**
-     * @throws Throwable
-     * @throws ErrorException
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
@@ -62,6 +58,11 @@ final class ExceptionLoggingMiddleware implements MiddlewareInterface
         return $clone;
     }
 
+    /**
+     * @param Throwable $exception
+     * @param ServerRequestInterface $request
+     * @return array{exception?: Throwable, request?: ServerRequestInterface}
+     */
     private function getContext(Throwable $exception, ServerRequestInterface $request): array
     {
         $context = [];

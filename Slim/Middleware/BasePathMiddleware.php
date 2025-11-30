@@ -14,28 +14,28 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\App;
+use Slim\Interfaces\RouterInterface;
 use Slim\Routing\RouteContext;
 
 final class BasePathMiddleware implements MiddlewareInterface
 {
-    private App $app;
+    private RouterInterface $router;
 
     private string $phpSapi;
 
     /**
      * The constructor.
      *
-     * @param App $app The Slim app instance
+     * @param RouterInterface $router The router
      * @param string $phpSapi The type of interface between web server and PHP
      *
      * Supported: 'apache2handler'
      * Not supported: 'cgi', 'cgi-fcgi', 'fpm-fcgi', 'litespeed', 'cli-server'
      */
-    public function __construct(App $app, string $phpSapi = PHP_SAPI)
+    public function __construct(RouterInterface $router, string $phpSapi = PHP_SAPI)
     {
         $this->phpSapi = $phpSapi;
-        $this->app = $app;
+        $this->router = $router;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -48,13 +48,14 @@ final class BasePathMiddleware implements MiddlewareInterface
 
         $request = $request->withAttribute(RouteContext::BASE_PATH, $basePath);
 
-        $this->app->setBasePath($basePath);
+        $this->router->setBasePath($basePath);
 
         return $handler->handle($request);
     }
 
     /**
      * Return basePath for most common webservers, such as Apache.
+     * @param ServerRequestInterface $request
      */
     private function getBasePathByRequestUri(ServerRequestInterface $request): string
     {

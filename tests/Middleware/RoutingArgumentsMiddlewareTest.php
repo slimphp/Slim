@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\RoutingArgumentsMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -23,7 +23,7 @@ class RoutingArgumentsMiddlewareTest extends TestCase
 {
     public function testProcessAddsRoutingArgumentsToRequestAttributes(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(RoutingMiddleware::class);
         $app->add(RoutingArgumentsMiddleware::class);
@@ -50,11 +50,10 @@ class RoutingArgumentsMiddlewareTest extends TestCase
 
     public function testProcessNoRoutingArguments(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(RoutingArgumentsMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Define a route without any arguments
         $app->get('/no-args', function (ServerRequestInterface $request, ResponseInterface $response) {

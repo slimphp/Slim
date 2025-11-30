@@ -10,21 +10,18 @@ declare(strict_types=1);
 
 namespace Slim\Tests;
 
-use DI\Container;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\App;
-use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Interfaces\ContainerFactoryInterface;
+use Slim\Factory\AppFactory;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Middleware\BasePathMiddleware;
@@ -41,9 +38,10 @@ use Slim\Psr7\Request;
 use Slim\Psr7\Stream;
 use Slim\Psr7\Uri;
 use Slim\Routing\RouteGroup;
-use Slim\Routing\Strategies\RequestResponseArgs;
-use Slim\Routing\Strategies\RequestResponseNamedArgs;
+use Slim\Strategy\RequestResponseArgs;
+use Slim\Strategy\RequestResponseNamedArgs;
 use Slim\Tests\Traits\AppTestTrait;
+use SplQueue;
 use SplStack;
 use UnexpectedValueException;
 
@@ -56,8 +54,7 @@ final class AppTest extends TestCase
 
     public function testAppWithExceptionAndErrorDetails(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 HtmlExceptionMiddleware::class => function ($container) {
                     $responseFactory = $container->get(ResponseFactoryInterface::class);
@@ -65,23 +62,22 @@ final class AppTest extends TestCase
 
                     return $middleware->withErrorDetails(true);
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+
+        $app = AppFactory::create($definitions);
 
         $app->add(HtmlExceptionMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $app->get('/', fn () => throw new UnexpectedValueException('Test exception message'));
+        $app->get('/', fn() => throw new UnexpectedValueException('Test exception message'));
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $request = $request->withHeader(
             'Accept',
-            'text/html, application/xhtml+xml, application/xml;q=0.9, application/json , image/webp, */*;q=0.8'
+            'text/html, application/xhtml+xml, application/xml;q=0.9, application/json , image/webp, */*;q=0.8',
         );
 
         $response = $app->handle($request);
@@ -94,33 +90,30 @@ final class AppTest extends TestCase
 
     public function testGetAppFromContainer(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         // should return the same instance
         $actual = $app->getContainer()->get(App::class);
         $this->assertSame($app, $actual);
     }
 
-    public function testGetContainer(): void
+    public function testGetContainerWithDefinitions(): void
     {
-        $factory = new class implements ContainerFactoryInterface {
-            public function createContainer(array $definitions = []): ContainerInterface
-            {
-                return new Container($definitions);
-            }
-        };
+        $definitions =
+            [
+                'test' => function () {
+                    return 'test-value';
+                },
+            ];
 
-        $builder = new AppBuilder();
-        $builder->setContainerFactory($factory);
-        $app = $builder->build();
+        $app = AppFactory::create($definitions);
 
         $this->assertInstanceOf(ContainerInterface::class, $app->getContainer());
     }
 
     public function testAppWithMiddlewareStack(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $app->add(BasePathMiddleware::class);
         $app->add(RoutingMiddleware::class);
@@ -135,8 +128,8 @@ final class AppTest extends TestCase
             return $response->withHeader('X-Test', 'action');
         });
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $response = $app->handle($request);
@@ -146,11 +139,9 @@ final class AppTest extends TestCase
 
     public function testGetWithInvokableClass(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $action = new class {
             public function __invoke($request, $response, $args)
@@ -161,8 +152,8 @@ final class AppTest extends TestCase
 
         $app->get('/', $action::class);
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $response = $app->handle($request);
@@ -185,12 +176,11 @@ final class AppTest extends TestCase
     #[DataProvider('upperCaseRequestMethodsProvider')]
     public function testGetPostPutPatchDeleteOptionsMethods(string $method): void
     {
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest($method, '/');
 
         $methodName = strtolower($method);
@@ -206,12 +196,11 @@ final class AppTest extends TestCase
 
     public function testAnyRoute(): void
     {
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('FOO', '/');
 
         $app->any('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -240,12 +229,11 @@ final class AppTest extends TestCase
     #[DataProvider('upperCaseRequestMethodsProvider')]
     public function testMapRoute(string $method): void
     {
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest($method, '/');
 
         $app->map([$method], '/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -263,12 +251,11 @@ final class AppTest extends TestCase
     {
         $path = '/новости';
 
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', $path);
 
         $app->get($path, function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -310,12 +297,11 @@ final class AppTest extends TestCase
     #[DataProvider('routePatternsProvider')]
     public function testRoutePatterns(string $pattern, string $uri): void
     {
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', $uri);
 
         $app->get($pattern, function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -335,7 +321,7 @@ final class AppTest extends TestCase
 
     public function testGroupClosureIsBoundToThisClass(): void
     {
-        $app = $this->createApp();
+        $app = AppFactory::create();
         $testCase = $this;
         $app->group('/foo', function () use ($testCase) {
             $testCase->assertSame($testCase, $this);
@@ -347,12 +333,11 @@ final class AppTest extends TestCase
      */
     public function testAddMiddlewareUsingDeferredResolution(): void
     {
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -368,7 +353,7 @@ final class AppTest extends TestCase
 
     public function testAddMiddlewareUsingClosure(): void
     {
-        $app = $this->createApp();
+        $app = AppFactory::create();
 
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
             $response = $handler->handle($request);
@@ -377,11 +362,10 @@ final class AppTest extends TestCase
         };
 
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -398,7 +382,7 @@ final class AppTest extends TestCase
 
     public function testAddMiddlewareOnRoute(): void
     {
-        $app = $this->createApp();
+        $app = AppFactory::create();
 
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
             $response = $handler->handle($request);
@@ -414,8 +398,7 @@ final class AppTest extends TestCase
             return $response;
         };
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // This middleware should not be invoked
         $middleware3 = function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
@@ -426,16 +409,17 @@ final class AppTest extends TestCase
         };
         $app->add($middleware3);
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         // Add two middlewares
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('_ROUTE1_');
+        $app
+            ->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                $response->getBody()->write('_ROUTE1_');
 
-            return $response;
-        })
+                return $response;
+            })
             ->add($middleware)
             ->add($middleware2);
 
@@ -446,7 +430,7 @@ final class AppTest extends TestCase
 
     public function testAddMiddlewareOnRouteGroup(): void
     {
-        $app = $this->createApp();
+        $app = AppFactory::create();
 
         $trace = new SplStack();
 
@@ -458,7 +442,7 @@ final class AppTest extends TestCase
 
         $outgoingMiddleware = function (
             ServerRequestInterface $request,
-            RequestHandlerInterface $handler
+            RequestHandlerInterface $handler,
         ) use ($trace) {
             $response = $handler->handle($request);
             $response->getBody()->write('_OUTGOING_');
@@ -467,18 +451,17 @@ final class AppTest extends TestCase
             return $response;
         };
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/api/users');
 
         // Add middleware to group
         $app->group('/api', function (RouteGroup $group) use ($trace) {
             $group->get('/users', function (
                 ServerRequestInterface $request,
-                ResponseInterface $response
+                ResponseInterface $response,
             ) use ($trace) {
                 $trace->push('_ROUTE1_');
                 $response->getBody()->write('_ROUTE1_');
@@ -496,36 +479,41 @@ final class AppTest extends TestCase
                 1 => '_ROUTE1_',
                 0 => '_AUTH_',
             ],
-            iterator_to_array($trace)
+            iterator_to_array($trace),
         );
     }
 
     public function testAddMiddlewareOnTwoRouteGroup(): void
     {
-        $app = $this->createApp();
+        $app = AppFactory::create();
 
-        $trace = new SplStack();
+        $trace = new SplQueue();
+
+        $app->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($trace) {
+            $trace[] = '_GLOBAL_';
+
+            return $handler->handle($request);
+        });
 
         $authMiddleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($trace) {
-            $trace->push('_AUTH_');
+            $trace[] = '_AUTH_';
             $response = $handler->handle($request);
 
             return $response;
         };
 
         $usersMiddleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($trace) {
-            $trace->push('_USERS_');
+            $trace[] = '_USERS_';
             $response = $handler->handle($request);
             $response->getBody()->write('_USERS_');
 
             return $response;
         };
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/api/users/123');
 
         // Add middleware to groups
@@ -534,11 +522,11 @@ final class AppTest extends TestCase
                 $group->get(
                     '/{id}',
                     function (ServerRequestInterface $request, ResponseInterface $response) use ($trace) {
-                        $trace->push('_ROUTE1_');
+                        $trace[] = '_ROUTE1_';
                         $response->getBody()->write('_ROUTE1_');
 
                         return $response;
-                    }
+                    },
                 );
             })->add($usersMiddleware);
         })->add($authMiddleware);
@@ -549,11 +537,12 @@ final class AppTest extends TestCase
 
         $this->assertSame(
             [
-                2 => '_ROUTE1_',
-                1 => '_USERS_',
-                0 => '_AUTH_',
+                '_GLOBAL_',
+                '_AUTH_',
+                '_USERS_',
+                '_ROUTE1_',
             ],
-            iterator_to_array($trace)
+            iterator_to_array($trace),
         );
     }
 
@@ -561,12 +550,11 @@ final class AppTest extends TestCase
     {
         $this->expectException(HttpMethodNotAllowedException::class);
 
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('POST', '/');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -578,12 +566,11 @@ final class AppTest extends TestCase
 
     public function testInvokeWithMatchingRoute(): void
     {
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -599,12 +586,11 @@ final class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseStrategy(): void
     {
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/john');
 
         $app->get(
@@ -614,7 +600,7 @@ final class AppTest extends TestCase
                 $response->getBody()->write("Hello {$args['name']}");
 
                 return $response;
-            }
+            },
         );
 
         $response = $app->handle($request);
@@ -623,17 +609,15 @@ final class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions([
-            RequestHandlerInvocationStrategyInterface::class => fn () => new RequestResponseArgs(),
-        ]);
-        $app = $builder->build();
+        $definitions = [
+            RequestHandlerInvocationStrategyInterface::class => fn() => new RequestResponseArgs(),
+        ];
+        $app = AppFactory::create($definitions);
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/john');
 
         $app->get(
@@ -642,7 +626,7 @@ final class AppTest extends TestCase
                 $response->getBody()->write("Hello {$name}");
 
                 return $response;
-            }
+            },
         );
 
         $response = $app->handle($request);
@@ -652,17 +636,17 @@ final class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseNamedArgsStrategy(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions([
-            RequestHandlerInvocationStrategyInterface::class => fn () => new RequestResponseNamedArgs(),
-        ]);
-        $app = $builder->build();
+        $definitions =
+            [
+                RequestHandlerInvocationStrategyInterface::class => fn() => new RequestResponseNamedArgs(),
+            ];
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create($definitions);
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $app->addRoutingMiddleware();
+
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/john');
 
         $app->get(
@@ -671,7 +655,7 @@ final class AppTest extends TestCase
                 $response->getBody()->write("Hello {$name}");
 
                 return $response;
-            }
+            },
         );
 
         $response = $app->handle($request);
@@ -683,12 +667,11 @@ final class AppTest extends TestCase
     {
         $this->expectException(HttpNotFoundException::class);
 
-        $app = $this->createApp();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/nada');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -700,8 +683,6 @@ final class AppTest extends TestCase
 
     public function testInvokeWithCallableRegisteredInContainer(): void
     {
-        $builder = new AppBuilder();
-
         $handler = new class {
             public function foo(ServerRequestInterface $request, ResponseInterface $response)
             {
@@ -711,17 +692,16 @@ final class AppTest extends TestCase
             }
         };
 
-        $builder->addDefinitions([
+        $definitions = [
             'handler' => $handler,
-        ]);
+        ];
 
-        $app = $builder->build();
+        $app = AppFactory::create($definitions);
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', 'handler:foo');
@@ -733,8 +713,6 @@ final class AppTest extends TestCase
 
     public function testInvokeWithCallableRegisteredInContainerAsFunction(): void
     {
-        $builder = new AppBuilder();
-
         $handler = new class {
             public function foo(ServerRequestInterface $request, ResponseInterface $response)
             {
@@ -744,19 +722,18 @@ final class AppTest extends TestCase
             }
         };
 
-        $builder->addDefinitions([
+        $definitions = [
             'handler' => function () use ($handler) {
                 return $handler;
             },
-        ]);
+        ];
 
-        $app = $builder->build();
+        $app = AppFactory::create($definitions);
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', 'handler:foo');
@@ -769,24 +746,22 @@ final class AppTest extends TestCase
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('The method "method_does_not_exist" does not exists');
+        $this->expectExceptionMessage('The method "method_does_not_exist" does not exist');
 
-        $builder = new AppBuilder();
-
-        $builder->addDefinitions([
+        $definitions = [
             'handler' => new class {
                 public function foo()
                 {
                 }
             },
-        ]);
-        $app = $builder->build();
+        ];
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create($definitions);
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $app->addRoutingMiddleware();
+
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', 'handler:method_does_not_exist');
@@ -795,14 +770,12 @@ final class AppTest extends TestCase
 
     public function testInvokeFunctionName(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         // @codingStandardsIgnoreStart
@@ -824,8 +797,7 @@ final class AppTest extends TestCase
 
     public function testAddMiddleware(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $container = $app->getContainer();
         $routing = $container->get(RoutingMiddleware::class);
@@ -834,8 +806,8 @@ final class AppTest extends TestCase
         $app->addMiddleware($routing);
         $app->add($endpoint);
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -850,11 +822,9 @@ final class AppTest extends TestCase
 
     public function testGetBasePath(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $this->assertSame('', $app->getBasePath());
         $app->setBasePath('/sub');
@@ -863,14 +833,12 @@ final class AppTest extends TestCase
 
     public function testRun(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -885,10 +853,8 @@ final class AppTest extends TestCase
 
     public function testRunWithoutPassingInServerRequest(): void
     {
-        $builder = new AppBuilder();
-
-        $builder->addDefinitions(
-            [
+        $definitions
+            = [
                 ServerRequestCreatorInterface::class => function () {
                     return new class implements ServerRequestCreatorInterface {
                         public function createServerRequestFromGlobals(): ServerRequestInterface
@@ -899,17 +865,17 @@ final class AppTest extends TestCase
                                 new Headers(),
                                 [],
                                 [],
-                                new Stream(fopen('php://memory', 'w+'))
+                                new Stream(fopen('php://memory', 'w+')),
                             );
                         }
                     };
                 },
-            ]
-        );
+            ];
 
-        $app = $builder->build();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create($definitions);
+
+        // $app = $builder->build();
+        $app->addRoutingMiddleware();
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -924,14 +890,12 @@ final class AppTest extends TestCase
 
     public function testHandleReturnsEmptyResponseBodyWithHeadRequestMethod(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
         $app->add(HeadMethodMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('HEAD', '/');
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -944,15 +908,13 @@ final class AppTest extends TestCase
         $this->assertEmpty((string)$response->getBody());
     }
 
-    public function testInvokeSequentialProcessToAPathWithOptionalArgsAndWithoutOptionalArgs(): void
+    public function testPathWithOptionalArgs(): void
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/friend');
 
         $app->get('/hello[/{name}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -965,11 +927,30 @@ final class AppTest extends TestCase
         $this->assertSame('1', (string)$response->getBody());
 
         // 2. test without value
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello');
 
         $response = $app->handle($request);
         $this->assertSame('0', (string)$response->getBody());
+    }
+
+    public function testAddErrorMiddleware(): void
+    {
+        $app = AppFactory::create()
+            ->addErrorMiddleware()
+            ->addRoutingMiddleware();
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('HEAD', '/')
+            ->withHeader('Accept', 'text/html');
+
+        $app->get('/', function () {
+            throw new RuntimeException('test message');
+        });
+
+        $response = $app->handle($request);
+        $this->assertStringContainsString('<title>Application Error</title>', (string)$response->getBody());
     }
 }

@@ -15,57 +15,43 @@ use RuntimeException;
 
 final class RouteContext
 {
-    public const URL_GENERATOR = '__urlGenerator__';
-
     public const ROUTING_RESULTS = '__routingResults__';
 
     public const BASE_PATH = '__basePath__';
 
     private RoutingResults $routingResults;
 
-    private UrlGenerator $urlGenerator;
-
     private ?string $basePath;
 
     private function __construct(
         RoutingResults $routingResults,
-        UrlGenerator $urlGenerator,
-        ?string $basePath = null
+        ?string $basePath = null,
     ) {
-        $this->urlGenerator = $urlGenerator;
         $this->routingResults = $routingResults;
         $this->basePath = $basePath;
     }
 
     public static function fromRequest(ServerRequestInterface $request): self
     {
-        /* @var UrlGenerator|null $urlGenerator */
-        $urlGenerator = $request->getAttribute(self::URL_GENERATOR);
-
         /* @var RoutingResults|null $routingResults */
         $routingResults = $request->getAttribute(self::ROUTING_RESULTS);
 
         /* @var string|null $basePath */
         $basePath = $request->getAttribute(self::BASE_PATH);
 
-        if ($urlGenerator === null) {
+        if (!$routingResults instanceof RoutingResults) {
             throw new RuntimeException(
-                'Cannot create RouteContext before routing has been completed. Add UrlGeneratorMiddleware to fix this.'
+                'Cannot create RouteContext before routing has been completed. Add RoutingMiddleware to fix this.',
             );
         }
 
-        if ($routingResults === null) {
+        if ($basePath !== null && !is_string($basePath)) {
             throw new RuntimeException(
-                'Cannot create RouteContext before routing has been completed. Add RoutingMiddleware to fix this.'
+                sprintf('Invalid basePath attribute type: %s', gettype($basePath)),
             );
         }
 
-        return new self($routingResults, $urlGenerator, $basePath);
-    }
-
-    public function getUrlGenerator(): UrlGenerator
-    {
-        return $this->urlGenerator;
+        return new self($routingResults, $basePath);
     }
 
     public function getRoutingResults(): RoutingResults
@@ -83,6 +69,9 @@ final class RouteContext
         return $this->routingResults->getRoute();
     }
 
+    /**
+     * @return array<string|int,mixed>
+     */
     public function getArguments(): array
     {
         return $this->routingResults->getRouteArguments();

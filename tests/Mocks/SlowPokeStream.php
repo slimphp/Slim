@@ -12,6 +12,7 @@ namespace Slim\Tests\Mocks;
 
 use Exception;
 use Psr\Http\Message\StreamInterface;
+use Stringable;
 
 use function min;
 use function str_repeat;
@@ -19,15 +20,12 @@ use function usleep;
 
 use const SEEK_SET;
 
-class SlowPokeStream implements StreamInterface
+class SlowPokeStream implements Stringable, StreamInterface
 {
-    public const CHUNK_SIZE = 1;
-    public const SIZE = 500;
+    private const CHUNK_SIZE = 1;
+    private const SIZE = 500;
 
-    /**
-     * @var int
-     */
-    private $amountToRead;
+    private int $amountToRead;
 
     public function __construct()
     {

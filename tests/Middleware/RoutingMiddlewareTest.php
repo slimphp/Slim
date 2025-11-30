@@ -13,24 +13,26 @@ namespace Slim\Tests\Middleware;
 use FastRoute\Dispatcher;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Factory\AppFactory;
 use Slim\Interfaces\UrlGeneratorInterface;
 use Slim\Middleware\EndpointMiddleware;
+use Slim\Middleware\JsonBodyParserMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\RouteContext;
 use Slim\Routing\RoutingResults;
+use Slim\Tests\Traits\AppTestTrait;
 
 final class RoutingMiddlewareTest extends TestCase
 {
+    use AppTestTrait;
+
     public function testRouteIsStoredOnSuccessfulMatch()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -44,10 +46,6 @@ final class RoutingMiddlewareTest extends TestCase
             $test->assertNotNull($route);
 
             // routeParser is available
-            $urlGenerator = $request->getAttribute(RouteContext::URL_GENERATOR);
-            $test->assertNotNull($urlGenerator);
-            $test->assertInstanceOf(UrlGeneratorInterface::class, $urlGenerator);
-
             return $handler->handle($request);
         };
 
@@ -55,8 +53,8 @@ final class RoutingMiddlewareTest extends TestCase
         $app->add($middleware);
         $app->add(EndpointMiddleware::class);
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', 'https://example.com:443/hello/foo');
 
         $app->get('/hello/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -70,12 +68,32 @@ final class RoutingMiddlewareTest extends TestCase
         $this->assertSame('Hello World', (string)$response->getBody());
     }
 
+    public function testRouteWithMiddlewareAsString()
+    {
+        $app = AppFactory::create();
+
+        $app->addRoutingMiddleware();
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', 'https://example.com:443/hello/foo');
+
+        $app->get('/hello/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+
+            return $response;
+        })->add(JsonBodyParserMiddleware::class);
+
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string)$response->getBody());
+    }
+
     public function testRouteIsNotStoredOnMethodNotAllowed()
     {
         $this->expectException(HttpMethodNotAllowedException::class);
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -94,11 +112,6 @@ final class RoutingMiddlewareTest extends TestCase
                 $route = $routingResults->getRoute();
                 $test->assertNull($route);
 
-                // routeParser is available
-                $urlParser = $request->getAttribute(RouteContext::URL_GENERATOR);
-                $test->assertNotNull($urlParser);
-                $test->assertInstanceOf(UrlGeneratorInterface::class, $urlParser);
-
                 // Re-throw to keep the behavior consistent
                 throw $exception;
             }
@@ -114,8 +127,8 @@ final class RoutingMiddlewareTest extends TestCase
             return $response;
         });
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/foo');
 
         $app->handle($request);
@@ -125,8 +138,7 @@ final class RoutingMiddlewareTest extends TestCase
     {
         $this->expectException(HttpNotFoundException::class);
 
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -145,11 +157,6 @@ final class RoutingMiddlewareTest extends TestCase
                 $route = $routingResults->getRoute();
                 $test->assertNull($route);
 
-                // routeParser is available
-                $urlGenerator = $request->getAttribute(RouteContext::URL_GENERATOR);
-                $test->assertNotNull($urlGenerator);
-                $test->assertInstanceOf(UrlGeneratorInterface::class, $urlGenerator);
-
                 // Re-throw to keep the behavior consistent
                 throw $exception;
             }
@@ -161,8 +168,8 @@ final class RoutingMiddlewareTest extends TestCase
 
         // No route is defined for '/hello/foo'
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/hello/foo');
 
         $app->handle($request);
@@ -170,15 +177,14 @@ final class RoutingMiddlewareTest extends TestCase
 
     public function testRoutingWithBasePath(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $app->setBasePath('/api');
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         // Define a route with arguments
         $app->get('/users/{id}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $urlGenerator = RouteContext::fromRequest($request)->getUrlGenerator();
+            $urlGenerator = $this->get(UrlGeneratorInterface::class);
 
             $url = $urlGenerator->relativeUrlFor('user.show', ['id' => $args['id']], ['page' => 2]);
             $response = $response->withHeader('X-relativeUrlFor', $url);
@@ -189,8 +195,8 @@ final class RoutingMiddlewareTest extends TestCase
             return $response;
         })->setName('user.show');
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/api/users/123');
 
         $response = $app->handle($request);

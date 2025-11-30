@@ -15,7 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
 use Slim\Routing\Router;
@@ -50,7 +50,7 @@ class RouteTest extends TestCase
         $middleware2 = $this->createMiddleware();
         $route->add($middleware1)->add($middleware2);
 
-        $middlewareStack = $route->getMiddlewareStack();
+        $middlewareStack = $route->getMiddleware();
 
         $this->assertCount(2, $middlewareStack);
         $this->assertSame([$middleware1, $middleware2], $middlewareStack);
@@ -75,7 +75,7 @@ class RouteTest extends TestCase
         // Create a RouteGroup with middleware
         $routeGroup = new RouteGroup('/group', function (RouteGroup $group) use ($groupMiddleware) {
             $group->add($groupMiddleware);
-        }, $router);
+        }, $router->getRouteCollector());
 
         $route = new Route($methods, $pattern, $handler, $routeGroup);
 
@@ -85,13 +85,13 @@ class RouteTest extends TestCase
         // Simulate fastroute group collector
         $routeGroup();
 
-        $middlewareStack = $route->getMiddlewareStack();
+        $middlewareStack = $route->getMiddleware();
 
         // The stack should contain route middlewares followed by group middleware
         $this->assertCount(2, $middlewareStack);
         $this->assertSame([$middleware1, $middleware2], $middlewareStack);
 
-        $groupMiddlewares = $routeGroup->getMiddlewareStack();
+        $groupMiddlewares = $routeGroup->getMiddleware();
         $this->assertCount(1, $groupMiddlewares);
         $this->assertSame($groupMiddleware, $groupMiddlewares[0]);
     }
@@ -151,7 +151,7 @@ class RouteTest extends TestCase
 
     private function createRouter(): Router
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         return $app->getContainer()->get(Router::class);
     }

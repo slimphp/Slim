@@ -27,7 +27,7 @@ final class RoutingArgumentsMiddleware implements MiddlewareInterface
         /* @var RoutingResults|null $routingResults */
         $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
 
-        if ($routingResults) {
+        if ($routingResults instanceof RoutingResults) {
             foreach ($routingResults->getRouteArguments() as $key => $value) {
                 $request = $request->withAttribute($key, $value);
             }

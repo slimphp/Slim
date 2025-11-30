@@ -12,21 +12,19 @@ namespace Slim\Tests\Mocks;
 
 use Exception;
 use Psr\Http\Message\StreamInterface;
+use Stringable;
 
 use function min;
 use function str_repeat;
 
 use const SEEK_SET;
 
-class SmallChunksStream implements StreamInterface
+class SmallChunksStream implements Stringable, StreamInterface
 {
     public const CHUNK_SIZE = 10;
     public const SIZE = 40;
 
-    /**
-     * @var int
-     */
-    private $amountToRead;
+    private int $amountToRead;
 
     public function __construct()
     {

@@ -16,13 +16,16 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\EmitterInterface;
-use Slim\Interfaces\RouteCollectionInterface;
+use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
-use Slim\RequestHandler\MiddlewareRequestHandler;
+use Slim\Middleware\EndpointMiddleware;
+use Slim\Middleware\ErrorExceptionMiddleware;
+use Slim\Middleware\HtmlExceptionMiddleware;
+use Slim\Middleware\JsonExceptionMiddleware;
+use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\Route;
 use Slim\Routing\RouteCollectionTrait;
 use Slim\Routing\RouteGroup;
-use Slim\Routing\Router;
 
 /**
  * App
@@ -31,11 +34,9 @@ use Slim\Routing\Router;
  * running the application. It provides methods for defining routes, adding middleware, and managing
  * the application's lifecycle, including handling HTTP requests and emitting responses.
  *
- * @template TContainerInterface of (ContainerInterface|null)
- *
  * @api
  */
-class App implements RequestHandlerInterface, RouteCollectionInterface
+class App implements RequestHandlerInterface
 {
     use RouteCollectionTrait;
 
@@ -64,7 +65,7 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
     /**
      * The router instance for handling route definitions and matching.
      */
-    private Router $router;
+    private RouterInterface $router;
 
     /**
      * The emitter instance for sending the HTTP response to the client.
@@ -84,14 +85,12 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
         $this->container = $container;
         $this->serverRequestCreator = $container->get(ServerRequestCreatorInterface::class);
         $this->requestHandler = $container->get(RequestHandlerInterface::class);
-        $this->router = $container->get(Router::class);
+        $this->router = $container->get(RouterInterface::class);
         $this->emitter = $container->get(EmitterInterface::class);
     }
 
     /**
      * Get the dependency injection container.
-     *
-     * @return ContainerInterface The DI container instance
      */
     public function getContainer(): ContainerInterface
     {
@@ -101,7 +100,7 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
     /**
      * Define a new route with the specified HTTP methods and URI pattern.
      *
-     * @param array $methods The HTTP methods the route should respond to
+     * @param array<string> $methods The HTTP methods the route should respond to
      * @param string $path The URI pattern for the route
      * @param callable|string $handler The route handler callable or controller method
      *
@@ -126,21 +125,8 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
     }
 
     /**
-     * Get the base path used for routing.
-     *
-     * @return string The base path used for routing
-     */
-    public function getBasePath(): string
-    {
-        return $this->router->getBasePath();
-    }
-
-    /**
      * Set the base path used for routing.
-     *
-     * @param string $basePath The base path to use for routing
-     *
-     * @return self The current App instance for method chaining
+     * @param string $basePath
      */
     public function setBasePath(string $basePath): self
     {
@@ -150,7 +136,16 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
     }
 
     /**
+     * Get the base path used for routing.
+     */
+    public function getBasePath(): string
+    {
+        return $this->router->getBasePath();
+    }
+
+    /**
      * Add a new middleware to the stack.
+     * @param MiddlewareInterface|callable|string $middleware
      */
     public function add(MiddlewareInterface|callable|string $middleware): self
     {
@@ -161,10 +156,7 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
 
     /**
      * Add a new middleware to the application's middleware stack.
-     *
-     * @param MiddlewareInterface $middleware The middleware to add
-     *
-     * @return self The current App instance for method chaining
+     * @param MiddlewareInterface $middleware
      */
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
@@ -174,15 +166,36 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
     }
 
     /**
+     * Add routing middleware.
+     *
+     * @return self
+     */
+    public function addRoutingMiddleware(): self
+    {
+        return $this
+            ->add(RoutingMiddleware::class)
+            ->add(EndpointMiddleware::class);
+    }
+
+    /**
+     * Add set of default error handling middleware.
+     *
+     * @return self
+     */
+    public function addErrorMiddleware(): self
+    {
+        return $this
+            ->add(ErrorExceptionMiddleware::class)
+            ->add(HtmlExceptionMiddleware::class)
+            ->add(JsonExceptionMiddleware::class);
+    }
+
+    /**
      * Run the Slim application.
      *
      * This method traverses the application's middleware stack, processes the incoming HTTP request,
      * and emits the resultant HTTP response to the client.
-     *
-     * @param ServerRequestInterface|null $request The HTTP request to handle.
-     *                                             If null, it creates a request from globals.
-     *
-     * @return void
+     * @param ?ServerRequestInterface $request
      */
     public function run(?ServerRequestInterface $request = null): void
     {
@@ -190,9 +203,7 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
             $request = $this->serverRequestCreator->createServerRequestFromGlobals();
         }
 
-        $response = $this->handle($request);
-
-        $this->emitter->emit($response);
+        $this->emitter->emit($this->handle($request));
     }
 
     /**
@@ -200,15 +211,10 @@ class App implements RequestHandlerInterface, RouteCollectionInterface
      *
      * This method processes the request through the application's middleware stack and router,
      * returning the resulting HTTP response.
-     *
-     * @param ServerRequestInterface $request The HTTP request to handle
-     *
-     * @return ResponseInterface The HTTP response
+     * @param ServerRequestInterface $request
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, $this->router->getMiddlewareStack());
-
         return $this->requestHandler->handle($request);
     }
 }

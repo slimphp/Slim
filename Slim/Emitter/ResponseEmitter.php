@@ -35,6 +35,7 @@ final class ResponseEmitter implements EmitterInterface
 
     /**
      * Send the response the client.
+     * @param ResponseInterface $response
      */
     public function emit(ResponseInterface $response): void
     {
@@ -81,13 +82,15 @@ final class ResponseEmitter implements EmitterInterface
             'HTTP/%s %s %s',
             $response->getProtocolVersion(),
             $response->getStatusCode(),
-            $response->getReasonPhrase()
+            $response->getReasonPhrase(),
         );
         header($statusLine, true, $response->getStatusCode());
     }
 
     /**
      * Emit Body
+     *
+     * @param ResponseInterface $response
      */
     private function emitBody(ResponseInterface $response): void
     {
@@ -125,6 +128,8 @@ final class ResponseEmitter implements EmitterInterface
 
     /**
      * Asserts response body is empty or status code is 204, 205 or 304.
+     *
+     * @param ResponseInterface $response
      */
     public function isResponseEmpty(ResponseInterface $response): bool
     {

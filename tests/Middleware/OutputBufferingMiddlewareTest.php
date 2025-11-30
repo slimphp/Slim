@@ -18,10 +18,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Middleware\EndpointMiddleware;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\OutputBufferingMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
 use function ob_get_contents;
@@ -34,8 +32,8 @@ final class OutputBufferingMiddlewareTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $builder = new AppBuilder();
-        $streamFactory = $builder->build()->getContainer()->get(StreamFactoryInterface::class);
+        $app = AppFactory::create();
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
         new OutputBufferingMiddleware($streamFactory, OutputBufferingMiddleware::APPEND);
         new OutputBufferingMiddleware($streamFactory, OutputBufferingMiddleware::PREPEND);
@@ -45,16 +43,15 @@ final class OutputBufferingMiddlewareTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $builder = new AppBuilder();
-        $streamFactory = $builder->build()->getContainer()->get(StreamFactoryInterface::class);
+        $app = AppFactory::create();
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
         new OutputBufferingMiddleware($streamFactory, 'foo');
     }
 
     public function testAppend()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $responseFactory = $app->getContainer()->get(ResponseFactoryInterface::class);
         $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
@@ -71,8 +68,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
         };
         $app->add($middleware);
 
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -85,8 +81,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
     public function testPrepend()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $responseFactory = $app->getContainer()->get(ResponseFactoryInterface::class);
         $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
@@ -103,8 +98,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $app->add($outputBufferingMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
@@ -121,8 +115,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
     public function testOutputBufferIsCleanedWhenThrowableIsCaught()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
 
@@ -137,8 +130,7 @@ final class OutputBufferingMiddlewareTest extends TestCase
 
         $app->add($outputBufferingMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;

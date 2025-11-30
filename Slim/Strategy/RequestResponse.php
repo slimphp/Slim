@@ -8,18 +8,16 @@
 
 declare(strict_types=1);
 
-namespace Slim\Routing\Strategies;
+namespace Slim\Strategy;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 
-use function array_values;
-
 /**
- * Route callback strategy with route parameters as individual arguments.
+ * Default route callback strategy with route parameters as an array of arguments.
  */
-final class RequestResponseArgs implements RequestHandlerInvocationStrategyInterface
+final class RequestResponse implements RequestHandlerInvocationStrategyInterface
 {
     public function __invoke(
         callable $callable,
@@ -27,6 +25,6 @@ final class RequestResponseArgs implements RequestHandlerInvocationStrategyInter
         ResponseInterface $response,
         array $routeArguments,
     ): ResponseInterface {
-        return $callable($request, $response, ...array_values($routeArguments));
+        return $callable($request, $response, $routeArguments);
     }
 }

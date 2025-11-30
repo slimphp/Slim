@@ -11,39 +11,38 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Slim\Builder\AppBuilder;
-use Slim\Enums\MiddlewareOrder;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\ResponseFactoryMiddleware;
-use Slim\RequestHandler\MiddlewareRequestHandler;
+use Slim\Routing\Router;
 
 final class MiddlewareRequestHandlerTest extends TestCase
 {
     public function testHandleWithFunctionMiddlewareStack()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $middleware = [
+        $app->add(
             function ($req, $handler) {
                 $response = $handler->handle($req);
 
                 return $response->withHeader('X-Middleware-1', 'Processed-1');
             },
-            function ($req, $handler) {
-                $response = $handler->handle($req);
+        );
 
-                return $response->withHeader('X-Middleware-2', 'Processed-2');
-            },
-            ResponseFactoryMiddleware::class,
-        ];
+        $app->add(function ($req, $handler) {
+            $response = $handler->handle($req);
 
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, $middleware);
+            return $response->withHeader('X-Middleware-2', 'Processed-2');
+        });
+
+        $app->add(ResponseFactoryMiddleware::class);
 
         $handler = $app->getContainer()
-            ->get(MiddlewareRequestHandler::class);
+            ->get(Router::class);
 
         $response = $handler->handle($request);
 
@@ -54,18 +53,16 @@ final class MiddlewareRequestHandlerTest extends TestCase
     public function testHandleWithoutMiddlewareStack()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('No middleware found. Add a response factory middleware.');
+        $this->expectExceptionMessage('The middleware pipeline is empty.');
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, []);
-
         $handler = $app->getContainer()
-            ->get(MiddlewareRequestHandler::class);
+            ->get(Router::class);
 
         $response = $handler->handle($request);
 
@@ -74,127 +71,76 @@ final class MiddlewareRequestHandlerTest extends TestCase
 
     public function testHandleWithClassMiddlewareStack()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $middleware = [];
-        $middleware[] = new class implements MiddlewareInterface {
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $response = $handler->handle($request);
+        $app->add(
+            new class implements MiddlewareInterface {
+                public function process(
+                    ServerRequestInterface $request,
+                    RequestHandlerInterface $handler,
+                ): ResponseInterface {
+                    $response = $handler->handle($request);
 
-                return $response->withHeader('X-Middleware-1', 'Processed-1');
-            }
-        };
-
-        $middleware[] = ResponseFactoryMiddleware::class;
-
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, $middleware);
-
-        $handler = $app->getContainer()
-            ->get(MiddlewareRequestHandler::class);
-
-        $response = $handler->handle($request);
-
-        $this->assertSame('Processed-1', $response->getHeaderLine('X-Middleware-1'));
-    }
-
-    public function testHandleWithNoMiddlewareAttribute()
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('No middleware found. Add a response factory middleware.');
-
-        $app = (new AppBuilder())->build();
-
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', '/');
-
-        $request = $request->withoutAttribute(MiddlewareRequestHandler::MIDDLEWARE);
-
-        $handler = $app->getContainer()
-            ->get(MiddlewareRequestHandler::class);
-
-        $response = $handler->handle($request);
-
-        $this->assertSame('Processed-1', $response->getHeaderLine('X-Middleware-1'));
-    }
-
-    public function testHandleWithInvalidMiddleware()
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(
-            'A middleware must be an object or callable that implements "MiddlewareInterface".'
+                    return $response->withHeader('X-Middleware-1', 'Processed-1');
+                }
+            },
         );
 
-        $app = (new AppBuilder())->build();
-
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', '/');
-
-        $middleware = [];
-
-        // invalid middleware
-        $middleware[] = [];
-
-        $middleware[] = ResponseFactoryMiddleware::class;
-
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, $middleware);
+        $app->add(ResponseFactoryMiddleware::class);
 
         $handler = $app->getContainer()
-            ->get(MiddlewareRequestHandler::class);
+            ->get(Router::class);
 
-        $handler->handle($request);
+        $response = $handler->handle($request);
+
+        $this->assertSame('Processed-1', $response->getHeaderLine('X-Middleware-1'));
     }
 
     public function testHandleWithFifoMiddlewareStack()
     {
-        $builder = new AppBuilder();
+        $app = AppFactory::create();
         // $builder->setMiddlewareOrder(MiddlewareOrder::FIFO);
-        $app = $builder->build();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $middleware = [];
+        $app->add(
+            new class implements MiddlewareInterface {
+                public function process(
+                    ServerRequestInterface $request,
+                    RequestHandlerInterface $handler,
+                ): ResponseInterface {
+                    $response = $handler->handle($request);
+                    $response->getBody()->write('2');
 
-        $middleware[] = new class implements MiddlewareInterface {
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $response = $handler->handle($request);
-                $response->getBody()->write('2');
+                    return $response;
+                }
+            },
+        );
 
-                return $response;
-            }
-        };
+        $app->add(
+            new class implements MiddlewareInterface {
+                public function process(
+                    ServerRequestInterface $request,
+                    RequestHandlerInterface $handler,
+                ): ResponseInterface {
+                    $response = $handler->handle($request);
+                    $response->getBody()->write('1');
 
-        $middleware[] = new class implements MiddlewareInterface {
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $response = $handler->handle($request);
-                $response->getBody()->write('1');
+                    return $response;
+                }
+            },
+        );
 
-                return $response;
-            }
-        };
-
-        $middleware[] = ResponseFactoryMiddleware::class;
-
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, $middleware);
+        $app->add(ResponseFactoryMiddleware::class);
 
         $handler = $app->getContainer()
-            ->get(MiddlewareRequestHandler::class);
+            ->get(Router::class);
 
         $response = $handler->handle($request);
 

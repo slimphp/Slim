@@ -16,14 +16,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ 8.2, 8.3, 8.4 ]
+        php: [ 8.2, 8.3, 8.4, 8.5 ]
         include:
-          - php: 8.2
+          - php: 8.4
             analysis: true
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -36,9 +36,6 @@ jobs:
 
       - name: Coding standards
         run: composer cs:check
-
-      - name: Code sniffer
-        run: composer sniffer:check
 
       - name: Static analysis
         run: composer stan

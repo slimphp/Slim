@@ -19,14 +19,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
-use Slim\Container\GuzzleDefinitions;
+use Slim\Container\Definition\GuzzleDefinitions;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 
 class GuzzleDefinitionsTest extends TestCase
 {
     public function testInvokeReturnsCorrectDefinitions()
     {
-        $definitions = (new GuzzleDefinitions())->__invoke();
+        $definitions = (new GuzzleDefinitions())->getDefinitions();
         $container = new Container($definitions);
 
         $this->assertTrue($container->has(ServerRequestFactoryInterface::class));
@@ -39,7 +39,7 @@ class GuzzleDefinitionsTest extends TestCase
 
     public function testServerRequestFactoryInterface()
     {
-        $definitions = (new GuzzleDefinitions())->__invoke();
+        $definitions = (new GuzzleDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $serverRequestFactory = $container->get(ServerRequestFactoryInterface::class);
@@ -49,7 +49,7 @@ class GuzzleDefinitionsTest extends TestCase
 
     public function testServerRequestCreatorInterface()
     {
-        $definitions = (new GuzzleDefinitions())->__invoke();
+        $definitions = (new GuzzleDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $serverRequestCreator = $container->get(ServerRequestCreatorInterface::class);
@@ -60,7 +60,7 @@ class GuzzleDefinitionsTest extends TestCase
 
     public function testResponseFactoryInterface()
     {
-        $definitions = (new GuzzleDefinitions())->__invoke();
+        $definitions = (new GuzzleDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $responseFactory = $container->get(ResponseFactoryInterface::class);
@@ -70,7 +70,7 @@ class GuzzleDefinitionsTest extends TestCase
 
     public function testStreamFactoryInterface()
     {
-        $definitions = (new GuzzleDefinitions())->__invoke();
+        $definitions = (new GuzzleDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $streamFactory = $container->get(StreamFactoryInterface::class);
@@ -80,7 +80,7 @@ class GuzzleDefinitionsTest extends TestCase
 
     public function testUriFactoryInterface()
     {
-        $definitions = (new GuzzleDefinitions())->__invoke();
+        $definitions = (new GuzzleDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $uriFactory = $container->get(UriFactoryInterface::class);
@@ -90,7 +90,7 @@ class GuzzleDefinitionsTest extends TestCase
 
     public function testUploadedFileFactoryInterface()
     {
-        $definitions = (new GuzzleDefinitions())->__invoke();
+        $definitions = (new GuzzleDefinitions())->getDefinitions();
 
         $container = new Container($definitions);
         $uploadedFileFactory = $container->get(UploadedFileFactoryInterface::class);

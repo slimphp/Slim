@@ -8,13 +8,8 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
-use Laminas\Diactoros\ResponseFactory;
-use Laminas\Diactoros\ServerRequestFactory;
-use Laminas\Diactoros\StreamFactory;
-use Laminas\Diactoros\UploadedFileFactory;
-use Laminas\Diactoros\UriFactory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -22,11 +17,17 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
+use Slim\Psr7\Factory\ResponseFactory;
+use Slim\Psr7\Factory\ServerRequestFactory;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UploadedFileFactory;
+use Slim\Psr7\Factory\UriFactory;
 
-final class LaminasDiactorosDefinitions
+final class SlimPsr7Definitions implements DefinitionsInterface
 {
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         return [
             ServerRequestFactoryInterface::class => function (ContainerInterface $container) {
@@ -36,7 +37,7 @@ final class LaminasDiactorosDefinitions
                 return new class implements ServerRequestCreatorInterface {
                     public function createServerRequestFromGlobals(): ServerRequestInterface
                     {
-                        return ServerRequestFactory::fromGlobals();
+                        return ServerRequestFactory::createFromGlobals();
                     }
                 };
             },

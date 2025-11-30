@@ -18,18 +18,30 @@ use Slim\Interfaces\ContainerResolverInterface;
 use function is_array;
 
 /**
- *  This class is responsible for resolving dependencies or services from a PSR-11 compatible DI container.
- *  It can handle resolving strings, arrays, callables, and objects. If the provided identifier is a string,
- *  it can also interpret Slim's notation (e.g., "service:method") or the standard "::" notation for static
- *  method calls.
+ * Resolves identifiers into services or callables using a PSR-11 DI container.
  *
- *  The primary use case for this class is to provide a way to retrieve or resolve services and callables from
- *  a container by processing the given identifier.
+ * Supports:
+ * - Service names (strings)
+ * - Slim notation: "service:method"
+ * - PHP notation: "Class::method"
+ * - Arrays like ["service", "method"]
+ * - Callables or objects directly
+ *
+ * Returned results can be:
+ * - A callable
+ * - An object fetched from the container
+ * - A callable bound to the container (closures)
+ *
+ * This is used internally by Slim to resolve route callables, middleware, and
+ * other handler definitions.
  */
 final class ContainerResolver implements ContainerResolverInterface
 {
     private ContainerInterface $container;
 
+    /**
+     * Regex matching Slim-style "service:method" callables.
+     */
     private string $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
 
     public function __construct(ContainerInterface $container)
@@ -42,30 +54,51 @@ final class ContainerResolver implements ContainerResolverInterface
      */
     public function resolve(callable|object|array|string $identifier): mixed
     {
-        if (is_object($identifier) || is_callable($identifier)) {
+        // Already an object, no further resolution needed
+        if (is_object($identifier)) {
             return $identifier;
         }
 
-        // The callable is a container entry name
-        if (is_string($identifier)) {
-            $identifier = $this->processStringNotation($identifier);
+        // Bind callable to container
+        if (is_callable($identifier)) {
+            return $this->bindToContainer($identifier);
         }
 
+        // ClassName::methodName or Slim notation ClassName:methodName
+        if (is_string($identifier) && preg_match($this->callablePattern, $identifier, $matches)) {
+            $identifier = [$matches[1], $matches[2]];
+        }
+
+        // Resolve as a container entry name
         if (is_string($identifier)) {
             return $this->container->get($identifier);
         }
 
-        // The callable is an array whose first item is a container entry name
-        // e.g. ['some-container-entry', 'methodToCall']
-        if (is_string($identifier[0] ?? null)) {
+        // Array callable notation: ['service-id', 'method']
+        // @phpstan-ignore-next-line
+        if (is_string($identifier[0])) {
             // Replace the container entry name by the actual object
-            $identifier[0] = $this->container->get($identifier[0]);
+            $service = $this->container->get($identifier[0]);
 
-            if (!method_exists($identifier[0], (string)$identifier[1])) {
-                throw new RuntimeException(sprintf('The method "%s" does not exists', $identifier[1]));
+            if (!is_object($service) && !is_string($service)) {
+                throw new RuntimeException(
+                    sprintf(
+                        'Container entry "%s" must resolve to an object or class name.',
+                        $identifier[0],
+                    ),
+                );
             }
+
+            $method = (string)($identifier[1] ?? '');
+
+            if (!method_exists($service, $method)) {
+                throw new RuntimeException(sprintf('The method "%s" does not exist', $method));
+            }
+
+            return [$service, $method];
         }
 
+        // @phpstan-ignore-next-line
         return $identifier;
     }
 
@@ -74,39 +107,24 @@ final class ContainerResolver implements ContainerResolverInterface
      */
     public function resolveCallable(callable|array|string $identifier): callable
     {
-        $callable = $this->resolve($identifier);
+        if (is_string($identifier)) {
+            $identifier = $this->resolve($identifier);
+        }
 
-        if (is_callable($callable)) {
-            return $callable;
+        if (is_callable($identifier)) {
+            return $this->bindToContainer($identifier);
         }
 
         // Unrecognized stuff, we let it fail
         throw new RuntimeException(
-            sprintf('The definition "%s" is not a callable.', implode(':', (array)$identifier))
+            sprintf('The definition "%s" is not a callable.', implode(':', (array)$identifier)),
         );
     }
 
     /**
-     * {@inheritdoc}
+     * Bind closures to the container to allow `$this` access.
+     * @param callable $callable
      */
-    public function resolveRoute(callable|array|string $identifier): callable
-    {
-        $callable = $this->resolveCallable($identifier);
-
-        return $this->bindToContainer($callable);
-    }
-
-    private function processStringNotation(string $toResolve): string|array
-    {
-        // Resolve Slim notation
-        $matches = null;
-        if (preg_match($this->callablePattern, $toResolve, $matches)) {
-            return $matches ? [$matches[1], $matches[2]] : [$toResolve, null];
-        }
-
-        return $toResolve;
-    }
-
     private function bindToContainer(callable $callable): callable
     {
         if (is_array($callable) && $callable[0] instanceof Closure) {
@@ -115,7 +133,7 @@ final class ContainerResolver implements ContainerResolverInterface
 
         if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this->container) ?? throw new RuntimeException(
-                'Unable to bind callable to DI container.'
+                'Unable to bind callable to DI container.',
             );
         }
 

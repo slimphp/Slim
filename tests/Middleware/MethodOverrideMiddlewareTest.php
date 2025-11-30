@@ -16,10 +16,8 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Middleware\EndpointMiddleware;
+use Slim\Factory\AppFactory;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class MethodOverrideMiddlewareTest extends TestCase
@@ -28,8 +26,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testHeader()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -41,8 +38,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->put('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -62,8 +58,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testBodyParam()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -75,8 +70,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->put('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -96,8 +90,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testHeaderPreferred()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -109,8 +102,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->delete('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -131,8 +123,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testNoOverride()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -144,8 +135,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->post('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
@@ -164,8 +154,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
     public function testNoOverrideRewindEofBodyStream()
     {
-        $builder = new AppBuilder();
-        $app = $builder->build();
+        $app = AppFactory::create();
 
         $test = $this;
         $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
@@ -177,8 +166,7 @@ final class MethodOverrideMiddlewareTest extends TestCase
 
         $app->add($methodOverrideMiddleware);
         $app->add($middleware);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->post('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');

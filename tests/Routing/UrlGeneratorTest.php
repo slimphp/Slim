@@ -13,7 +13,7 @@ namespace Slim\Tests\Routing;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UriInterface;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Routing\Router;
 use Slim\Routing\UrlGenerator;
 use UnexpectedValueException;
@@ -22,7 +22,7 @@ class UrlGeneratorTest extends TestCase
 {
     public function testRelativeUrlFor(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
         $urlGenerator = new UrlGenerator($router);
 
@@ -37,7 +37,7 @@ class UrlGeneratorTest extends TestCase
 
     public function testUrlFor(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
         $urlGenerator = new UrlGenerator($router);
 
@@ -51,7 +51,7 @@ class UrlGeneratorTest extends TestCase
 
     public function testFullUrlFor(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
         $urlGenerator = new UrlGenerator($router);
 
@@ -73,7 +73,7 @@ class UrlGeneratorTest extends TestCase
     {
         $this->expectException(UnexpectedValueException::class);
 
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
         $urlGenerator = new UrlGenerator($router);
 
@@ -83,7 +83,7 @@ class UrlGeneratorTest extends TestCase
 
     public function testGetSegmentsThrowsExceptionIfDataIsMissing(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
         $urlGenerator = new UrlGenerator($router);
 
@@ -99,7 +99,7 @@ class UrlGeneratorTest extends TestCase
 
     public function testRelativeUrlForWithBasePath(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
         $router = $app->getContainer()->get(Router::class);
         $router->setBasePath('/api');
         $urlGenerator = new UrlGenerator($router);

@@ -13,11 +13,10 @@ namespace Slim\Tests\Routing;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use RuntimeException;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
 use Slim\Routing\Route;
 use Slim\Routing\RouteContext;
 use Slim\Routing\RoutingResults;
-use Slim\Routing\UrlGenerator;
 
 class RouteContextTest extends TestCase
 {
@@ -27,53 +26,23 @@ class RouteContextTest extends TestCase
      */
     public function testFromRequestCreatesInstanceWithValidAttributes(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
-
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
 
         $routingResults = new RoutingResults(200, null, 'GET', '/test', []);
         $basePath = '/base-path';
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults)
             ->withAttribute(RouteContext::BASE_PATH, $basePath);
 
         $routeContext = RouteContext::fromRequest($request);
 
-        $this->assertInstanceOf(RouteContext::class, $routeContext);
-        $this->assertSame($urlGenerator, $routeContext->getUrlGenerator());
         $this->assertSame($routingResults, $routeContext->getRoutingResults());
         $this->assertSame($basePath, $routeContext->getBasePath());
-    }
-
-    /**
-     * Tests that an exception is thrown when attempting to create a RouteContext
-     * without a URL generator attribute set in the request.
-     */
-    public function testFromRequestThrowsExceptionIfUrlGeneratorIsMissing(): void
-    {
-        $app = (new AppBuilder())->build();
-
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', '/');
-
-        $routingResults = new RoutingResults(200, null, 'GET', '/test', []);
-
-        $request = $request
-            ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(
-            'Cannot create RouteContext before routing has been completed. Add UrlGeneratorMiddleware to fix this.'
-        );
-
-        RouteContext::fromRequest($request);
     }
 
     /**
@@ -82,16 +51,14 @@ class RouteContextTest extends TestCase
      */
     public function testFromRequestThrowsExceptionIfRoutingResultsAreMissing(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator);
+            ->withAttribute(RouteContext::BASE_PATH, '/base-path');
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(
@@ -102,48 +69,20 @@ class RouteContextTest extends TestCase
     }
 
     /**
-     * Tests that the URL generator instance returned by getUrlGenerator matches
-     * the one originally provided in the request attributes.
-     */
-    public function testGetUrlGeneratorReturnsCorrectInstance(): void
-    {
-        $app = (new AppBuilder())->build();
-
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', '/');
-
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
-        $routingResults = new RoutingResults(200, null, 'GET', '/test', []);
-
-        $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
-            ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
-
-        $routeContext = RouteContext::fromRequest($request);
-
-        $this->assertSame($urlGenerator, $routeContext->getUrlGenerator());
-    }
-
-    /**
      * Tests that the RoutingResults instance returned by getRoutingResults matches
      * the one originally provided in the request attributes.
      */
     public function testGetRoutingResultsReturnsCorrectInstance(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $routingResults = new RoutingResults(200, null, 'GET', '/test', []);
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($request);
@@ -157,19 +96,16 @@ class RouteContextTest extends TestCase
      */
     public function testGetBasePathReturnsCorrectValue(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $routingResults = new RoutingResults(200, null, 'GET', '/test', []);
         $basePath = '/base-path';
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults)
             ->withAttribute(RouteContext::BASE_PATH, $basePath);
 
@@ -184,18 +120,15 @@ class RouteContextTest extends TestCase
      */
     public function testGetBasePathReturnsNullIfNotSet(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $routingResults = new RoutingResults(200, null, 'GET', '/test', []);
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($request);
@@ -208,21 +141,17 @@ class RouteContextTest extends TestCase
      */
     public function testGetRouteReturnsCorrectInstance(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         // Create a route for testing
-        $route = $app->get('/test', function () {
-        })->setName('test-route');
+        $route = $app->get('/test', function () {})->setName('test-route');
         $routingResults = new RoutingResults(200, $route, 'GET', '/test', []);
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($request);
@@ -237,18 +166,15 @@ class RouteContextTest extends TestCase
      */
     public function testGetRouteReturnsNullWhenNoRouteMatched(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $routingResults = new RoutingResults(404, null, 'GET', '/not-found', []);
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($request);
@@ -261,19 +187,16 @@ class RouteContextTest extends TestCase
      */
     public function testGetArgumentsReturnsCorrectValues(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $arguments = ['id' => '123', 'name' => 'test'];
         $routingResults = new RoutingResults(200, null, 'GET', '/test', $arguments);
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($request);
@@ -286,19 +209,16 @@ class RouteContextTest extends TestCase
      */
     public function testGetArgumentReturnsCorrectValue(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $arguments = ['id' => '123', 'name' => 'test'];
         $routingResults = new RoutingResults(200, null, 'GET', '/test', $arguments);
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($request);
@@ -312,19 +232,16 @@ class RouteContextTest extends TestCase
      */
     public function testGetArgumentReturnsNullForNonExistentKey(): void
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('GET', '/');
 
-        $urlGenerator = $app->getContainer()->get(UrlGenerator::class);
-
         $arguments = ['id' => '123'];
         $routingResults = new RoutingResults(200, null, 'GET', '/test', $arguments);
 
         $request = $request
-            ->withAttribute(RouteContext::URL_GENERATOR, $urlGenerator)
             ->withAttribute(RouteContext::ROUTING_RESULTS, $routingResults);
 
         $routeContext = RouteContext::fromRequest($request);

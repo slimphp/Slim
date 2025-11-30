@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\Container;
+namespace Slim\Container\Definition;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -21,17 +21,20 @@ use RuntimeException;
 use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Http\Factory\DecoratedUriFactory;
 use Slim\Http\ServerRequest;
+use Slim\Interfaces\DefinitionsInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
-final class SlimHttpDefinitions
+final class SlimHttpDefinitions implements DefinitionsInterface
 {
     /**
-     * @var callable
+     * Callable used to check whether a class exists.
+     *
+     * @var callable(string): bool
      */
     private $classExists = 'class_exists';
 
-    public function __invoke(): array
+    public function getDefinitions(): array
     {
         $that = $this;
 
@@ -47,13 +50,18 @@ final class SlimHttpDefinitions
                         $this->serverRequestFactory = $serverRequestFactory;
                     }
 
+                    /**
+                     * @param array<string, mixed> $serverParams
+                     * @param string $method
+                     * @param mixed $uri
+                     */
                     public function createServerRequest(
                         string $method,
                         $uri,
-                        array $serverParams = []
+                        array $serverParams = [],
                     ): ServerRequestInterface {
                         return new ServerRequest(
-                            $this->serverRequestFactory->createServerRequest($method, $uri, $serverParams)
+                            $this->serverRequestFactory->createServerRequest($method, $uri, $serverParams),
                         );
                     }
                 };
@@ -93,7 +101,7 @@ final class SlimHttpDefinitions
                 return $responseFactory ?? throw new RuntimeException(
                     'Could not detect any PSR-17 ResponseFactory implementations. ' .
                     'Please install a supported implementation. ' .
-                    'See https://github.com/slimphp/Slim/blob/5.x/README.md for a list of supported implementations.'
+                    'See https://github.com/slimphp/Slim/blob/5.x/README.md for a list of supported implementations.',
                 );
             },
             StreamFactoryInterface::class => function (ContainerInterface $container) use ($that) {

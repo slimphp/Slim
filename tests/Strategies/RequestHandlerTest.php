@@ -14,8 +14,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Builder\AppBuilder;
-use Slim\Routing\Strategies\RequestHandler;
+use Slim\Factory\AppFactory;
+use Slim\Strategy\RequestHandler;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class RequestHandlerTest extends TestCase
@@ -24,7 +24,7 @@ final class RequestHandlerTest extends TestCase
 
     public function testInvokeReturnsResponse()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
@@ -47,7 +47,7 @@ final class RequestHandlerTest extends TestCase
 
     public function testInvokeWithModifiedRequest()
     {
-        $app = (new AppBuilder())->build();
+        $app = AppFactory::create();
 
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)

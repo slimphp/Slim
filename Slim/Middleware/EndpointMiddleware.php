@@ -2,7 +2,6 @@
 
 namespace Slim\Middleware;
 
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -10,11 +9,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Interfaces\ContainerResolverInterface;
-use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
-use Slim\RequestHandler\MiddlewareRequestHandler;
+use Slim\Routing\PipelineRunner;
 use Slim\Routing\Route;
 use Slim\Routing\RouteContext;
+use Slim\Routing\RouteInvoker;
 use Slim\Routing\RoutingResults;
 
 /**
@@ -25,21 +23,16 @@ use Slim\Routing\RoutingResults;
  */
 final class EndpointMiddleware implements MiddlewareInterface
 {
-    private ContainerResolverInterface $containerResolver;
-    private ResponseFactoryInterface $responseFactory;
-    private RequestHandlerInterface $requestHandler;
-    private RequestHandlerInvocationStrategyInterface $invocationStrategy;
+    private RouteInvoker $routeInvoker;
+
+    private PipelineRunner $pipelineRunner;
 
     public function __construct(
-        ContainerResolverInterface $callableResolver,
-        ResponseFactoryInterface $responseFactory,
-        RequestHandlerInterface $requestHandler,
-        RequestHandlerInvocationStrategyInterface $invocationStrategy,
+        RouteInvoker $routeInvoker,
+        PipelineRunner $pipelineRunner,
     ) {
-        $this->containerResolver = $callableResolver;
-        $this->responseFactory = $responseFactory;
-        $this->requestHandler = $requestHandler;
-        $this->invocationStrategy = $invocationStrategy;
+        $this->routeInvoker = $routeInvoker;
+        $this->pipelineRunner = $pipelineRunner;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -49,7 +42,7 @@ final class EndpointMiddleware implements MiddlewareInterface
 
         if (!$routingResults instanceof RoutingResults) {
             throw new RuntimeException(
-                'An unexpected error occurred while handling routing results. Routing results are not available.'
+                'An unexpected error occurred while handling routing results. Routing results are not available.',
             );
         }
 
@@ -79,82 +72,38 @@ final class EndpointMiddleware implements MiddlewareInterface
         RoutingResults $routingResults,
     ): ResponseInterface {
         $route = $routingResults->getRoute() ?? throw new RuntimeException('Route not found.');
-        $response = $this->responseFactory->createResponse();
 
-        $middlewares = $this->getRouteMiddleware($route);
+        // Collect route specific middleware
+        $pipeline = $this->collectRouteMiddleware($route);
 
-        // Add route handler middleware
-        $containerResolver = $this->containerResolver;
-        $invocationStrategy = $this->invocationStrategy;
+        // Invoke the route/group specific middleware stack
+        $pipeline[] = $this->routeInvoker->withHandler(
+            $route->getHandler(),
+            $routingResults->getRouteArguments(),
+        );
 
-        $middlewares[] = function () use (
-            $request,
-            $response,
-            $routingResults,
-            $containerResolver,
-            $invocationStrategy
-        ) {
-            // Get handler
-            $actionHandler = $routingResults->getRoute()->getHandler();
-            $vars = $routingResults->getRouteArguments();
-            $actionHandler = $containerResolver->resolveRoute($actionHandler);
-
-            // Invoke action handler
-            return call_user_func($invocationStrategy, $actionHandler, $request, $response, $vars);
-        };
-
-        return $this->invokeMiddlewareStack($request, $response, $middlewares);
+        return $this->pipelineRunner->withPipeline($pipeline)->handle($request);
     }
 
-    private function invokeMiddlewareStack(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        array $middlewares,
-    ): ResponseInterface {
-        // Tunnel the response object through the route/group specific middleware stack
-        $middlewares[] =
-            new class ($response) implements MiddlewareInterface {
-                private ResponseInterface $response;
-
-                public function __construct(ResponseInterface $response)
-                {
-                    $this->response = $response;
-                }
-
-                public function process(
-                    ServerRequestInterface $request,
-                    RequestHandlerInterface $handler,
-                ): ResponseInterface {
-                    return $this->response;
-                }
-            };
-
-        $request = $request->withAttribute(MiddlewareRequestHandler::MIDDLEWARE, $middlewares);
-
-        return $this->requestHandler->handle($request);
-    }
-
-    private function getRouteMiddleware(Route $route): array
+    /**
+     * @param Route $route
+     * @return array<MiddlewareInterface|callable|string> List of middleware
+     */
+    private function collectRouteMiddleware(Route $route): array
     {
         $middlewares = [];
 
         // Append group specific middleware from all parent route groups
         $group = $route->getRouteGroup();
+
         while ($group) {
-            $middlewareStack = $group->getMiddlewareStack();
-            foreach ($middlewareStack as $middleware) {
-                $middlewares[] = $middleware;
-            }
+            // Prepend group middleware so outer groups come first
+            $middlewares = array_merge($group->getMiddleware(), $middlewares);
             $group = $group->getRouteGroup();
         }
-        $middlewares = array_reverse($middlewares);
 
-        // Append endpoint specific middleware
-        $routeMiddlewares = $route->getMiddlewareStack();
-        foreach ($routeMiddlewares as $routeMiddleware) {
-            $middlewares[] = $routeMiddleware;
-        }
-
-        return $middlewares;
+        // Append endpoint-specific middleware
+        return array_merge($middlewares, $route->getMiddleware());
     }
+
 }

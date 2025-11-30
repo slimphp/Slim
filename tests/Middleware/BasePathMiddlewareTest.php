@@ -13,13 +13,10 @@ namespace Slim\Tests\Middleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\App;
-use Slim\Builder\AppBuilder;
+use Slim\Factory\AppFactory;
+use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\BasePathMiddleware;
-use Slim\Middleware\EndpointMiddleware;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class BasePathMiddlewareTest extends TestCase
@@ -28,24 +25,22 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testEmptyScriptName(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = AppFactory::create($definitions);
 
         $app->add(BasePathMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(App::class)->getBasePath();
+            /** @var ContainerInterface $this */
+            $basePath = $this->get(RouterInterface::class)->getBasePath();
             $response->getBody()->write('basePath: ' . $basePath);
 
             return $response;
@@ -56,8 +51,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '',
         ];
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/', $serverParams);
 
         $response = $app->handle($request);
@@ -68,24 +63,21 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testScriptNameWithIndexPhp(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = AppFactory::create($definitions);
 
         $app->add(BasePathMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(App::class)->getBasePath();
+            $basePath = $this->get(RouterInterface::class)->getBasePath();
             $response->getBody()->write('basePath: ' . $basePath);
 
             return $response;
@@ -97,8 +89,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '/index.php',
         ];
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/', $serverParams);
 
         $response = $app->handle($request);
@@ -109,24 +101,21 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testScriptNameWithPublicIndexPhp(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = AppFactory::create($definitions);
 
         $app->add(BasePathMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $basePath = $this->get(App::class)->getBasePath();
+            $basePath = $this->get(RouterInterface::class)->getBasePath();
             $response->getBody()->write('basePath: ' . $basePath);
 
             return $response;
@@ -138,8 +127,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '/public/index.php',
         ];
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/', $serverParams);
 
         $response = $app->handle($request);
@@ -150,24 +139,21 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithSlash(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = AppFactory::create($definitions);
 
         $app->add(BasePathMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(App::class)->getBasePath();
+            $basePath = $this->get(RouterInterface::class)->getBasePath();
             $response->getBody()->write('basePath: ' . $basePath);
 
             return $response;
@@ -177,8 +163,8 @@ final class BasePathMiddlewareTest extends TestCase
             'REQUEST_URI' => '/slim-hello-world/',
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/slim-hello-world/?key=value', $serverParams);
 
         $response = $app->handle($request);
@@ -191,24 +177,21 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithoutSlash(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
+        $definitions =
             [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = AppFactory::create($definitions);
 
         $app->add(BasePathMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/foo', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(App::class)->getBasePath();
+            $basePath = $this->get(RouterInterface::class)->getBasePath();
             $response->getBody()->write('basePath: ' . $basePath);
 
             return $response;
@@ -219,8 +202,8 @@ final class BasePathMiddlewareTest extends TestCase
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
 
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/slim-hello-world/foo?key=value', $serverParams);
 
         $response = $app->handle($request);
@@ -233,24 +216,21 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithFooPath(): void
     {
-        $builder = new AppBuilder();
-        $builder->addDefinitions(
-            [
+        $definitions
+            = [
                 BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $app = $container->get(App::class);
+                    $router = $container->get(RouterInterface::class);
 
-                    return new BasePathMiddleware($app, 'apache2handler');
+                    return new BasePathMiddleware($router, 'apache2handler');
                 },
-            ]
-        );
-        $app = $builder->build();
+            ];
+        $app = AppFactory::create($definitions);
 
         $app->add(BasePathMiddleware::class);
-        $app->add(RoutingMiddleware::class);
-        $app->add(EndpointMiddleware::class);
+        $app->addRoutingMiddleware();
 
         $app->get('/foo', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(App::class)->getBasePath();
+            $basePath = $this->get(RouterInterface::class)->getBasePath();
             $response->getBody()->write('basePath: ' . $basePath);
 
             return $response;
@@ -260,8 +240,8 @@ final class BasePathMiddlewareTest extends TestCase
             'REQUEST_URI' => '/slim-hello-world/foo',
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
-        $request = $app->getContainer()
-            ->get(ServerRequestFactoryInterface::class)
+        $request = $this
+            ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/slim-hello-world/foo/?key=value', $serverParams);
 
         $response = $app->handle($request);
