@@ -14,7 +14,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Factory\AppFactory;
-use Slim\Routing\PipelineOrder;
 use Slim\Routing\PipelineRunner;
 use stdClass;
 
@@ -191,58 +190,4 @@ final class RunnerTest extends TestCase
 
         $runner->handle($request);
     }
-
-    public function testHandleExecutesPipelineInLifoOrder(): void
-    {
-        $app = AppFactory::create();
-        $container = $app->getContainer();
-
-        $request = $container
-            ->get(ServerRequestFactoryInterface::class)
-            ->createServerRequest('GET', '/');
-
-        $responseFactory = $container->get(ResponseFactoryInterface::class);
-
-        // This middleware will be executed LAST in LIFO mode (because it was added first).
-        $first = new class implements MiddlewareInterface {
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $response = $handler->handle($request);
-                return $response->withHeader('X-Order', 'First');
-            }
-        };
-
-        // This middleware will be executed FIRST in LIFO mode.
-        $second = new class implements MiddlewareInterface {
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $response = $handler->handle($request);
-                return $response->withHeader('X-Order', 'Second');
-            }
-        };
-
-        // Final handler that produces a basic response
-        $finalHandler = fn() => $responseFactory->createResponse();
-
-        $runner = $container
-            ->get(PipelineRunner::class)
-            ->withOrder(PipelineOrder::LIFO)
-            ->withPipeline(
-                [
-                    $finalHandler,  // end
-                    $second,        // ^ second
-                    $first,         // ^ start
-                ],
-            );
-
-        $response = $runner->handle($request);
-
-        $this->assertSame('First', $response->getHeaderLine('X-Order'));
-    }
-
-
 }

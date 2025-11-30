@@ -27,17 +27,14 @@ final class PipelineRunner implements RequestHandlerInterface
 {
     private ContainerResolverInterface $resolver;
 
-    private PipelineOrder $order;
-
     /**
      * @var array<int, mixed>
      */
     private array $pipeline = [];
 
-    public function __construct(ContainerResolverInterface $resolver, PipelineOrder $order = PipelineOrder::FIFO)
+    public function __construct(ContainerResolverInterface $resolver)
     {
         $this->resolver = $resolver;
-        $this->order = $order;
     }
 
     /**
@@ -51,25 +48,17 @@ final class PipelineRunner implements RequestHandlerInterface
         return $clone;
     }
 
-    public function withOrder(PipelineOrder $order): self
-    {
-        $clone = clone $this;
-        $clone->order = $order;
-
-        return $clone;
-    }
-
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $entry = $this->order === PipelineOrder::FIFO
-            ? array_shift($this->pipeline)
-            : array_pop($this->pipeline);
+        $entry = current($this->pipeline);
 
         if (!$entry) {
             throw new RuntimeException('The middleware pipeline is empty.');
         }
 
         $entry = $this->resolver->resolve($entry);
+
+        next($this->pipeline);
 
         if ($entry instanceof MiddlewareInterface) {
             return $entry->process($request, $this);
