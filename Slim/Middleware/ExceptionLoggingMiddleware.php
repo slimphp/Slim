@@ -58,6 +58,14 @@ final class ExceptionLoggingMiddleware implements MiddlewareInterface
         return $clone;
     }
 
+    public function withLogger(LoggerInterface $logger): self
+    {
+        $clone = clone $this;
+        $clone->logger = $logger;
+
+        return $clone;
+    }
+
     /**
      * @param Throwable $exception
      * @param ServerRequestInterface $request

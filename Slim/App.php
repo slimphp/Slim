@@ -10,16 +10,20 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\ErrorExceptionMiddleware;
+use Slim\Middleware\ExceptionLoggingMiddleware;
 use Slim\Middleware\HtmlExceptionMiddleware;
 use Slim\Middleware\JsonExceptionMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -126,6 +130,7 @@ class App implements RequestHandlerInterface
 
     /**
      * Set the base path used for routing.
+     *
      * @param string $basePath
      */
     public function setBasePath(string $basePath): self
@@ -145,7 +150,6 @@ class App implements RequestHandlerInterface
 
     /**
      * Add a new middleware to the stack.
-     * @param MiddlewareInterface|callable|string $middleware
      */
     public function add(MiddlewareInterface|callable|string $middleware): self
     {
@@ -156,7 +160,6 @@ class App implements RequestHandlerInterface
 
     /**
      * Add a new middleware to the application's middleware stack.
-     * @param MiddlewareInterface $middleware
      */
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
@@ -178,16 +181,39 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * Add set of default error handling middleware.
+     * Add a set of default error handling middleware.
+     *
+     * @param bool $displayErrorDetails
+     * @param bool $logErrors
+     * @param bool $logErrorDetails
+     * @param LoggerInterface|null $logger
      *
      * @return self
      */
-    public function addErrorMiddleware(): self
-    {
-        return $this
+    public function addErrorMiddleware(
+        bool $displayErrorDetails = false,
+        bool $logErrors = true,
+        bool $logErrorDetails = true,
+        ?LoggerInterface $logger = null,
+    ): self {
+        $app = $this
             ->add(ErrorExceptionMiddleware::class)
-            ->add(HtmlExceptionMiddleware::class)
+            ->add($this->container->get(HtmlExceptionMiddleware::class)->withErrorDetails($displayErrorDetails))
             ->add(JsonExceptionMiddleware::class);
+
+        if ($logErrors) {
+            $loggingMiddleware = $this->container
+                ->get(ExceptionLoggingMiddleware::class)
+                ->withLogErrorDetails($logErrorDetails);
+
+            if ($logger) {
+                $loggingMiddleware = $loggingMiddleware->withLogger($logger);
+            }
+
+            $app->add($loggingMiddleware);
+        }
+
+        return $app;
     }
 
     /**
@@ -211,7 +237,6 @@ class App implements RequestHandlerInterface
      *
      * This method processes the request through the application's middleware stack and router,
      * returning the resulting HTTP response.
-     * @param ServerRequestInterface $request
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
