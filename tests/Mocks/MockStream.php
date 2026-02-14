@@ -17,6 +17,7 @@ use RuntimeException;
 use Stringable;
 
 use function clearstatcache;
+
 use function fclose;
 use function feof;
 use function fopen;

@@ -27,6 +27,7 @@ use function base64_decode;
 use function fopen;
 use function fwrite;
 use function in_array;
+
 use function popen;
 use function rewind;
 use function str_repeat;

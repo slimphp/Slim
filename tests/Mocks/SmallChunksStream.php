@@ -15,6 +15,7 @@ use Psr\Http\Message\StreamInterface;
 use Stringable;
 
 use function min;
+
 use function str_repeat;
 
 use const SEEK_SET;
