@@ -13,6 +13,9 @@ return (new Config())
             'array_indentation' => true,
             'array_syntax' => ['syntax' => 'short'],
             'blank_line_between_import_groups' => true,
+            'braces_position' => [
+                'allow_single_line_empty_anonymous_classes' => true,
+            ],
             'cast_spaces' => ['space' => 'none'],
             'class_definition' => [
                 'space_before_parenthesis' => true,
@@ -52,7 +55,7 @@ return (new Config())
                 'sort_algorithm' => 'alpha',
                 'imports_order' => ['class', 'function', 'const'],
             ],
-            'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
+            'phpdoc_add_missing_param_annotation' => ['only_untyped' => true],
             'phpdoc_align' => false,
             'phpdoc_no_empty_return' => false,
             'phpdoc_no_useless_inheritdoc' => false,

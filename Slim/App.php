@@ -10,9 +10,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -131,7 +129,7 @@ class App implements RequestHandlerInterface
     /**
      * Set the base path used for routing.
      *
-     * @param string $basePath
+     * @param string $basePath The url base path
      */
     public function setBasePath(string $basePath): self
     {
