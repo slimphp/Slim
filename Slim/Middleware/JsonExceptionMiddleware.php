@@ -78,7 +78,7 @@ final class JsonExceptionMiddleware implements MiddlewareInterface
         $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();
 
         return [
-            'type' => get_class($exception),
+            'type' => $exception::class,
             'code' => $code,
             'message' => $exception->getMessage(),
             'file' => $exception->getFile(),

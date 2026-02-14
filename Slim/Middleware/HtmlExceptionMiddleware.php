@@ -55,7 +55,7 @@ final class HtmlExceptionMiddleware implements MiddlewareInterface
     {
         $html = sprintf(
             '<div><strong>Type:</strong> %s</div>',
-            $this->escapeHtml(get_class($exception)),
+            $this->escapeHtml($exception::class),
         );
 
         $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();

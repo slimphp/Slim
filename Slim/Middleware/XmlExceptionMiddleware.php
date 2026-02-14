@@ -55,7 +55,7 @@ final class XmlExceptionMiddleware implements MiddlewareInterface
             do {
                 $exceptionElement = $dom->createElement('exception');
 
-                $typeElement = $dom->createElement('type', get_class($exception));
+                $typeElement = $dom->createElement('type', $exception::class);
                 $exceptionElement->appendChild($typeElement);
 
                 $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();

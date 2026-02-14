@@ -56,7 +56,7 @@ final class PlainTextExceptionMiddleware implements MiddlewareInterface
 
     private function formatExceptionFragment(Throwable $exception): string
     {
-        $text = sprintf("Type: %s\n", get_class($exception));
+        $text = sprintf("Type: %s\n", $exception::class);
 
         $code = $exception instanceof ErrorException ? $exception->getSeverity() : $exception->getCode();
 
