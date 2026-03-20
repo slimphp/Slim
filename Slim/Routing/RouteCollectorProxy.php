@@ -182,7 +182,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
-    public function redirect(string $from, $to, int $status = 302): RouteInterface
+    public function redirect(string $from, $to, int $status = 302, array $methods = ['GET']): RouteInterface
     {
         $responseFactory = $this->responseFactory;
 
@@ -191,6 +191,6 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
             return $response->withHeader('Location', (string) $to);
         };
 
-        return $this->get($from, $handler);
+        return $this->map($methods, $from, $handler);
     }
 }
