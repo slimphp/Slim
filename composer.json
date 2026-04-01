@@ -51,7 +51,7 @@
         "psr/http-message": "^1.1 || ^2.0",
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
-        "psr/log": "^1.1 || ^2.0 || ^3.0"
+        "psr/log": "^3.0.2"
     },
     "require-dev": {
         "ext-simplexml": "*",
