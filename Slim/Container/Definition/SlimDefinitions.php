@@ -18,10 +18,12 @@ use Slim\Container\ContainerResolver;
 use Slim\Emitter\ResponseEmitter;
 use Slim\Interfaces\ContainerResolverInterface;
 use Slim\Interfaces\DefinitionsInterface;
+use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RequestHandlerInvocationStrategyInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\UrlGeneratorInterface;
+use Slim\Routing\FastRouteDispatcher;
 use Slim\Routing\Router;
 use Slim\Routing\UrlGenerator;
 use Slim\Strategy\RequestResponse;
@@ -62,6 +64,10 @@ final class SlimDefinitions implements DefinitionsInterface
 
             RouterInterface::class => function (ContainerInterface $container) {
                 return $container->get(Router::class);
+            },
+
+            DispatcherInterface::class => function (ContainerInterface $container) {
+                return $container->get(FastRouteDispatcher::class);
             },
 
             UrlGeneratorInterface::class => function (ContainerInterface $container) {

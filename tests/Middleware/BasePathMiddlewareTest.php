@@ -229,9 +229,8 @@ final class BasePathMiddlewareTest extends TestCase
         $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
 
-        $app->get('/foo', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(RouterInterface::class)->getBasePath();
-            $response->getBody()->write('basePath: ' . $basePath);
+        $app->get('/foo', function ($request, ResponseInterface $response) use ($app) {
+            $response->getBody()->write('basePath: ' . $app->getBasePath());
 
             return $response;
         });

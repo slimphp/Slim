@@ -15,7 +15,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\RouterInterface;
-use Slim\Routing\RouteContext;
 
 final class BasePathMiddleware implements MiddlewareInterface
 {
@@ -46,7 +45,7 @@ final class BasePathMiddleware implements MiddlewareInterface
             $basePath = $this->getBasePathByRequestUri($request);
         }
 
-        $request = $request->withAttribute(RouteContext::BASE_PATH, $basePath);
+        // $request = $request->withAttribute(RouteMatch::BASE_PATH_ATTRIBUTE, $basePath);
 
         $this->router->setBasePath($basePath);
 

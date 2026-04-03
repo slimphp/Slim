@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Middleware;
 
-use FastRoute\Dispatcher;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,11 +17,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
+use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\UrlGeneratorInterface;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\JsonBodyParserMiddleware;
 use Slim\Middleware\RoutingMiddleware;
-use Slim\Routing\RouteContext;
+use Slim\Routing\RouteMatch;
 use Slim\Routing\RoutingResults;
 use Slim\Tests\Traits\AppTestTrait;
 
@@ -36,16 +36,11 @@ final class RoutingMiddlewareTest extends TestCase
 
         $test = $this;
         $middleware = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
-            // routingResults is available
-            /** @var RoutingResults $routingResults */
-            $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
-            $test->assertInstanceOf(RoutingResults::class, $routingResults);
-
             // route is available
-            $route = $routingResults->getRoute();
-            $test->assertNotNull($route);
+            /** @var RouteMatch $routeMatch */
+            $routeMatch = $request->getAttribute(RouteMatch::class);
+            $test->assertInstanceOf(RouteMatch::class, $routeMatch);
 
-            // routeParser is available
             return $handler->handle($request);
         };
 
@@ -103,14 +98,12 @@ final class RoutingMiddlewareTest extends TestCase
                 $request = $exception->getRequest();
 
                 // routingResults is available
-                /** @var RoutingResults $routingResults */
-                $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
-                $test->assertInstanceOf(RoutingResults::class, $routingResults);
-                $test->assertSame(Dispatcher::METHOD_NOT_ALLOWED, $routingResults->getRouteStatus());
+                /** @var RouteMatch $routeMatch */
+                $routeMatch = $request->getAttribute(RouteMatch::class);
+                $test->assertSame(DispatcherInterface::METHOD_NOT_ALLOWED, $routeMatch->getStatus());
 
                 // route is not available
-                $route = $routingResults->getRoute();
-                $test->assertNull($route);
+                $test->assertNull($routeMatch->getRoute());
 
                 // Re-throw to keep the behavior consistent
                 throw $exception;
@@ -148,14 +141,11 @@ final class RoutingMiddlewareTest extends TestCase
                 $request = $exception->getRequest();
 
                 // routingResults is available
-                /** @var RoutingResults $routingResults */
-                $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
-                $test->assertInstanceOf(RoutingResults::class, $routingResults);
-                $test->assertSame(Dispatcher::NOT_FOUND, $routingResults->getRouteStatus());
+                $routeMatch = $request->getAttribute(RouteMatch::class);
+                $test->assertSame(DispatcherInterface::NOT_FOUND, $routeMatch->getStatus());
 
                 // route is not available
-                $route = $routingResults->getRoute();
-                $test->assertNull($route);
+                $test->assertNull($routeMatch->getRoute());
 
                 // Re-throw to keep the behavior consistent
                 throw $exception;

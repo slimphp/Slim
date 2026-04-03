@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 namespace Slim\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
@@ -9,17 +15,17 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Interfaces\RouteInterface;
 use Slim\Routing\PipelineRunner;
-use Slim\Routing\Route;
-use Slim\Routing\RouteContext;
 use Slim\Routing\RouteInvoker;
-use Slim\Routing\RoutingResults;
+use Slim\Routing\RouteMatch;
 
 /**
- * This middleware processes the routing results to determine if a route was found,
- * if the HTTP method is allowed, or if the route was not found. Based on these results,
- * it either executes the found route's handler with its associated middleware stack or
- * throws appropriate exceptions for 404 Not Found or 405 Method Not Allowed.
+ * Interprets the RouteMatch produced by RoutingMiddleware and either:
+ * - executes the matched route together with its middleware stack, or
+ * - throws the appropriate HTTP exception for 404 / 405 cases.
+ *
+ * This middleware is intended to be terminal within the routing pipeline.
  */
 final class EndpointMiddleware implements MiddlewareInterface
 {
@@ -37,73 +43,88 @@ final class EndpointMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /* @var RoutingResults $routingResults */
-        $routingResults = $request->getAttribute(RouteContext::ROUTING_RESULTS);
+        $routeMatch = $request->getAttribute(RouteMatch::class);
 
-        if (!$routingResults instanceof RoutingResults) {
+        if (!$routeMatch instanceof RouteMatch) {
             throw new RuntimeException(
-                'An unexpected error occurred while handling routing results. Routing results are not available.',
+                'RouteMatch is missing from the request. Add RoutingMiddleware before EndpointMiddleware.',
             );
         }
 
-        $routeStatus = $routingResults->getRouteStatus();
-        if ($routeStatus === RoutingResults::FOUND) {
-            return $this->handleFound($request, $routingResults);
+        if ($routeMatch->isFound()) {
+            $route = $routeMatch->getRoute();
+
+            if (!$route instanceof RouteInterface) {
+                throw new RuntimeException('RouteMatch is in FOUND state but does not contain a valid route.');
+            }
+
+            return $this->handleFound($request, $route, $routeMatch->getArguments());
         }
 
-        if ($routeStatus === RoutingResults::NOT_FOUND) {
-            // 404 Not Found
+        if ($routeMatch->isNotFound()) {
             throw new HttpNotFoundException($request);
         }
 
-        if ($routeStatus === RoutingResults::METHOD_NOT_ALLOWED) {
-            // 405 Method Not Allowed
+        if ($routeMatch->isMethodNotAllowed()) {
             $exception = new HttpMethodNotAllowedException($request);
-            $exception->setAllowedMethods($routingResults->getAllowedMethods());
+            $exception->setAllowedMethods($routeMatch->getAllowedMethods());
 
             throw $exception;
         }
 
-        throw new RuntimeException('An unexpected error occurred while endpoint handling.');
-    }
-
-    private function handleFound(
-        ServerRequestInterface $request,
-        RoutingResults $routingResults,
-    ): ResponseInterface {
-        $route = $routingResults->getRoute() ?? throw new RuntimeException('Route not found.');
-
-        // Collect route specific middleware
-        $pipeline = $this->collectRouteMiddleware($route);
-
-        // Invoke the route/group specific middleware stack
-        $pipeline[] = $this->routeInvoker->withHandler(
-            $route->getHandler(),
-            $routingResults->getRouteArguments(),
-        );
-
-        return $this->pipelineRunner->withPipeline($pipeline)->handle($request);
+        throw new RuntimeException('An unexpected routing state was encountered.');
     }
 
     /**
-     * @param Route $route
-     * @return array<MiddlewareInterface|callable|string> List of middleware
+     * @param array<string, mixed> $arguments
      */
-    private function collectRouteMiddleware(Route $route): array
-    {
-        $middlewares = [];
+    private function handleFound(
+        ServerRequestInterface $request,
+        RouteInterface $route,
+        array $arguments,
+    ): ResponseInterface {
+        $pipeline = $this->collectRouteMiddleware($route);
 
-        // Append group specific middleware from all parent route groups
+        $pipeline[] = $this->routeInvoker->withHandler(
+            $route->getHandler(),
+            $arguments,
+        );
+
+        return $this->pipelineRunner
+            ->withPipeline($pipeline)
+            ->handle($request);
+    }
+
+    /**
+     * Collects middleware in execution order:
+     * - outermost parent group middleware first
+     * - nested group middleware next
+     * - route-specific middleware last
+     *
+     * @return array<MiddlewareInterface|callable|string>
+     */
+    private function collectRouteMiddleware(RouteInterface $route): array
+    {
+        $groupMiddlewareStack = [];
         $group = $route->getRouteGroup();
 
-        while ($group) {
-            // Prepend group middleware so outer groups come first
-            $middlewares = array_merge($group->getMiddleware(), $middlewares);
+        while ($group !== null) {
+            array_unshift($groupMiddlewareStack, $group->getMiddleware());
             $group = $group->getRouteGroup();
         }
 
-        // Append endpoint-specific middleware
-        return array_merge($middlewares, $route->getMiddleware());
-    }
+        $pipeline = [];
 
+        foreach ($groupMiddlewareStack as $middlewareList) {
+            foreach ($middlewareList as $middleware) {
+                $pipeline[] = $middleware;
+            }
+        }
+
+        foreach ($route->getMiddleware() as $middleware) {
+            $pipeline[] = $middleware;
+        }
+
+        return $pipeline;
+    }
 }

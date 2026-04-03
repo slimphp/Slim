@@ -9,8 +9,9 @@
 namespace Slim\Routing;
 
 use Slim\Interfaces\MiddlewareCollectionInterface;
+use Slim\Interfaces\RouteInterface;
 
-final class Route implements MiddlewareCollectionInterface
+final class Route implements RouteInterface, MiddlewareCollectionInterface
 {
     use MiddlewareCollectionTrait;
 
@@ -19,6 +20,9 @@ final class Route implements MiddlewareCollectionInterface
      */
     private array $methods;
 
+    /**
+     * The route matching pattern
+     */
     private string $pattern;
 
     /**
@@ -26,9 +30,22 @@ final class Route implements MiddlewareCollectionInterface
      */
     private $handler;
 
+    /**
+     * Route name
+     */
     private ?string $name = null;
 
+    /**
+     * Parent route group
+     */
     private ?RouteGroup $group;
+
+    /**
+     * Route parameters
+     *
+     * @var array<string, string>
+     */
+    private array $arguments;
 
     /**
      * @param array<string> $methods
@@ -44,11 +61,17 @@ final class Route implements MiddlewareCollectionInterface
         $this->group = $group;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getHandler(): callable|string
     {
         return $this->handler;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -56,26 +79,64 @@ final class Route implements MiddlewareCollectionInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getPattern(): string
     {
         return $this->pattern;
     }
 
     /**
-     * @return array<string>
+     * {@inheritdoc}
      */
     public function getMethods(): array
     {
         return $this->methods;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getRouteGroup(): ?RouteGroup
     {
         return $this->group;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getArgument(string $name, ?string $default = null): ?string
+    {
+        if (array_key_exists($name, $this->arguments)) {
+            return $this->arguments[$name];
+        }
+        return $default;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getArguments(): array
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setArguments(array $arguments): RouteInterface
+    {
+        $this->arguments = $arguments;
+
+        return $this;
     }
 }
