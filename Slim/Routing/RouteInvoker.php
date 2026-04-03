@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
+ */
+
 declare(strict_types=1);
 
 namespace Slim\Routing;
@@ -24,31 +30,27 @@ final class RouteInvoker implements RequestHandlerInterface
     private $handler = null;
 
     /** @var array<string, mixed> */
-    private array $args = [];
+    private array $arguments = [];
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         RequestHandlerInvocationStrategyInterface $invocationStrategy,
-        ContainerResolverInterface $containerResolver,
+        ContainerResolverInterface $resolver,
     ) {
         $this->responseFactory = $responseFactory;
         $this->invocationStrategy = $invocationStrategy;
-        $this->resolver = $containerResolver;
+        $this->resolver = $resolver;
     }
 
     /**
-     * Add handler.
-     *
      * @param callable|string $handler
-     * @param array<string, mixed> $args
-     *
-     * @return self
+     * @param array<string, mixed> $arguments
      */
-    public function withHandler(callable|string $handler, array $args = []): self
+    public function withHandler(callable|string $handler, array $arguments = []): self
     {
         $clone = clone $this;
         $clone->handler = $this->resolver->resolveCallable($handler);
-        $clone->args = $args;
+        $clone->arguments = $arguments;
 
         return $clone;
     }
@@ -57,8 +59,7 @@ final class RouteInvoker implements RequestHandlerInterface
     {
         if ($this->handler === null) {
             throw new RuntimeException(
-                'RouteInvokerMiddleware: no handler has been assigned. ' .
-                'Use withHandler() before using this middleware.',
+                'RouteInvoker has no handler assigned. Call withHandler() before execution.',
             );
         }
 
@@ -66,7 +67,7 @@ final class RouteInvoker implements RequestHandlerInterface
             $this->handler,
             $request,
             $this->responseFactory->createResponse(),
-            $this->args,
+            $this->arguments,
         );
     }
 }
