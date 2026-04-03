@@ -41,9 +41,7 @@ final class RouteMatchTest extends TestCase
 
     public function testNotFoundRouteMatch(): void
     {
-        $basePath = '/api';
-
-        $routeMatch = RouteMatch::notFound($basePath);
+        $routeMatch = RouteMatch::notFound();
 
         $this->assertFalse($routeMatch->isFound());
         $this->assertTrue($routeMatch->isNotFound());
@@ -57,9 +55,7 @@ final class RouteMatchTest extends TestCase
     public function testMethodNotAllowedRouteMatch(): void
     {
         $allowedMethods = ['GET', 'POST'];
-        $basePath = '/api';
-
-        $routeMatch = RouteMatch::methodNotAllowed($allowedMethods, $basePath);
+        $routeMatch = RouteMatch::methodNotAllowed($allowedMethods);
 
         $this->assertFalse($routeMatch->isFound());
         $this->assertFalse($routeMatch->isNotFound());

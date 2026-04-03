@@ -45,7 +45,7 @@ final class Route implements RouteInterface, MiddlewareCollectionInterface
      *
      * @var array<string, string>
      */
-    private array $arguments;
+    private array $arguments = [];
 
     /**
      * @param array<string> $methods

@@ -42,14 +42,14 @@ final class RoutingMiddleware implements MiddlewareInterface
     {
         $requestPath = $request->getUri()->getPath();
         $basePath = $this->router->getBasePath();
-        $dispatchPath = $this->stripBasePath($requestPath, $this->router->getBasePath());
+        $dispatchPath = $this->stripBasePath($requestPath, $basePath);
 
         $routingResult = $this->dispatcher->dispatch(
             $request->getMethod(),
             rawurldecode($dispatchPath)
         );
 
-        $routeMatch = $this->createRouteMatch($routingResult, $basePath);
+        $routeMatch = $this->createRouteMatch($routingResult);
         $request = $request->withAttribute(RouteMatch::class, $routeMatch);
 
         return $handler->handle($request);
@@ -58,7 +58,7 @@ final class RoutingMiddleware implements MiddlewareInterface
     /**
      * @param array<int, mixed> $routingResult
      */
-    private function createRouteMatch(array $routingResult, string $basePath): RouteMatch
+    private function createRouteMatch(array $routingResult): RouteMatch
     {
         $status = $routingResult[0] ?? null;
 

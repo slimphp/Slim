@@ -45,8 +45,6 @@ final class BasePathMiddleware implements MiddlewareInterface
             $basePath = $this->getBasePathByRequestUri($request);
         }
 
-        // $request = $request->withAttribute(RouteMatch::BASE_PATH_ATTRIBUTE, $basePath);
-
         $this->router->setBasePath($basePath);
 
         return $handler->handle($request);

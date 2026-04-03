@@ -23,7 +23,6 @@ use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\JsonBodyParserMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\RouteMatch;
-use Slim\Routing\RoutingResults;
 use Slim\Tests\Traits\AppTestTrait;
 
 final class RoutingMiddlewareTest extends TestCase
@@ -97,7 +96,7 @@ final class RoutingMiddlewareTest extends TestCase
             } catch (HttpMethodNotAllowedException $exception) {
                 $request = $exception->getRequest();
 
-                // routingResults is available
+                // RouteMatch is available
                 /** @var RouteMatch $routeMatch */
                 $routeMatch = $request->getAttribute(RouteMatch::class);
                 $test->assertSame(DispatcherInterface::METHOD_NOT_ALLOWED, $routeMatch->getStatus());
@@ -140,7 +139,7 @@ final class RoutingMiddlewareTest extends TestCase
             } catch (HttpNotFoundException $exception) {
                 $request = $exception->getRequest();
 
-                // routingResults is available
+                // RouteMatch is available
                 $routeMatch = $request->getAttribute(RouteMatch::class);
                 $test->assertSame(DispatcherInterface::NOT_FOUND, $routeMatch->getStatus());
 
