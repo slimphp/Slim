@@ -70,7 +70,7 @@ interface RouteInterface
     /**
      * Set route arguments.
      *
-     * @param array<string,mixed> $arguments The arguments.
+     * @param array<string,string> $arguments The arguments.
      *
      * @return RouteInterface
      */

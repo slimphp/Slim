@@ -11,6 +11,8 @@ namespace Slim\Routing;
 use Slim\Interfaces\MiddlewareCollectionInterface;
 use Slim\Interfaces\RouteInterface;
 
+use function array_key_exists;
+
 final class Route implements RouteInterface, MiddlewareCollectionInterface
 {
     use MiddlewareCollectionTrait;
@@ -45,7 +47,7 @@ final class Route implements RouteInterface, MiddlewareCollectionInterface
      *
      * @var array<string, string>
      */
-    private array $arguments;
+    private array $arguments = [];
 
     /**
      * @param array<string> $methods

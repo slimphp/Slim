@@ -137,6 +137,23 @@ class RouteTest extends TestCase
         $this->assertSame($methods, $route->getMethods());
     }
 
+    public function testSetArgumentsStoresStringArguments(): void
+    {
+        $methods = ['GET'];
+        $pattern = '/users/{id}';
+        $handler = function () {
+            return 'handler';
+        };
+
+        $route = new Route($methods, $pattern, $handler);
+
+        $arguments = ['id' => '123', 'slug' => 'john-doe'];
+        $route->setArguments($arguments);
+
+        $this->assertSame($arguments, $route->getArguments());
+        $this->assertSame('123', $route->getArgument('id'));
+    }
+
     private function createMiddleware(): MiddlewareInterface
     {
         return new class implements MiddlewareInterface {
