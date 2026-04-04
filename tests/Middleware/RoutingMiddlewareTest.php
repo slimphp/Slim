@@ -13,11 +13,14 @@ namespace Slim\Tests\Middleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\DispatcherInterface;
+use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\UrlGeneratorInterface;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\JsonBodyParserMiddleware;
@@ -193,5 +196,42 @@ final class RoutingMiddlewareTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('/api/users/123?page=2', $response->getHeaderLine('X-relativeUrlFor'));
         $this->assertSame('/api/users/123?page=2', $response->getHeaderLine('X-fullUrlFor'));
+    }
+
+    public function testMethodNotAllowedThrowsRuntimeExceptionWhenAllowedMethodsPayloadIsInvalid(): void
+    {
+        $dispatcher = $this->createMock(DispatcherInterface::class);
+        $dispatcher
+            ->method('dispatch')
+            ->willReturn([
+                DispatcherInterface::METHOD_NOT_ALLOWED,
+                'GET',
+            ]);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->method('getBasePath')
+            ->willReturn('');
+
+        $middleware = new RoutingMiddleware($dispatcher, $router);
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->method('getPath')
+            ->willReturn('/hello/foo');
+        $request
+            ->method('getUri')
+            ->willReturn($uri);
+        $request
+            ->method('getMethod')
+            ->willReturn('GET');
+
+        $handler = $this->createMock(RequestHandlerInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Dispatcher returned invalid allowed methods.');
+
+        $middleware->process($request, $handler);
     }
 }

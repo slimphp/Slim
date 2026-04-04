@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -135,6 +136,39 @@ class RouteTest extends TestCase
         $route = new Route($methods, $pattern, $handler);
 
         $this->assertSame($methods, $route->getMethods());
+    }
+
+    public function testSetArgumentsStoresStringArguments(): void
+    {
+        $methods = ['GET'];
+        $pattern = '/users/{id}';
+        $handler = function () {
+            return 'handler';
+        };
+
+        $route = new Route($methods, $pattern, $handler);
+
+        $arguments = ['id' => '123', 'slug' => 'john-doe'];
+        $route->setArguments($arguments);
+
+        $this->assertSame($arguments, $route->getArguments());
+        $this->assertSame('123', $route->getArgument('id'));
+    }
+
+    public function testSetArgumentsRejectsNonStringValues(): void
+    {
+        $methods = ['GET'];
+        $pattern = '/users/{id}';
+        $handler = function () {
+            return 'handler';
+        };
+
+        $route = new Route($methods, $pattern, $handler);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Route arguments must be an array<string, string>.');
+
+        $route->setArguments(['id' => 123]);
     }
 
     private function createMiddleware(): MiddlewareInterface
