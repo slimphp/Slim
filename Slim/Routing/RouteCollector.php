@@ -185,8 +185,7 @@ class RouteCollector implements RouteCollectorInterface
     {
         $route = $this->getNamedRoute($name);
 
-        /** @psalm-suppress PossiblyNullArrayOffset */
-        unset($this->routesByName[$route->getName()], $this->routes[$route->getIdentifier()]);
+        unset($this->routesByName[$name], $this->routes[$route->getIdentifier()]);
         return $this;
     }
 
