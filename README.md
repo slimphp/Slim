@@ -12,7 +12,7 @@ Slim is a PHP micro-framework that helps you quickly write simple yet powerful w
 It's recommended that you use [Composer](https://getcomposer.org/) to install Slim.
 
 ```bash
-$ composer require slim/slim
+composer require slim/slim
 ```
 
 This will install Slim and all required dependencies. Slim requires PHP 7.4 or newer.
@@ -93,7 +93,7 @@ $app->run();
 
 You may quickly test this using the built-in PHP server:
 ```bash
-$ php -S localhost:8000 -t public
+php -S localhost:8000 -t public
 ```
 
 Going to http://localhost:8000/hello/world will now display "Hello, world".
@@ -104,9 +104,9 @@ For more information on how to configure your web server, see the [Documentation
 To execute the test suite, you'll need to install all development dependencies.
 
 ```bash
-$ git clone https://github.com/slimphp/Slim
-$ composer install
-$ composer test
+git clone https://github.com/slimphp/Slim
+composer install
+composer test
 ```
 
 ## Contributing
