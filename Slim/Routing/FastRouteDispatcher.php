@@ -27,7 +27,7 @@ final class FastRouteDispatcher implements DispatcherInterface
 
     public function dispatch(string $httpMethod, string $uri): array
     {
-        return $this->getDispatcher()->dispatch($httpMethod, $uri);
+        return $this->getDispatcher()->dispatch($httpMethod, rawurldecode(($uri)));
     }
 
     private function getDispatcher(): GroupCountBased

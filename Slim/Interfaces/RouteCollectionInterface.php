@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
-use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
 
 /**
@@ -21,9 +20,9 @@ interface RouteCollectionInterface
      * @param string $path Route path.
      * @param callable|string $handler Route handler or controller action.
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function get(string $path, callable|string $handler): Route;
+    public function get(string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register a POST route.
@@ -31,9 +30,9 @@ interface RouteCollectionInterface
      * @param string $path
      * @param callable|string $handler
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function post(string $path, callable|string $handler): Route;
+    public function post(string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register a PUT route.
@@ -41,9 +40,9 @@ interface RouteCollectionInterface
      * @param string $path
      * @param callable|string $handler
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function put(string $path, callable|string $handler): Route;
+    public function put(string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register a PATCH route.
@@ -51,9 +50,9 @@ interface RouteCollectionInterface
      * @param string $path
      * @param callable|string $handler
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function patch(string $path, callable|string $handler): Route;
+    public function patch(string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register a DELETE route.
@@ -61,9 +60,9 @@ interface RouteCollectionInterface
      * @param string $path
      * @param callable|string $handler
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function delete(string $path, callable|string $handler): Route;
+    public function delete(string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register an OPTIONS route.
@@ -71,9 +70,9 @@ interface RouteCollectionInterface
      * @param string $path
      * @param callable|string $handler
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function options(string $path, callable|string $handler): Route;
+    public function options(string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register a route for any HTTP method.
@@ -81,9 +80,9 @@ interface RouteCollectionInterface
      * @param string $path
      * @param callable|string $handler
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function any(string $path, callable|string $handler): Route;
+    public function any(string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register a route with multiple HTTP methods.
@@ -92,9 +91,9 @@ interface RouteCollectionInterface
      * @param string $path Route path.
      * @param callable|string $handler Route handler.
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function map(array $methods, string $path, callable|string $handler): Route;
+    public function map(array $methods, string $path, callable|string $handler): RouteInterface;
 
     /**
      * Register a group of routes under a common path prefix.

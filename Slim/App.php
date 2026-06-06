@@ -17,6 +17,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Slim\Interfaces\EmitterInterface;
+use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 use Slim\Middleware\EndpointMiddleware;
@@ -106,9 +107,9 @@ class App implements RequestHandlerInterface
      * @param string $path The URI pattern for the route
      * @param callable|string $handler The route handler callable or controller method
      *
-     * @return Route The newly created route instance
+     * @return RouteInterface The newly created route instance
      */
-    public function map(array $methods, string $path, callable|string $handler): Route
+    public function map(array $methods, string $path, callable|string $handler): RouteInterface
     {
         return $this->router->map($methods, $path, $handler);
     }
@@ -143,7 +144,7 @@ class App implements RequestHandlerInterface
      */
     public function getBasePath(): string
     {
-        return $this->router->getBasePath();
+        return $this->router->getBasePath() ?? '';
     }
 
     /**

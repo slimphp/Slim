@@ -11,11 +11,10 @@ declare(strict_types=1);
 namespace Slim\Tests\Middleware;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
-use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\BasePathMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
@@ -25,29 +24,18 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testEmptyScriptName(): void
     {
-        $definitions =
-            [
-                BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $router = $container->get(RouterInterface::class);
-
-                    return new BasePathMiddleware($router, 'apache2handler');
-                },
-            ];
-        $app = AppFactory::create($definitions);
+        $app = AppFactory::create();
 
         $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
 
-        $app->get('/', function ($request, ResponseInterface $response) {
-            /** @var ContainerInterface $this */
-            $basePath = $this->get(RouterInterface::class)->getBasePath();
-            $response->getBody()->write('basePath: ' . $basePath);
+        $app->get('/', function ($request, ResponseInterface $response) use ($app) {
+            $response->getBody()->write('basePath: ' . $app->getBasePath());
 
             return $response;
         });
 
         $serverParams = [
-            'REQUEST_URI' => '/',
             'SCRIPT_NAME' => '',
         ];
 
@@ -63,28 +51,18 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testScriptNameWithIndexPhp(): void
     {
-        $definitions =
-            [
-                BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $router = $container->get(RouterInterface::class);
-
-                    return new BasePathMiddleware($router, 'apache2handler');
-                },
-            ];
-        $app = AppFactory::create($definitions);
+        $app = AppFactory::create();
 
         $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
 
-        $app->get('/', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(RouterInterface::class)->getBasePath();
-            $response->getBody()->write('basePath: ' . $basePath);
+        $app->get('/', function ($request, ResponseInterface $response) use ($app) {
+            $response->getBody()->write('basePath: ' . $app->getBasePath());
 
             return $response;
         });
 
         $serverParams = [
-            'REQUEST_URI' => '/',
             // PHP internal server
             'SCRIPT_NAME' => '/index.php',
         ];
@@ -101,28 +79,18 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testScriptNameWithPublicIndexPhp(): void
     {
-        $definitions =
-            [
-                BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $router = $container->get(RouterInterface::class);
-
-                    return new BasePathMiddleware($router, 'apache2handler');
-                },
-            ];
-        $app = AppFactory::create($definitions);
+        $app = AppFactory::create();
 
         $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
 
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $basePath = $this->get(RouterInterface::class)->getBasePath();
-            $response->getBody()->write('basePath: ' . $basePath);
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use ($app) {
+            $response->getBody()->write('basePath: ' . $app->getBasePath());
 
             return $response;
         });
 
         $serverParams = [
-            'REQUEST_URI' => '/',
             // PHP internal server
             'SCRIPT_NAME' => '/public/index.php',
         ];
@@ -139,28 +107,18 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithSlash(): void
     {
-        $definitions =
-            [
-                BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $router = $container->get(RouterInterface::class);
-
-                    return new BasePathMiddleware($router, 'apache2handler');
-                },
-            ];
-        $app = AppFactory::create($definitions);
+        $app = AppFactory::create();
 
         $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
 
-        $app->get('/', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(RouterInterface::class)->getBasePath();
-            $response->getBody()->write('basePath: ' . $basePath);
+        $app->get('/', function ($request, ResponseInterface $response) use ($app) {
+            $response->getBody()->write('basePath: ' . $app->getBasePath());
 
             return $response;
         });
 
         $serverParams = [
-            'REQUEST_URI' => '/slim-hello-world/',
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
         $request = $this
@@ -177,28 +135,18 @@ final class BasePathMiddlewareTest extends TestCase
 
     public function testSubDirectoryWithoutSlash(): void
     {
-        $definitions =
-            [
-                BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $router = $container->get(RouterInterface::class);
-
-                    return new BasePathMiddleware($router, 'apache2handler');
-                },
-            ];
-        $app = AppFactory::create($definitions);
+        $app = AppFactory::create();
 
         $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
 
-        $app->get('/foo', function ($request, ResponseInterface $response) {
-            $basePath = $this->get(RouterInterface::class)->getBasePath();
-            $response->getBody()->write('basePath: ' . $basePath);
+        $app->get('/foo', function ($request, ResponseInterface $response) use ($app) {
+            $response->getBody()->write('basePath: ' . $app->getBasePath());
 
             return $response;
         });
 
         $serverParams = [
-            'REQUEST_URI' => '/slim-hello-world/foo',
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
 
@@ -214,17 +162,11 @@ final class BasePathMiddlewareTest extends TestCase
         $this->assertSame('basePath: /slim-hello-world', (string)$response->getBody());
     }
 
-    public function testSubDirectoryWithFooPath(): void
+    public function testStrictSubDirectoryWithFooPath(): void
     {
-        $definitions
-            = [
-                BasePathMiddleware::class => function (ContainerInterface $container) {
-                    $router = $container->get(RouterInterface::class);
+        $this->expectException(HttpNotFoundException::class);
 
-                    return new BasePathMiddleware($router, 'apache2handler');
-                },
-            ];
-        $app = AppFactory::create($definitions);
+        $app = AppFactory::create();
 
         $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
@@ -236,18 +178,12 @@ final class BasePathMiddlewareTest extends TestCase
         });
 
         $serverParams = [
-            'REQUEST_URI' => '/slim-hello-world/foo',
             'SCRIPT_NAME' => '/slim-hello-world/public/index.php',
         ];
         $request = $this
             ->getServerRequestFactory($app)
             ->createServerRequest('GET', '/slim-hello-world/foo/?key=value', $serverParams);
 
-        $response = $app->handle($request);
-
-        $this->assertSame('/slim-hello-world', $app->getBasePath());
-
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('basePath: /slim-hello-world', (string)$response->getBody());
+        $app->handle($request);
     }
 }

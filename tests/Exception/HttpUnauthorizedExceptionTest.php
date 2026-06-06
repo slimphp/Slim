@@ -20,7 +20,7 @@ final class HttpUnauthorizedExceptionTest extends TestCase
 {
     use AppTestTrait;
 
-    public function testHttpUnauthorizedException()
+    public function testHttpUnauthorizedException(): void
     {
         $app = AppFactory::create();
 
@@ -33,7 +33,7 @@ final class HttpUnauthorizedExceptionTest extends TestCase
         $this->assertInstanceOf(HttpUnauthorizedException::class, $exception);
     }
 
-    public function testHttpUnauthorizedExceptionWithMessage()
+    public function testHttpUnauthorizedExceptionWithMessage(): void
     {
         $app = AppFactory::create();
 

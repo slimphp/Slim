@@ -10,8 +10,6 @@ declare(strict_types=1);
 
 namespace Slim\Exception;
 
-use function implode;
-
 final class HttpMethodNotAllowedException extends HttpSpecializedException
 {
     /**
@@ -46,7 +44,7 @@ final class HttpMethodNotAllowedException extends HttpSpecializedException
     public function setAllowedMethods(array $methods): self
     {
         $this->allowedMethods = $methods;
-        $this->message = 'Method not allowed. Must be one of: ' . implode(', ', $methods);
+        $this->message = 'Method not allowed.';
 
         return $this;
     }

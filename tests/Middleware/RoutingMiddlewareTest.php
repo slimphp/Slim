@@ -13,15 +13,13 @@ namespace Slim\Tests\Middleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\DispatcherInterface;
-use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\UrlGeneratorInterface;
+use Slim\Middleware\BasePathMiddleware;
 use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\JsonBodyParserMiddleware;
 use Slim\Middleware\RoutingMiddleware;
@@ -129,7 +127,7 @@ final class RoutingMiddlewareTest extends TestCase
         $app->handle($request);
     }
 
-    public function testRouteIsNotStoredOnNotFound()
+    public function testRouteIsNotStoredOnNotFound(): void
     {
         $this->expectException(HttpNotFoundException::class);
 
@@ -172,6 +170,7 @@ final class RoutingMiddlewareTest extends TestCase
         $app = AppFactory::create();
         $app->setBasePath('/api');
 
+        $app->add(BasePathMiddleware::class);
         $app->addRoutingMiddleware();
 
         // Define a route with arguments
@@ -198,40 +197,63 @@ final class RoutingMiddlewareTest extends TestCase
         $this->assertSame('/api/users/123?page=2', $response->getHeaderLine('X-fullUrlFor'));
     }
 
-    public function testMethodNotAllowedThrowsRuntimeExceptionWhenAllowedMethodsPayloadIsInvalid(): void
+    public function testRoutingWithUriDoesNotStartWithBasePath(): void
     {
-        $dispatcher = $this->createMock(DispatcherInterface::class);
-        $dispatcher
-            ->method('dispatch')
-            ->willReturn([
-                DispatcherInterface::METHOD_NOT_ALLOWED,
-                'GET',
-            ]);
+        $this->expectException(HttpNotFoundException::class);
 
-        $router = $this->createMock(RouterInterface::class);
-        $router
-            ->method('getBasePath')
-            ->willReturn('');
+        $app = AppFactory::create();
+        $app->setBasePath('/api');
 
-        $middleware = new RoutingMiddleware($dispatcher, $router);
+        $app->add(BasePathMiddleware::class);
+        $app->addRoutingMiddleware();
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
-        $uri
-            ->method('getPath')
-            ->willReturn('/hello/foo');
-        $request
-            ->method('getUri')
-            ->willReturn($uri);
-        $request
-            ->method('getMethod')
-            ->willReturn('GET');
+        // Define a route with arguments
+        $app->get('/users', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        });
 
-        $handler = $this->createMock(RequestHandlerInterface::class);
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', '/users');
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Dispatcher returned invalid allowed methods.');
+        $app->handle($request);
+    }
 
-        $middleware->process($request, $handler);
+    public function testHttpMethodNotAllowedException(): void
+    {
+        $this->expectException(HttpMethodNotAllowedException::class);
+
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
+
+        // Define a route with arguments
+        $app->post('/hello/foo', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            return $response;
+        });
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', '/hello/foo');
+
+        $app->handle($request);
+    }
+
+    public function testPercentEncodedPath(): void
+    {
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
+
+        // Define a route with arguments
+        $app->get('/article/{articles}', function ($request, $response) {
+            return $response;
+        });
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', '/article/1%2C2');
+
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
     }
 }

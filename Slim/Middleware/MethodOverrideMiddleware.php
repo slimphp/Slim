@@ -20,17 +20,26 @@ use function strtoupper;
 
 final class MethodOverrideMiddleware implements MiddlewareInterface
 {
+    private const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'];
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $methodHeader = $request->getHeaderLine('X-Http-Method-Override');
+        if (strtoupper($request->getMethod()) !== 'POST') {
+            return $handler->handle($request);
+        }
 
-        if ($methodHeader) {
+        $methodHeader = strtoupper($request->getHeaderLine('X-Http-Method-Override'));
+
+        if ($methodHeader && in_array($methodHeader, self::ALLOWED_METHODS, true)) {
             $request = $request->withMethod($methodHeader);
-        } elseif (strtoupper($request->getMethod()) === 'POST') {
+        } else {
             $body = $request->getParsedBody();
 
-            if (is_array($body) && !empty($body['_METHOD']) && is_string($body['_METHOD'])) {
-                $request = $request->withMethod($body['_METHOD']);
+            if (is_array($body) && isset($body['_METHOD']) && is_string($body['_METHOD'])) {
+                $override = strtoupper($body['_METHOD']);
+                if (in_array($override, self::ALLOWED_METHODS, true)) {
+                    $request = $request->withMethod($override);
+                }
             }
 
             if ($request->getBody()->eof()) {

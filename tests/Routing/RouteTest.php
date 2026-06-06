@@ -16,9 +16,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Factory\AppFactory;
+use Slim\Interfaces\RouterInterface;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
-use Slim\Routing\Router;
 
 class RouteTest extends TestCase
 {
@@ -166,10 +166,10 @@ class RouteTest extends TestCase
         };
     }
 
-    private function createRouter(): Router
+    private function createRouter(): RouterInterface
     {
         $app = AppFactory::create();
 
-        return $app->getContainer()->get(Router::class);
+        return $app->getContainer()->get(RouterInterface::class);
     }
 }

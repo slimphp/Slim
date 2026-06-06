@@ -12,9 +12,9 @@ namespace Slim\Tests\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Slim\Factory\AppFactory;
+use Slim\Interfaces\RouterInterface;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
-use Slim\Routing\Router;
 
 class RouteGroupTest extends TestCase
 {
@@ -105,10 +105,10 @@ class RouteGroupTest extends TestCase
         $this->assertSame($routeGroup, $nestedGroup->getRouteGroup());
     }
 
-    private function createRouter(): Router
+    private function createRouter(): RouterInterface
     {
         $app = AppFactory::create();
 
-        return $app->getContainer()->get(Router::class);
+        return $app->getContainer()->get(RouterInterface::class);
     }
 }
