@@ -27,7 +27,7 @@ final class BasePathMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $basePath = $this->router?->getBasePath();
+        $basePath = $this->router->getBasePath();
         if ($basePath === null) {
             $basePath = $this->detectBasePath($request);
             $this->router->setBasePath($basePath);
