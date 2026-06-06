@@ -5,25 +5,23 @@ namespace Slim\Interfaces;
 use FastRoute\RouteCollector;
 use InvalidArgumentException;
 use Psr\Http\Server\MiddlewareInterface;
-use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
-use Slim\Routing\Router;
 
 interface RouterInterface
 {
-    public function get(string $path, callable|string $handler): Route;
+    public function get(string $path, callable|string $handler): RouteInterface;
 
-    public function post(string $path, callable|string $handler): Route;
+    public function post(string $path, callable|string $handler): RouteInterface;
 
-    public function put(string $path, callable|string $handler): Route;
+    public function put(string $path, callable|string $handler): RouteInterface;
 
-    public function patch(string $path, callable|string $handler): Route;
+    public function patch(string $path, callable|string $handler): RouteInterface;
 
-    public function delete(string $path, callable|string $handler): Route;
+    public function delete(string $path, callable|string $handler): RouteInterface;
 
-    public function options(string $path, callable|string $handler): Route;
+    public function options(string $path, callable|string $handler): RouteInterface;
 
-    public function any(string $pattern, callable|string $handler): Route;
+    public function any(string $pattern, callable|string $handler): RouteInterface;
 
     /**
      * @param array<string> $methods
@@ -32,7 +30,7 @@ interface RouterInterface
      *
      * @throws InvalidArgumentException
      */
-    public function map(array $methods, string $path, callable|string $handler): Route;
+    public function map(array $methods, string $path, callable|string $handler): RouteInterface;
 
     public function group(string $path, callable $handler): RouteGroup;
 
@@ -40,14 +38,14 @@ interface RouterInterface
 
     public function setBasePath(string $basePath): void;
 
-    public function getBasePath(): string;
+    public function getBasePath(): ?string;
 
     /**
      * @return array<MiddlewareInterface|callable|string>
      */
     public function getMiddleware(): array;
 
-    public function add(MiddlewareInterface|callable|string $middleware): Router;
+    public function add(MiddlewareInterface|callable|string $middleware): RouterInterface;
 
-    public function addMiddleware(MiddlewareInterface $middleware): Router;
+    public function addMiddleware(MiddlewareInterface $middleware): RouterInterface;
 }

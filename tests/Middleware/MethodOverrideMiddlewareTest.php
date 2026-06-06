@@ -16,6 +16,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Factory\AppFactory;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
@@ -113,12 +114,80 @@ final class MethodOverrideMiddlewareTest extends TestCase
         $request = $app->getContainer()
             ->get(ServerRequestFactoryInterface::class)
             ->createServerRequest('POST', '/')
-            ->withHeader('X-Http-Method-Override', 'DELETE')
-            ->withParsedBody((object)['_METHOD' => 'PUT']);
+            ->withHeader('X-Http-Method-Override', 'DELETE');
 
         $response = $app->handle($request);
 
         $this->assertSame('Hello World', (string)$response->getBody());
+    }
+
+    public function testHeaderOverrideWithArbitraryValueIsIgnored(): void
+    {
+        $this->expectException(HttpMethodNotAllowedException::class);
+        $this->expectExceptionMessage('Method not allowed.');
+
+        $app = AppFactory::create();
+        $app->add(MethodOverrideMiddleware::class);
+        $app->addRoutingMiddleware();
+
+        $app->delete('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write($request->getMethod());
+
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
+            ->withHeader('X-Http-Method-Override', 'FAKEMETHOD');
+
+        $app->handle($request);
+    }
+
+    public function testHeaderOverrideOnNonPostRequestIsIgnored(): void
+    {
+        $this->expectException(HttpMethodNotAllowedException::class);
+        $this->expectExceptionMessage('Method not allowed.');
+
+        $app = AppFactory::create();
+        $app->add(MethodOverrideMiddleware::class);
+        $app->addRoutingMiddleware();
+
+        $app->delete('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write($request->getMethod());
+
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/')
+            ->withHeader('X-Http-Method-Override', 'DELETE');
+
+        $app->handle($request);
+    }
+
+    public function testHeaderOverrideWithArbitraryValueInPayload(): void
+    {
+        $this->expectException(HttpMethodNotAllowedException::class);
+        $this->expectExceptionMessage('Method not allowed.');
+
+        $app = AppFactory::create();
+        $app->add(MethodOverrideMiddleware::class);
+        $app->addRoutingMiddleware();
+
+        $app->delete('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write($request->getMethod());
+
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
+            ->withParsedBody(['_METHOD' => 'FAKEMETHOD']);
+
+        $app->handle($request);
     }
 
     public function testNoOverride()

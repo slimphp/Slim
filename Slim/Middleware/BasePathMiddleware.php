@@ -20,53 +20,41 @@ final class BasePathMiddleware implements MiddlewareInterface
 {
     private RouterInterface $router;
 
-    private string $phpSapi;
-
-    /**
-     * The constructor.
-     *
-     * @param RouterInterface $router The router
-     * @param string $phpSapi The type of interface between web server and PHP
-     *
-     * Supported: 'apache2handler'
-     * Not supported: 'cgi', 'cgi-fcgi', 'fpm-fcgi', 'litespeed', 'cli-server'
-     */
-    public function __construct(RouterInterface $router, string $phpSapi = PHP_SAPI)
+    public function __construct(RouterInterface $router)
     {
-        $this->phpSapi = $phpSapi;
         $this->router = $router;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $basePath = '';
-
-        if ($this->phpSapi === 'apache2handler') {
-            $basePath = $this->getBasePathByRequestUri($request);
+        $basePath = $this->router?->getBasePath();
+        if ($basePath === null) {
+            $basePath = $this->detectBasePath($request);
+            $this->router->setBasePath($basePath);
         }
-
-        $this->router->setBasePath($basePath);
 
         return $handler->handle($request);
     }
 
     /**
-     * Return basePath for most common webservers, such as Apache.
-     * @param ServerRequestInterface $request
+     * Return basePath for most common webservers.
      */
-    private function getBasePathByRequestUri(ServerRequestInterface $request): string
+    private function detectBasePath(ServerRequestInterface $request): string
     {
-        $basePath = $request->getUri()->getPath();
-        $scriptName = $request->getServerParams()['SCRIPT_NAME'] ?? '';
+        $serverParams = $request->getServerParams();
+        $scriptName = $serverParams['SCRIPT_NAME'] ??
+            $serverParams['PHP_SELF'] ??
+            $serverParams['ORIG_SCRIPT_NAME'] ?? '';
         $scriptName = str_replace('\\', '/', dirname($scriptName, 2));
 
         if ($scriptName === '/') {
             return '';
         }
 
+        $path = $request->getUri()->getPath();
         $length = strlen($scriptName);
-        $basePath = $length > 0 ? substr($basePath, 0, $length) : $basePath;
+        $path = $length > 0 ? substr($path, 0, $length) : $path;
 
-        return strlen($basePath) > 1 ? $basePath : '';
+        return strlen($path) > 1 ? $path : '';
     }
 }

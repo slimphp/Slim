@@ -22,7 +22,7 @@ final class HttpExceptionTest extends TestCase
 {
     use AppTestTrait;
 
-    public function testHttpExceptionRequestResponseGetterSetters()
+    public function testHttpExceptionRequestResponseGetterSetters(): void
     {
         $app = AppFactory::create();
 
@@ -35,7 +35,7 @@ final class HttpExceptionTest extends TestCase
         $this->assertInstanceOf(ServerRequestInterface::class, $exception->getRequest());
     }
 
-    public function testHttpExceptionAttributeGettersSetters()
+    public function testHttpExceptionAttributeGettersSetters(): void
     {
         $app = AppFactory::create();
 
@@ -51,7 +51,7 @@ final class HttpExceptionTest extends TestCase
         $this->assertSame('Description', $exception->getDescription());
     }
 
-    public function testHttpNotAllowedExceptionGetAllowedMethods()
+    public function testHttpNotAllowedExceptionGetAllowedMethods(): void
     {
         $app = AppFactory::create();
 
@@ -62,7 +62,7 @@ final class HttpExceptionTest extends TestCase
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);
         $this->assertSame(['GET'], $exception->getAllowedMethods());
-        $this->assertSame('Method not allowed. Must be one of: GET', $exception->getMessage());
+        $this->assertSame('Method not allowed.', $exception->getMessage());
 
         $exception = new HttpMethodNotAllowedException($request);
         $this->assertSame([], $exception->getAllowedMethods());

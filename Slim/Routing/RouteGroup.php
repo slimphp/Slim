@@ -13,6 +13,7 @@ namespace Slim\Routing;
 use FastRoute\RouteCollector;
 use Slim\Interfaces\MiddlewareCollectionInterface;
 use Slim\Interfaces\RouteCollectionInterface;
+use Slim\Interfaces\RouteInterface;
 
 final class RouteGroup implements MiddlewareCollectionInterface, RouteCollectionInterface
 {
@@ -67,7 +68,7 @@ final class RouteGroup implements MiddlewareCollectionInterface, RouteCollection
      * @param string $path
      * @param callable|string $handler
      */
-    public function map(array $methods, string $path, callable|string $handler): Route
+    public function map(array $methods, string $path, callable|string $handler): RouteInterface
     {
         $routePath = $this->prefix . $path;
         $route = new Route($methods, $routePath, $handler, $this);

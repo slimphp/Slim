@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 
 final class Router implements RouterInterface, RequestHandlerInterface
@@ -27,7 +28,7 @@ final class Router implements RouterInterface, RequestHandlerInterface
 
     private RouteCollector $collector;
 
-    private string $basePath = '';
+    private ?string $basePath = null;
 
     public function __construct(PipelineRunner $pipelineRunner)
     {
@@ -35,14 +36,7 @@ final class Router implements RouterInterface, RequestHandlerInterface
         $this->pipelineRunner = $pipelineRunner;
     }
 
-    /**
-     * @param array<string> $methods
-     * @param string $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function map(array $methods, string $path, callable|string $handler): Route
+    public function map(array $methods, string $path, callable|string $handler): RouteInterface
     {
         if (!$methods) {
             throw new InvalidArgumentException('HTTP methods array cannot be empty');
@@ -75,7 +69,7 @@ final class Router implements RouterInterface, RequestHandlerInterface
         $this->basePath = $basePath;
     }
 
-    public function getBasePath(): string
+    public function getBasePath(): ?string
     {
         return $this->basePath;
     }
@@ -92,7 +86,6 @@ final class Router implements RouterInterface, RequestHandlerInterface
      * - Starts with a forward slash
      * - No trailing slash (unless root path)
      * - No double slashes
-     * @param string $path
      */
     private function normalizePath(string $path): string
     {
