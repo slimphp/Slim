@@ -10,9 +10,18 @@
 
 ### Removed
 
+## 4.15.2 - 2026-05-22
+
+### Fixed
+
+- Escape HTML entities in HtmlErrorRenderer to prevent XSS attacks ([GHSA-53h4-8rc4-f539](https://github.com/slimphp/Slim/security/advisories/GHSA-53h4-8rc4-f539))
+- Fix static analysis suppression in RouteCollector::removeNamedRoute() (#3445)
+
+**Full Changelog**: https://github.com/slimphp/Slim/compare/4.15.1...4.15.2
+
 ## 4.15.1 - 2025-11-21
 
-## Fixed
+### Fixed
 
 - Allow PHPUnit 10, 11 and 12 when testing Slim itself (#3411)
 

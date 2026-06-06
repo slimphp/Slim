@@ -21,9 +21,13 @@ use Slim\Exception\HttpException;
 use Slim\Tests\TestCase;
 use stdClass;
 
+use function htmlspecialchars;
 use function json_decode;
 use function json_encode;
 use function simplexml_load_string;
+
+use const ENT_QUOTES;
+use const ENT_SUBSTITUTE;
 
 class AbstractErrorRendererTest extends TestCase
 {
@@ -92,6 +96,45 @@ class AbstractErrorRendererTest extends TestCase
 
         $this->assertStringContainsString($exceptionTitle, $output, 'Should contain http exception title');
         $this->assertStringContainsString($exceptionDescription, $output, 'Should contain http exception description');
+    }
+
+    public function testHTMLErrorRendererEscapesHttpException()
+    {
+        $exceptionTitle = '<script>alert(1)</script>';
+        $exceptionDescription = "<script>alert('xss')</script>";
+
+        $httpExceptionProphecy = $this->prophesize(HttpException::class);
+
+        $httpExceptionProphecy
+            ->getTitle()
+            ->willReturn($exceptionTitle)
+            ->shouldBeCalledOnce();
+
+        $httpExceptionProphecy
+            ->getDescription()
+            ->willReturn($exceptionDescription)
+            ->shouldBeCalledOnce();
+
+        $renderer = new HtmlErrorRenderer();
+        $output = $renderer->__invoke($httpExceptionProphecy->reveal(), false);
+
+        $this->assertStringNotContainsString($exceptionTitle, $output, 'Title must not be rendered unescaped');
+        $this->assertStringContainsString(
+            htmlspecialchars($exceptionTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $output,
+            'Title must be HTML-escaped'
+        );
+
+        $this->assertStringNotContainsString(
+            $exceptionDescription,
+            $output,
+            'Description must not be rendered unescaped'
+        );
+        $this->assertStringContainsString(
+            htmlspecialchars($exceptionDescription, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $output,
+            'Description must be HTML-escaped'
+        );
     }
 
     public function testJSONErrorRendererDisplaysErrorDetails()
