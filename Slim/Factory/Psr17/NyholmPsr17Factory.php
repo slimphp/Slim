@@ -33,4 +33,15 @@ class NyholmPsr17Factory extends Psr17Factory
 
         return new ServerRequestCreator($serverRequestCreator, static::$serverRequestCreatorMethod);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function isServerRequestCreatorAvailable(): bool
+    {
+        return (
+            parent::isServerRequestCreatorAvailable()
+            && class_exists(static::$responseFactoryClass)
+        );
+    }
 }
