@@ -198,6 +198,31 @@ final class RoutingMiddlewareTest extends TestCase
         $this->assertSame('/api/users/123?page=2', $response->getHeaderLine('X-fullUrlFor'));
     }
 
+    public function testRoutePreservesEncodedReservedCharactersWhenPathDecodingDisabled(): void
+    {
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware(false);
+
+        $app->get('/something/{magic}/{foo}', function (
+            ServerRequestInterface $request,
+            ResponseInterface $response,
+            array $args
+        ) {
+            $response->getBody()->write($args['magic'] . '|' . $args['foo']);
+
+            return $response;
+        });
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', '/something/magic/foo%2Fbar');
+
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('magic|foo%2Fbar', (string)$response->getBody());
+    }
+
     public function testMethodNotAllowedThrowsRuntimeExceptionWhenAllowedMethodsPayloadIsInvalid(): void
     {
         $dispatcher = $this->createMock(DispatcherInterface::class);

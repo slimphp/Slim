@@ -30,12 +30,16 @@ final class RoutingMiddleware implements MiddlewareInterface
 
     private RouterInterface $router;
 
+    private bool $decodePath;
+
     public function __construct(
         DispatcherInterface $dispatcher,
-        RouterInterface $router
+        RouterInterface $router,
+        bool $decodePath = true
     ) {
         $this->dispatcher = $dispatcher;
         $this->router = $router;
+        $this->decodePath = $decodePath;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -46,7 +50,7 @@ final class RoutingMiddleware implements MiddlewareInterface
 
         $routingResult = $this->dispatcher->dispatch(
             $request->getMethod(),
-            rawurldecode($dispatchPath)
+            $this->decodePath ? rawurldecode($dispatchPath) : $dispatchPath
         );
 
         $routeMatch = $this->createRouteMatch($routingResult);

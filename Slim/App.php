@@ -16,6 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\EmitterInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
@@ -169,12 +170,23 @@ class App implements RequestHandlerInterface
     /**
      * Add routing middleware.
      *
+     * @param bool $decodePath Whether the request path should be URL-decoded before dispatch.
+     *                         Disable to preserve encoded reserved characters inside route parameters.
+     *
      * @return self
      */
-    public function addRoutingMiddleware(): self
+    public function addRoutingMiddleware(bool $decodePath = true): self
     {
+        $routingMiddleware = $decodePath
+            ? RoutingMiddleware::class
+            : new RoutingMiddleware(
+                $this->container->get(DispatcherInterface::class),
+                $this->router,
+                false,
+            );
+
         return $this
-            ->add(RoutingMiddleware::class)
+            ->add($routingMiddleware)
             ->add(EndpointMiddleware::class);
     }
 
