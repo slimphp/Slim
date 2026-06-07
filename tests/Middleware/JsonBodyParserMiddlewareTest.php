@@ -10,12 +10,12 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Middleware;
 
-use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpBadRequestException;
 use Slim\Middleware\JsonBodyParserMiddleware;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Factory\StreamFactory;
@@ -77,14 +77,14 @@ final class JsonBodyParserMiddlewareTest extends TestCase
     #[DataProvider('invalidJsonProvider')]
     public function testThrowsExceptionOnInvalidJson($contentType, $body): void
     {
-        $this->expectException(JsonException::class);
+        $this->expectException(HttpBadRequestException::class);
         $this->expectExceptionMessage('Syntax error');
 
-        $stream = (new StreamFactory())->createStream('{"foo": "bar"');
+        $stream = (new StreamFactory())->createStream($body);
 
         $request = (new ServerRequestFactory())
             ->createServerRequest('POST', '/')
-            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Type', $contentType)
             ->withBody($stream);
 
         $middleware = new JsonBodyParserMiddleware();
@@ -120,6 +120,73 @@ final class JsonBodyParserMiddlewareTest extends TestCase
         });
 
         $this->assertSame('no-parse', (string)$response->getBody());
+    }
+
+    public function testThrowsOnNullFlagsWithInvalidJson(): void
+    {
+        // no JSON_THROW_ON_ERROR, so json_decode returns null on error instead of throwing an exception
+        $middleware = new JsonBodyParserMiddleware(0);
+        $stream = (new StreamFactory())->createStream('{bad}');
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('POST', '/')
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody($stream);
+
+        $this->expectException(HttpBadRequestException::class);
+        $middleware->process($request, new class implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                return new Response();
+            }
+        });
+    }
+
+    #[DataProvider('validJsonProvider')]
+    public function testJsonObjectAsArray($contentType, $body, $expected): void
+    {
+        $middleware = new JsonBodyParserMiddleware(JSON_OBJECT_AS_ARRAY);
+        $stream = (new StreamFactory())->createStream($body);
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('POST', '/')
+            ->withHeader('Content-Type', $contentType)
+            ->withBody($stream);
+
+        $response = $middleware->process($request, new class implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $data = $request->getParsedBody();
+                $response = new Response();
+                $response->getBody()->write(json_encode($data));
+
+                return $response;
+            }
+        });
+
+        $this->assertSame($expected, (string)$response->getBody());
+    }
+
+    #[DataProvider('validJsonProvider')]
+    public function testJsonForceObject($contentType, $body, $expected): void
+    {
+        $middleware = new JsonBodyParserMiddleware(JSON_FORCE_OBJECT);
+        $stream = (new StreamFactory())->createStream($body);
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('POST', '/')
+            ->withHeader('Content-Type', $contentType)
+            ->withBody($stream);
+
+        $response = $middleware->process($request, new class implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $data = $request->getParsedBody();
+                $response = new Response();
+                $response->getBody()->write(json_encode($data));
+
+                return $response;
+            }
+        });
+
+        $this->assertSame($expected, (string)$response->getBody());
     }
 
     public static function validJsonProvider(): array

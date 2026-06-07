@@ -10,17 +10,21 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
+use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpBadRequestException;
 
+use function in_array;
+use function json_decode;
+
 final class JsonBodyParserMiddleware implements MiddlewareInterface
 {
     private int $flags;
 
-    public function __construct(int $jsonFlags = JSON_THROW_ON_ERROR)
+    public function __construct(int $jsonFlags = 0)
     {
         $this->flags = $jsonFlags;
     }
@@ -36,10 +40,15 @@ final class JsonBodyParserMiddleware implements MiddlewareInterface
 
         if ($this->isJsonMediaType($contentType)) {
             $body = (string)$request->getBody();
-            $parsed = json_decode($body, true, 512, $this->flags);
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new HttpBadRequestException($request, sprintf('Invalid JSON body: %s', json_last_error_msg()));
+            try {
+                $parsed = json_decode($body, true, 512, $this->flags | JSON_THROW_ON_ERROR);
+            } catch (JsonException $jsonException) {
+                throw new HttpBadRequestException(
+                    $request,
+                    sprintf('Invalid JSON body: %s', $jsonException->getMessage()),
+                    $jsonException
+                );
             }
 
             if (is_array($parsed)) {

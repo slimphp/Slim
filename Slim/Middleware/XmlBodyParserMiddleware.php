@@ -28,9 +28,17 @@ final class XmlBodyParserMiddleware implements MiddlewareInterface
         }
 
         if ($this->isXmlMediaType($contentType)) {
-            $backup = libxml_use_internal_errors(true);
             $body = (string)$request->getBody();
-            $xml = simplexml_load_string($body);
+
+            $options = LIBXML_NONET;
+
+            // PHP 8.4+ provides explicit XXE hardening flag.
+            if (defined('LIBXML_NO_XXE')) {
+                $options |= LIBXML_NO_XXE;
+            }
+
+            $backup = libxml_use_internal_errors(true);
+            $xml = simplexml_load_string($body, 'SimpleXMLElement', $options);
 
             libxml_clear_errors();
             libxml_use_internal_errors($backup);

@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
@@ -45,7 +46,12 @@ final class RoutingMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $requestPath = $request->getUri()->getPath();
-        $basePath = $this->router->getBasePath();
+        $basePath = $this->router->getBasePath() ?? '';
+
+        if ($this->isOutsideBasePath($requestPath, $basePath)) {
+            throw new HttpNotFoundException($request);
+        }
+
         $dispatchPath = $this->stripBasePath($requestPath, $basePath);
 
         $routingResult = $this->dispatcher->dispatch(
@@ -68,7 +74,7 @@ final class RoutingMiddleware implements MiddlewareInterface
 
         return match ($status) {
             DispatcherInterface::FOUND => RouteMatch::found(
-                $this->assertRoute($routingResult[1] ?? null),
+                $this->extractRoute($routingResult[1] ?? null),
                 $this->extractArguments($routingResult[2] ?? null),
             ),
             DispatcherInterface::METHOD_NOT_ALLOWED => RouteMatch::methodNotAllowed(
@@ -79,7 +85,7 @@ final class RoutingMiddleware implements MiddlewareInterface
         };
     }
 
-    private function assertRoute(mixed $route): RouteInterface
+    private function extractRoute(mixed $route): RouteInterface
     {
         if (!$route instanceof RouteInterface) {
             throw new RuntimeException('Dispatcher returned an invalid route for FOUND status.');
@@ -127,6 +133,21 @@ final class RoutingMiddleware implements MiddlewareInterface
             return $uri;
         }
 
-        return '/' . ltrim(rtrim(substr($uri, strlen($basePath)), '/'), '/');
+        if ($uri === $basePath) {
+            return '/';
+        }
+
+        $path = substr($uri, strlen($basePath));
+
+        return '/' . ltrim($path, '/');
+    }
+
+    private function isOutsideBasePath(string $uri, string $basePath): bool
+    {
+        if ($basePath === '' || $basePath === '/') {
+            return false;
+        }
+
+        return $uri !== $basePath && !str_starts_with($uri, $basePath . '/');
     }
 }

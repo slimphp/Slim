@@ -13,6 +13,8 @@ use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
+use Slim\Interfaces\RouteInterface;
+use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\UrlGeneratorInterface;
 use UnexpectedValueException;
 
@@ -24,11 +26,11 @@ use function is_string;
 
 final class UrlGenerator implements UrlGeneratorInterface
 {
-    private Router $router;
+    private RouterInterface $router;
 
     private Std $routeParser;
 
-    public function __construct(Router $router)
+    public function __construct(RouterInterface $router)
     {
         $this->router = $router;
         $this->routeParser = new Std();
@@ -48,7 +50,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             $url .= '?' . http_build_query($queryParams);
         }
 
-        $basePath = $this->router->getBasePath();
+        $basePath = $this->router->getBasePath() ?? '';
         if ($basePath) {
             $url = $basePath . $url;
         }
@@ -77,7 +79,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $protocol . $path;
     }
 
-    private function getNamedRoute(string $name): Route
+    private function getNamedRoute(string $name): RouteInterface
     {
         $routes = $this->router->getRouteCollector()->getData();
 
@@ -86,7 +88,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         );
 
         foreach ($iterator as $route) {
-            if ($route instanceof Route && $name === $route->getName()) {
+            if ($route instanceof RouteInterface && $name === $route->getName()) {
                 return $route;
             }
         }
