@@ -311,6 +311,47 @@ final class AppTest extends TestCase
         $this->assertSame('Hello World', (string)$response->getBody());
     }
 
+    public static function strictRouteMismatchProvider(): array
+    {
+        return [
+            'foo does not match foo trailing slash' => [
+                '/foo',       // route pattern
+                '/foo/',      // request URI
+            ],
+            'foo trailing slash does not match foo' => [
+                '/foo/',      // route pattern
+                '/foo',       // request URI
+            ],
+            'foo does not match FOO uppercase' => [
+                '/foo',       // route pattern
+                '/FOO',       // request URI
+            ],
+            'route without leading slash does not match' => [
+                'foo',        // route pattern
+                '/foo',       // request URI
+            ],
+        ];
+    }
+
+    #[DataProvider('strictRouteMismatchProvider')]
+    public function testStrictRouteMismatch(string $routePattern, string $requestUri): void
+    {
+        $this->expectException(HttpNotFoundException::class);
+
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', $requestUri);
+
+        $app->get($routePattern, function () {
+            // noop
+        });
+
+        $app->handle($request);
+    }
+
     /********************************************************************************
      * Route Groups
      *******************************************************************************/
