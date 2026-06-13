@@ -277,20 +277,20 @@ final class AppTest extends TestCase
     {
         return [
             // Route pattern -> http uri
-            // Empty route
-            ['', '/'],
             // Single slash route
             ['/', '/'],
-            // Route That Does Not Start With A Slash
-            ['foo', '/foo'],
             // Route That Does Not End In A Slash
             ['/foo', '/foo'],
             // Route That Ends In A Slash
-            ['/foo/', '/foo'],
+            ['/foo/', '/foo/'],
             // Route That Ends In A double Slash
-            ['/foo//', '/foo'],
+            ['/foo//', '/foo//'],
             // Route That contains In A double Slash
-            ['/foo//bar', '/foo/bar'],
+            ['/foo//bar', '/foo//bar'],
+            // FastRoute optional trailing slash segment matches /foo
+            ['/foo[/]', '/foo'],
+            // FastRoute optional trailing slash segment matches /foo/
+            ['/foo[/]', '/foo/'],
         ];
     }
 
@@ -313,6 +313,47 @@ final class AppTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame('Hello World', (string)$response->getBody());
+    }
+
+    public static function strictRouteMismatchProvider(): array
+    {
+        return [
+            'foo does not match foo trailing slash' => [
+                '/foo',       // route pattern
+                '/foo/',      // request URI
+            ],
+            'foo trailing slash does not match foo' => [
+                '/foo/',      // route pattern
+                '/foo',       // request URI
+            ],
+            'foo does not match FOO uppercase' => [
+                '/foo',       // route pattern
+                '/FOO',       // request URI
+            ],
+            'route without leading slash does not match' => [
+                'foo',        // route pattern
+                '/foo',       // request URI
+            ],
+        ];
+    }
+
+    #[DataProvider('strictRouteMismatchProvider')]
+    public function testStrictRouteMismatch(string $routePattern, string $requestUri): void
+    {
+        $this->expectException(HttpNotFoundException::class);
+
+        $app = AppFactory::create();
+        $app->addRoutingMiddleware();
+
+        $request = $this
+            ->getServerRequestFactory($app)
+            ->createServerRequest('GET', $requestUri);
+
+        $app->get($routePattern, function () {
+            // noop
+        });
+
+        $app->handle($request);
     }
 
     /********************************************************************************
