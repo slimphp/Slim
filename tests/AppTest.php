@@ -287,6 +287,10 @@ final class AppTest extends TestCase
             ['/foo//', '/foo//'],
             // Route That contains In A double Slash
             ['/foo//bar', '/foo//bar'],
+            // FastRoute optional trailing slash segment matches /foo
+            ['/foo[/]', '/foo'],
+            // FastRoute optional trailing slash segment matches /foo/
+            ['/foo[/]', '/foo/'],
         ];
     }
 
