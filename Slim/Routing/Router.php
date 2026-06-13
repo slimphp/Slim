@@ -42,19 +42,17 @@ final class Router implements RouterInterface, RequestHandlerInterface
             throw new InvalidArgumentException('HTTP methods array cannot be empty');
         }
 
-        $routePattern = $this->normalizePath($path);
-        $route = new Route($methods, $routePattern, $handler, null);
+        $route = new Route($methods, $path, $handler, null);
 
-        $this->collector->addRoute($methods, $routePattern, $route);
+        $this->collector->addRoute($methods, $path, $route);
 
         return $route;
     }
 
     public function group(string $path, callable $handler): RouteGroup
     {
-        $routePattern = $this->normalizePath($path);
-        $routeGroup = new RouteGroup($routePattern, $handler, $this->getRouteCollector());
-        $this->collector->addGroup($routePattern, $routeGroup);
+        $routeGroup = new RouteGroup($path, $handler, $this->getRouteCollector());
+        $this->collector->addGroup($path, $routeGroup);
 
         return $routeGroup;
     }
@@ -79,28 +77,5 @@ final class Router implements RouterInterface, RequestHandlerInterface
         return $this->pipelineRunner
             ->withPipeline($this->getMiddleware())
             ->handle($request);
-    }
-
-    /**
-     * Normalizes a path by ensuring:
-     * - Starts with a forward slash
-     * - No trailing slash (unless root path)
-     * - No double slashes
-     */
-    private function normalizePath(string $path): string
-    {
-        // If path is empty or just a slash, return single slash
-        if ($path === '' || $path === '/') {
-            return '/';
-        }
-
-        // Ensure path starts with a slash
-        $path = '/' . ltrim($path, '/');
-
-        // Remove trailing slash unless it's the root path
-        $path = rtrim($path, '/');
-
-        // Replace multiple consecutive slashes with a single slash
-        return preg_replace('#/+#', '/', $path) ?? '';
     }
 }

@@ -277,20 +277,16 @@ final class AppTest extends TestCase
     {
         return [
             // Route pattern -> http uri
-            // Empty route
-            ['', '/'],
             // Single slash route
             ['/', '/'],
-            // Route That Does Not Start With A Slash
-            ['foo', '/foo'],
             // Route That Does Not End In A Slash
             ['/foo', '/foo'],
             // Route That Ends In A Slash
-            ['/foo/', '/foo'],
+            ['/foo/', '/foo/'],
             // Route That Ends In A double Slash
-            ['/foo//', '/foo'],
+            ['/foo//', '/foo//'],
             // Route That contains In A double Slash
-            ['/foo//bar', '/foo/bar'],
+            ['/foo//bar', '/foo//bar'],
         ];
     }
 
