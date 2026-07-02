@@ -28,6 +28,7 @@ use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
+use Slim\Tests\TestCase;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MockCustomRequestHandlerInvocationStrategy;
