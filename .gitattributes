@@ -17,4 +17,5 @@
 /phpstan.neon.dist  export-ignore
 /phpunit.xml.dist   export-ignore
 /psalm.xml          export-ignore
+/structarmed.php    export-ignore
 /tests              export-ignore
