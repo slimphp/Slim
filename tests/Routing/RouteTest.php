@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\Tests;
+namespace Slim\Tests\Routing;
 
 use Closure;
 use Exception;

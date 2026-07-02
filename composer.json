@@ -56,6 +56,7 @@
     "require-dev": {
         "ext-simplexml": "*",
         "adriansuter/php-autoload-override": "^1.4 || ^2",
+        "boundwize/structarmed": "^0.14.8",
         "guzzlehttp/psr7": "^2.6",
         "httpsoft/http-message": "^1.1",
         "httpsoft/http-server-request": "^1.1",

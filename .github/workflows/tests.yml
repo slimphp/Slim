@@ -48,6 +48,12 @@ jobs:
         if: matrix.analysis
         run: vendor/bin/phpstan
 
+      - name: Structarmed analysis
+        if: matrix.php == 8.2
+        run: |
+          composer require --dev boundwize/structarmed:^0.14.0 --prefer-dist --no-progress --no-interaction --ansi
+          vendor/bin/structarmed analyse
+
       - name: Tests
         run: vendor/bin/phpunit ${{ matrix.analysis && '--coverage-clover clover.xml' || '--no-coverage'  }}
 
