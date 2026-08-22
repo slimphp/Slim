@@ -17,6 +17,8 @@ use Psr\Http\Message\UriInterface;
 /**
  * @api
  * @template TContainerInterface of (ContainerInterface|null)
+ *
+ * @method RouteInterface query(string $pattern, callable|array{0: string, 1: string}|string $callable)
  */
 interface RouteCollectorProxyInterface
 {
@@ -89,16 +91,6 @@ interface RouteCollectorProxyInterface
      * @param callable|array{class-string, string}|string $callable The route callback routine
      */
     public function options(string $pattern, $callable): RouteInterface;
-
-    /**
-     * Add QUERY route
-     *
-     * @param string $pattern The route URI pattern
-     * @param callable|array{class-string, string}|string $callable The route callback routine
-     *
-     * @link https://www.rfc-editor.org/rfc/rfc10008
-     */
-    public function query(string $pattern, $callable): RouteInterface;
 
     /**
      * Add route for any HTTP method

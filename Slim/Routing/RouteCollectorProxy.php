@@ -152,7 +152,13 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Add QUERY route
+     *
+     * @api
+     * @param string $pattern The route URI pattern
+     * @param callable|array{class-string, string}|string $callable The route callback routine
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc10008
      */
     public function query(string $pattern, $callable): RouteInterface
     {
