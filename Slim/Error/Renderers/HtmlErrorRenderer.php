@@ -14,7 +14,6 @@ use Slim\Error\AbstractErrorRenderer;
 use Throwable;
 
 use function get_class;
-use function htmlentities;
 use function htmlspecialchars;
 use function sprintf;
 
@@ -51,14 +50,20 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
         $code = $exception->getCode();
         $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
 
-        $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($exception->getMessage()));
+        $html .= sprintf(
+            '<div><strong>Message:</strong> %s</div>',
+            htmlspecialchars($exception->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+        );
 
         $html .= sprintf('<div><strong>File:</strong> %s</div>', $exception->getFile());
 
         $html .= sprintf('<div><strong>Line:</strong> %s</div>', $exception->getLine());
 
         $html .= '<h2>Trace</h2>';
-        $html .= sprintf('<pre>%s</pre>', htmlentities($exception->getTraceAsString()));
+        $html .= sprintf(
+            '<pre>%s</pre>',
+            htmlspecialchars($exception->getTraceAsString(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+        );
 
         return $html;
     }

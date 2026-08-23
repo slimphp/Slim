@@ -74,6 +74,23 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertMatchesRegularExpression('/.*Line*/', $output);
     }
 
+    public function testHTMLErrorRendererEscapesQuotesInErrorDetails()
+    {
+        $exception = new Exception("O'Brien <script>");
+        $renderer = new HtmlErrorRenderer();
+        $reflectionRenderer = new ReflectionClass(HtmlErrorRenderer::class);
+
+        $method = $reflectionRenderer->getMethod('renderExceptionFragment');
+        $this->setAccessible($method);
+        $output = $method->invoke($renderer, $exception);
+
+        $this->assertStringContainsString(
+            htmlspecialchars("O'Brien <script>", ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $output,
+            'Message must be HTML-escaped including quotes'
+        );
+    }
+
     public function testHTMLErrorRendererRenderHttpException()
     {
         $exceptionTitle = 'title';
