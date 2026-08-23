@@ -21,6 +21,8 @@ interface RouterInterface
 
     public function options(string $path, callable|string $handler): RouteInterface;
 
+    public function query(string $path, callable|string $handler): RouteInterface;
+
     public function any(string $pattern, callable|string $handler): RouteInterface;
 
     /**
