@@ -21,10 +21,18 @@ use Slim\Exception\HttpException;
 use Slim\Tests\TestCase;
 use stdClass;
 
+use function bin2hex;
+use function file_put_contents;
+use function get_class;
 use function htmlspecialchars;
 use function json_decode;
 use function json_encode;
+use function mkdir;
+use function random_bytes;
+use function rmdir;
 use function simplexml_load_string;
+use function sys_get_temp_dir;
+use function unlink;
 
 use const ENT_QUOTES;
 use const ENT_SUBSTITUTE;
@@ -76,7 +84,19 @@ class AbstractErrorRendererTest extends TestCase
 
     public function testHTMLErrorRendererEscapesQuotesInErrorDetails()
     {
-        $exception = new Exception("O'Brien <script>");
+        $unsafe = "O'Brien <script>";
+        $escaped = htmlspecialchars($unsafe, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+        $exception = new class ($unsafe) extends Exception {
+            public function __construct(string $unsafe)
+            {
+                parent::__construct($unsafe, 0);
+                $this->file = '/tmp/' . $unsafe . '.php';
+                $this->code = "SQL'" . $unsafe;
+                $this->line = 7;
+            }
+        };
+
         $renderer = new HtmlErrorRenderer();
         $reflectionRenderer = new ReflectionClass(HtmlErrorRenderer::class);
 
@@ -84,11 +104,48 @@ class AbstractErrorRendererTest extends TestCase
         $this->setAccessible($method);
         $output = $method->invoke($renderer, $exception);
 
+        $this->assertStringNotContainsString($unsafe, $output);
+        $this->assertStringContainsString($escaped, $output);
         $this->assertStringContainsString(
-            htmlspecialchars("O'Brien <script>", ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            $output,
-            'Message must be HTML-escaped including quotes'
+            htmlspecialchars('/tmp/' . $unsafe . '.php', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $output
         );
+        $this->assertStringContainsString(
+            htmlspecialchars("SQL'" . $unsafe, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $output
+        );
+        $this->assertStringContainsString('<div><strong>Line:</strong> 7</div>', $output);
+    }
+
+    public function testHTMLErrorRendererEscapesAnonymousClassType()
+    {
+        $unsafe = "O'Brien <script>";
+        $dir = sys_get_temp_dir() . '/slim-html-' . bin2hex(random_bytes(4));
+        $unsafeDir = $dir . '/' . $unsafe;
+        mkdir($unsafeDir, 0700, true);
+        $file = $unsafeDir . '/anon.php';
+        file_put_contents($file, '<?php return new class extends Exception {};');
+
+        try {
+            /** @var Exception $exception */
+            $exception = require $file;
+            $renderer = new HtmlErrorRenderer();
+            $reflectionRenderer = new ReflectionClass(HtmlErrorRenderer::class);
+
+            $method = $reflectionRenderer->getMethod('renderExceptionFragment');
+            $this->setAccessible($method);
+            $output = $method->invoke($renderer, $exception);
+
+            $this->assertStringNotContainsString($unsafe, $output);
+            $this->assertStringContainsString(
+                htmlspecialchars(get_class($exception), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+                $output
+            );
+        } finally {
+            unlink($file);
+            rmdir($unsafeDir);
+            rmdir($dir);
+        }
     }
 
     public function testHTMLErrorRendererRenderHttpException()
