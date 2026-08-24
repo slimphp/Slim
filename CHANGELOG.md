@@ -6,8 +6,6 @@
 
 ### Added
 
-- Add `query()` route helper for the HTTP `QUERY` method ([RFC 10008](https://www.rfc-editor.org/rfc/rfc10008))
-
 ### Changed
 
 ### Removed
