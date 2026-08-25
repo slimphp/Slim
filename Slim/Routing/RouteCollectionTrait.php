@@ -48,6 +48,11 @@ trait RouteCollectionTrait
         return $this->map(['OPTIONS'], $path, $handler);
     }
 
+    public function query(string $path, callable|string $handler): RouteInterface
+    {
+        return $this->map(['QUERY'], $path, $handler);
+    }
+
     public function any(string $pattern, callable|string $handler): RouteInterface
     {
         return $this->map(['*'], $pattern, $handler);

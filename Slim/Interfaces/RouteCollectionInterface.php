@@ -75,6 +75,16 @@ interface RouteCollectionInterface
     public function options(string $path, callable|string $handler): RouteInterface;
 
     /**
+     * Register a QUERY route.
+     *
+     * @param string $path
+     * @param callable|string $handler
+     *
+     * @return RouteInterface
+     */
+    public function query(string $path, callable|string $handler): RouteInterface;
+
+    /**
      * Register a route for any HTTP method.
      *
      * @param string $path

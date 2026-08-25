@@ -170,6 +170,7 @@ final class AppTest extends TestCase
             ['patch'],
             ['delete'],
             ['options'],
+            ['query'],
         ];
     }
 
@@ -222,6 +223,7 @@ final class AppTest extends TestCase
             ['PATCH'],
             ['DELETE'],
             ['OPTIONS'],
+            ['QUERY'],
         ];
     }
 

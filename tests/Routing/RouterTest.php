@@ -107,6 +107,14 @@ class RouterTest extends TestCase
                 },
                 ['PUT'],
             ],
+            [
+                'query',
+                '/query',
+                function () {
+                    return 'query_handler';
+                },
+                ['QUERY'],
+            ],
         ];
     }
 
