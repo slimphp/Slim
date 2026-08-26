@@ -56,27 +56,6 @@ interface RouteInterface
     public function getRouteGroup(): ?RouteGroup;
 
     /**
-     * Retrieve a specific route argument.
-     */
-    public function getArgument(string $name, ?string $default = null): ?string;
-
-    /**
-     * Get route arguments.
-     *
-     * @return array<string, string>
-     */
-    public function getArguments(): array;
-
-    /**
-     * Set route arguments.
-     *
-     * @param array<string,string> $arguments The arguments.
-     *
-     * @return RouteInterface
-     */
-    public function setArguments(array $arguments): RouteInterface;
-
-    /**
      * @return array<MiddlewareInterface|callable|string>
      */
     public function getMiddleware(): array;

@@ -118,4 +118,56 @@ final class ErrorExceptionMiddlewareTest extends TestCase
 
         $this->assertSame($response, $result);
     }
+
+    public function testErrorHandlerIsRestoredWhenNoPreviousHandlerExists(): void
+    {
+        $previous = set_error_handler(static fn() => false);
+        restore_error_handler();
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler->expects($this->once())
+            ->method('handle')
+            ->willReturn($response);
+
+        $app = AppFactory::create();
+        $middleware = $app->getContainer()->get(ErrorExceptionMiddleware::class);
+
+        $middleware->process($request, $handler);
+
+        $current = set_error_handler(static fn() => false);
+        restore_error_handler();
+
+        $this->assertSame($previous, $current);
+    }
+
+    public function testErrorHandlerIsRestoredWhenAPreviousHandlerExists(): void
+    {
+        $custom = static fn() => false;
+        set_error_handler($custom);
+
+        try {
+            $request = $this->createMock(ServerRequestInterface::class);
+            $response = $this->createMock(ResponseInterface::class);
+
+            $handler = $this->createMock(RequestHandlerInterface::class);
+            $handler->expects($this->once())
+                ->method('handle')
+                ->willReturn($response);
+
+            $app = AppFactory::create();
+            $middleware = $app->getContainer()->get(ErrorExceptionMiddleware::class);
+
+            $middleware->process($request, $handler);
+
+            $current = set_error_handler(static fn() => false);
+            restore_error_handler();
+
+            $this->assertSame($custom, $current);
+        } finally {
+            restore_error_handler();
+        }
+    }
 }

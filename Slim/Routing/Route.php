@@ -11,8 +11,6 @@ namespace Slim\Routing;
 use Slim\Interfaces\MiddlewareCollectionInterface;
 use Slim\Interfaces\RouteInterface;
 
-use function array_key_exists;
-
 final class Route implements RouteInterface, MiddlewareCollectionInterface
 {
     use MiddlewareCollectionTrait;
@@ -41,13 +39,6 @@ final class Route implements RouteInterface, MiddlewareCollectionInterface
      * Parent route group
      */
     private ?RouteGroup $group;
-
-    /**
-     * Route parameters
-     *
-     * @var array<string, string>
-     */
-    private array $arguments = [];
 
     /**
      * @param array<string> $methods
@@ -111,34 +102,5 @@ final class Route implements RouteInterface, MiddlewareCollectionInterface
     public function getRouteGroup(): ?RouteGroup
     {
         return $this->group;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getArgument(string $name, ?string $default = null): ?string
-    {
-        if (array_key_exists($name, $this->arguments)) {
-            return $this->arguments[$name];
-        }
-        return $default;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getArguments(): array
-    {
-        return $this->arguments;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setArguments(array $arguments): RouteInterface
-    {
-        $this->arguments = $arguments;
-
-        return $this;
     }
 }
