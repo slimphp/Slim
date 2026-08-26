@@ -23,6 +23,8 @@ use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\Tests\Traits\AppTestTrait;
 
 use function ob_get_contents;
+use function ob_get_level;
+use function ob_start;
 
 final class OutputBufferingMiddlewareTest extends TestCase
 {
@@ -144,6 +146,76 @@ final class OutputBufferingMiddlewareTest extends TestCase
             $app->handle($request);
         } catch (Exception $e) {
             $this->assertSame('', ob_get_contents());
+        }
+    }
+
+    public function testNestedOutputBuffersAreCapturedAndLevelRestored(): void
+    {
+        $level = ob_get_level();
+        $app = AppFactory::create();
+
+        $responseFactory = $app->getContainer()->get(ResponseFactoryInterface::class);
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
+
+        $outputBufferingMiddleware = new OutputBufferingMiddleware($streamFactory, OutputBufferingMiddleware::APPEND);
+        $app->add($outputBufferingMiddleware);
+
+        $middleware = function () use ($responseFactory) {
+            $response = $responseFactory->createResponse();
+            $response->getBody()->write('Body');
+            echo 'Outer';
+            ob_start();
+            echo 'Inner';
+
+            return $response;
+        };
+        $app->add($middleware);
+        $app->addRoutingMiddleware();
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
+
+        $response = $app->handle($request);
+
+        $this->assertSame('BodyOuterInner', (string)$response->getBody());
+        $this->assertSame($level, ob_get_level());
+    }
+
+    public function testNestedOutputBuffersAreRestoredWhenThrowableIsCaught(): void
+    {
+        $level = ob_get_level();
+        $app = AppFactory::create();
+        $streamFactory = $app->getContainer()->get(StreamFactoryInterface::class);
+
+        $middleware = function () {
+            echo 'Outer';
+            ob_start();
+            echo 'Inner';
+            throw new Exception('Oops...');
+        };
+
+        $outputBufferingMiddleware = new OutputBufferingMiddleware($streamFactory, OutputBufferingMiddleware::PREPEND);
+
+        $app->add($outputBufferingMiddleware);
+        $app->add($middleware);
+        $app->addRoutingMiddleware();
+
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
+
+        try {
+            $app->handle($request);
+            $this->fail('Expected exception was not thrown.');
+        } catch (Exception $e) {
+            $this->assertSame('Oops...', $e->getMessage());
+            $this->assertSame($level, ob_get_level());
+            $this->assertSame('', (string)ob_get_contents());
         }
     }
 }

@@ -24,7 +24,7 @@ final class ErrorExceptionMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $errorHandler = set_error_handler(function ($code, $message, $file, $line) {
+        set_error_handler(function ($code, $message, $file, $line) {
             $level = error_reporting();
             if (($level & $code) === 0) {
                 // silent error
@@ -35,13 +35,9 @@ final class ErrorExceptionMiddleware implements MiddlewareInterface
         });
 
         try {
-            $response = $handler->handle($request);
+            return $handler->handle($request);
         } finally {
-            if ($errorHandler) {
-                restore_error_handler();
-            }
+            restore_error_handler();
         }
-
-        return $response;
     }
 }

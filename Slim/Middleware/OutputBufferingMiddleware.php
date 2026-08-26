@@ -21,6 +21,7 @@ use Throwable;
 use function in_array;
 use function ob_end_clean;
 use function ob_get_clean;
+use function ob_get_level;
 use function ob_start;
 
 final class OutputBufferingMiddleware implements MiddlewareInterface
@@ -54,12 +55,19 @@ final class OutputBufferingMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $level = ob_get_level();
+        ob_start();
+
         try {
-            ob_start();
             $response = $handler->handle($request);
-            $output = ob_get_clean();
+            $output = '';
+            while (ob_get_level() > $level) {
+                $output = (string)ob_get_clean() . $output;
+            }
         } catch (Throwable $e) {
-            ob_end_clean();
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
             throw $e;
         }
 

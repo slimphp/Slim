@@ -23,7 +23,10 @@ final class JsonExceptionMiddleware implements MiddlewareInterface
 
     private const DEFAULT_TYPE = 'application/json';
 
-    private int $jsonOptions = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR;
+    private int $jsonOptions = JSON_PRETTY_PRINT
+        | JSON_UNESCAPED_SLASHES
+        | JSON_PARTIAL_OUTPUT_ON_ERROR
+        | JSON_INVALID_UTF8_SUBSTITUTE;
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

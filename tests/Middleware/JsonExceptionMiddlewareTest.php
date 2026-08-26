@@ -198,6 +198,34 @@ final class JsonExceptionMiddlewareTest extends TestCase
         $this->assertStringContainsString('Test message', (string)$response->getBody());
     }
 
+    public function testSubstitutesInvalidUtf8(): void
+    {
+        $middleware = (new JsonExceptionMiddleware(new ResponseFactory()))
+            ->withMimeType('application/json')
+            ->withErrorDetails(true);
+
+        $request = (new ServerRequestFactory())->createServerRequest('GET', '/')
+            ->withHeader('Accept', 'application/json');
+
+        $handler = new class implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                throw new RuntimeException("Invalid \xB1\x31 UTF-8 sequence");
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+        $decoded = json_decode((string)$response->getBody(), true);
+
+        $this->assertSame(500, $response->getStatusCode());
+        $this->assertIsArray($decoded);
+        $this->assertSame('Application Error', $decoded['message']);
+        $this->assertSame(
+            "Invalid \u{FFFD}1 UTF-8 sequence",
+            $decoded['exception'][0]['message'],
+        );
+    }
+
     public function testWithJsonOptionsChangesEncoding(): void
     {
         $middleware = (new JsonExceptionMiddleware(new ResponseFactory()))
