@@ -14,7 +14,6 @@ use Slim\Error\AbstractErrorRenderer;
 use Throwable;
 
 use function get_class;
-use function htmlentities;
 use function htmlspecialchars;
 use function sprintf;
 
@@ -33,11 +32,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
             $html .= '<h2>Details</h2>';
             $html .= $this->renderExceptionFragment($exception);
         } else {
-            $description = htmlspecialchars(
-                $this->getErrorDescription($exception),
-                ENT_QUOTES | ENT_SUBSTITUTE,
-                'UTF-8'
-            );
+            $description = $this->escapeHtml($this->getErrorDescription($exception));
             $html = "<p>{$description}</p>";
         }
 
@@ -46,26 +41,25 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
 
     private function renderExceptionFragment(Throwable $exception): string
     {
-        $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
-
-        $code = $exception->getCode();
-        $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
-
-        $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($exception->getMessage()));
-
-        $html .= sprintf('<div><strong>File:</strong> %s</div>', $exception->getFile());
-
-        $html .= sprintf('<div><strong>Line:</strong> %s</div>', $exception->getLine());
-
+        $html = sprintf('<div><strong>Type:</strong> %s</div>', $this->escapeHtml(get_class($exception)));
+        $html .= sprintf('<div><strong>Code:</strong> %s</div>', $this->escapeHtml((string) $exception->getCode()));
+        $html .= sprintf('<div><strong>Message:</strong> %s</div>', $this->escapeHtml($exception->getMessage()));
+        $html .= sprintf('<div><strong>File:</strong> %s</div>', $this->escapeHtml($exception->getFile()));
+        $html .= sprintf('<div><strong>Line:</strong> %s</div>', $this->escapeHtml((string) $exception->getLine()));
         $html .= '<h2>Trace</h2>';
-        $html .= sprintf('<pre>%s</pre>', htmlentities($exception->getTraceAsString()));
+        $html .= sprintf('<pre>%s</pre>', $this->escapeHtml($exception->getTraceAsString()));
 
         return $html;
     }
 
+    private function escapeHtml(string $text): string
+    {
+        return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
     public function renderHtmlBody(string $title = '', string $html = ''): string
     {
-        $title = htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $title = $this->escapeHtml($title);
 
         return sprintf(
             '<!doctype html>' .
