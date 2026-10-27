@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="codebase-qa-docs" agent="codebase-qa-docs 1.0.0" version="24.0.0" type="device">
+  <diagram id="page-1" name="API routes">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <object label="API routes — Slim&lt;br&gt;One box per route file; first 20 routes listed per box" id="title"><mxCell style="text;html=1;align=left;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="500" height="50" as="geometry"/></mxCell></object>
+        <object label="tests/AppTest.php&lt;br&gt;ANY / → function (ServerRequestInterf…&lt;br&gt;GET / → function (ServerRequestInterf…&lt;br&gt;GET / → function (ServerRequestInterf…&lt;br&gt;GET / → function (ServerRequestInterf…&lt;br&gt;GET /buzz → function (ServerRequestInterf…&lt;br&gt;GET /baz → function (&lt;br&gt;GET / → function () {&lt;br&gt;GET / → function (ServerRequestInterf…&lt;br&gt;GET / → function (ServerRequestInterf…&lt;br&gt;GET / → function (ServerRequestInterf…&lt;br&gt;GET /Hello/{name} → function (ServerRequestInterf…&lt;br&gt;GET /Hello/{name} → function (ServerRequestInterf…&lt;br&gt;GET /Hello/{name} → function (ServerRequestInterf…&lt;br&gt;GET / → &#039;handler:foo&#039;&lt;br&gt;GET / → &#039;handler:method_does_not_exis…&lt;br&gt;GET / → &#039;handler:foo&#039;&lt;br&gt;GET / → __NAMESPACE__ . &#039;\handle&#039;&lt;br&gt;GET /Hello/{name} → function (ServerRequestInterf…&lt;br&gt;GET /Hello/{name} → function (ServerRequestInterf…&lt;br&gt;GET / → function (ServerRequestInterf…&lt;br&gt;… +6 more" id="rf_fc370f32" evidence="tests/AppTest.php:220" tooltip="Source: tests/AppTest.php:220"><mxCell style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1"><mxGeometry x="20" y="80" width="520" height="426" as="geometry"/></mxCell></object>
+        <object label="tests/Middleware/ErrorMiddlewareTest.php&lt;br&gt;GET /foo → function (ServerRequestInterf…&lt;br&gt;GET /foo → function (ServerRequestInterf…&lt;br&gt;GET /foo → function (ServerRequestInterf…&lt;br&gt;GET /foo → function (ServerRequestInterf…&lt;br&gt;GET /foo → function (ServerRequestInterf…" id="rf_1abac962" evidence="tests/Middleware/ErrorMiddlewareTest.php:163" tooltip="Source: tests/Middleware/ErrorMiddlewareTest.php:163"><mxCell style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1"><mxGeometry x="20" y="536" width="520" height="138" as="geometry"/></mxCell></object>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

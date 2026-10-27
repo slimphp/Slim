@@ -1,0 +1,50 @@
+[
+    {
+        "tool": "PHP CLI",
+        "status": "Available",
+        "detail": "PHP 8.2.12 (C:/xampp/php/php.exe)",
+        "used_for": "Runs this plugin (required)"
+    },
+    {
+        "tool": "python",
+        "status": "Not found",
+        "detail": "not on PATH",
+        "used_for": "Optional; not used by this plugin"
+    },
+    {
+        "tool": "node",
+        "status": "Not found",
+        "detail": "not on PATH",
+        "used_for": "Optional; not used by this plugin"
+    },
+    {
+        "tool": "git",
+        "status": "Not found",
+        "detail": "not on PATH",
+        "used_for": "Optional; used only to show change context"
+    },
+    {
+        "tool": "claude",
+        "status": "Available",
+        "detail": "C:/Users/Admin/.local/bin/claude.exe",
+        "used_for": "Needed only to load the plugin as slash commands"
+    },
+    {
+        "tool": "Graphify",
+        "status": "Not found",
+        "detail": "Not on PATH and no graphify-out/graph.json in the project. Plugin runs fully without it; no Graphify-derived content is included.",
+        "used_for": "Supplementary knowledge graph"
+    },
+    {
+        "tool": "draw.io desktop",
+        "status": "Not found",
+        "detail": "not installed; .drawio files are plain XML and open at https://app.diagrams.net (File > Open). PNG/SVG export and visual rendering checks were NOT performed.",
+        "used_for": "Optional export/visual check"
+    },
+    {
+        "tool": "draw.io MCP (Claude session)",
+        "status": "Not detectable from CLI",
+        "detail": "Only a Claude Code session can see MCP tools. The /codebase-qa-docs:generate command instructs Claude to report whether mcp__*draw_io__* tools are present; the .drawio files do not depend on it.",
+        "used_for": "Optional diagram preview"
+    }
+]
