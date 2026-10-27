@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="codebase-qa-docs" agent="codebase-qa-docs 1.0.0" version="24.0.0" type="device">
+  <diagram id="page-1" name="Architecture">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <object label="Architecture — Slim&lt;br&gt;Generated from source; edges = statically resolved imports" id="title"><mxCell style="text;html=1;align=left;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="560" height="50" as="geometry"/></mxCell></object>
+        <object label="&amp;lt;tests&amp;gt;&lt;br&gt;53 files · 8581 LOC&lt;br&gt;PHP" id="mod_b61a6d54" evidence="module directory &#039;tests&#039; (53 files)" tooltip="Source: module directory &#039;tests&#039; (53 files)"><mxCell style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="300" y="90" width="240" height="80" as="geometry"/></mxCell></object>
+        <object label="&amp;lt;Slim&amp;gt;&lt;br&gt;72 files · 4870 LOC&lt;br&gt;PHP" id="mod_2a148457" evidence="module directory &#039;Slim&#039; (72 files)" tooltip="Source: module directory &#039;Slim&#039; (72 files)"><mxCell style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="580" y="90" width="240" height="80" as="geometry"/></mxCell></object>
+        <object label="&amp;lt;(root)&amp;gt;&lt;br&gt;17 files · 701 LOC&lt;br&gt;YAML, Markdown, JSON" id="mod_9bc46191" evidence="module directory &#039;(root)&#039; (17 files)" tooltip="Source: module directory &#039;(root)&#039; (17 files)"><mxCell style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="860" y="90" width="240" height="80" as="geometry"/></mxCell></object>
+        <object label="&amp;lt;.github&amp;gt;&lt;br&gt;3 files · 63 LOC&lt;br&gt;YAML" id="mod_01777e4a" evidence="module directory &#039;.github&#039; (3 files)" tooltip="Source: module directory &#039;.github&#039; (3 files)"><mxCell style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="300" y="220" width="240" height="80" as="geometry"/></mxCell></object>
+        <object label="140" id="e_0e835e0f" evidence="tests/AppTest.php:26" tooltip="Source: tests/AppTest.php:26"><mxCell style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#555555;fontSize=11;" edge="1" parent="1" source="mod_b61a6d54" target="mod_2a148457"><mxGeometry relative="1" as="geometry"/></mxCell></object>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
