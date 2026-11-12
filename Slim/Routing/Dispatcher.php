@@ -64,6 +64,12 @@ class Dispatcher implements DispatcherInterface
     {
         $dispatcher = $this->createDispatcher();
         $results = $dispatcher->dispatch($method, $uri);
+
+        // urldecode double-urlencoded slash in RouteResolver::computeRoutingResults
+        foreach ($results[2] as &$routeAgument)
+            $routeAgument = str_replace('%2F', '/', $routeAgument);
+        unset($routeAgument);
+
         return new RoutingResults($this, $method, $uri, $results[0], $results[1], $results[2]);
     }
 

@@ -39,6 +39,8 @@ class RouteResolver implements RouteResolverInterface
      */
     public function computeRoutingResults(string $uri, string $method): RoutingResults
     {
+        // %2F is re-urlencoded to preserve the slash witch dispatch()
+        $uri = str_replace('%2F', '%252F', $uri);
         $uri = rawurldecode($uri);
         if ($uri === '' || $uri[0] !== '/') {
             $uri = '/' . $uri;
