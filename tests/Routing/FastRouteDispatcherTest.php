@@ -107,6 +107,21 @@ class FastRouteDispatcherTest extends TestCase
         $this->assertSame($results, $allowedMethods);
     }
 
+    public function testGetAllowedMethodsReusesLastUriOnly()
+    {
+        /** @var FastRouteDispatcher $dispatcher */
+        $dispatcher = simpleDispatcher(function (RouteCollector $r) {
+            $r->addRoute('GET', '/user', 'handler0');
+            $r->addRoute('POST', '/post', 'handler1');
+        }, $this->generateDispatcherOptions());
+
+        $this->assertSame(['GET'], $dispatcher->getAllowedMethods('/user'));
+        $this->assertSame(['POST'], $dispatcher->getAllowedMethods('/post'));
+
+        // Repeating the first URI recomputes, as only the last result is kept.
+        $this->assertSame(['GET'], $dispatcher->getAllowedMethods('/user'));
+    }
+
     public function testDuplicateVariableNameError()
     {
         $this->expectException(BadRouteException::class);

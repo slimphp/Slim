@@ -15,7 +15,12 @@ use FastRoute\Dispatcher\GroupCountBased;
 class FastRouteDispatcher extends GroupCountBased
 {
     /**
-     * @var string[][]
+     * @var string|null
+     */
+    private ?string $allowedMethodsUri = null;
+
+    /**
+     * @var string[]
      */
     private array $allowedMethods = [];
 
@@ -86,8 +91,8 @@ class FastRouteDispatcher extends GroupCountBased
      */
     public function getAllowedMethods(string $uri): array
     {
-        if (isset($this->allowedMethods[$uri])) {
-            return $this->allowedMethods[$uri];
+        if ($this->allowedMethodsUri === $uri) {
+            return $this->allowedMethods;
         }
 
         $allowedMethods = [];
@@ -104,6 +109,8 @@ class FastRouteDispatcher extends GroupCountBased
             }
         }
 
-        return $this->allowedMethods[$uri] = array_keys($allowedMethods);
+        $this->allowedMethodsUri = $uri;
+
+        return $this->allowedMethods = array_keys($allowedMethods);
     }
 }

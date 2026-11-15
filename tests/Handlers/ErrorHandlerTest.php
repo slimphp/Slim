@@ -118,6 +118,101 @@ class ErrorHandlerTest extends TestCase
         $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
     }
 
+    /**
+     * Test that the content type is negotiated from the Accept header on each
+     * request instead of being cached from the first invocation.
+     */
+    public function testContentTypeIsNegotiatedOnEachRequest()
+    {
+        $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
+
+        $jsonRequest = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'application/json');
+
+        $htmlRequest = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'text/html');
+
+        $exception = new HttpNotFoundException($jsonRequest);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($jsonRequest, $exception, false, false, false);
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
+
+        $exception = new HttpNotFoundException($htmlRequest);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($htmlRequest, $exception, false, false, false);
+        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
+    }
+
+    /**
+     * Test that a forced content type still wins over per-request negotiation.
+     */
+    public function testForcedContentTypeWinsOverSubsequentNegotiation()
+    {
+        $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
+        $handler->forceContentType('application/json');
+
+        $jsonRequest = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'application/json');
+
+        $xmlRequest = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'application/xml');
+
+        $exception = new HttpNotFoundException($jsonRequest);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($jsonRequest, $exception, false, false, false);
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
+
+        $exception = new HttpNotFoundException($xmlRequest);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($xmlRequest, $exception, false, false, false);
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
+    }
+
+    /**
+     * Test that forceContentType(null) restores Accept-header negotiation.
+     */
+    public function testForceContentTypeNullRestoresNegotiation()
+    {
+        $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
+        $handler->forceContentType('application/json');
+
+        $xmlRequest = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'application/xml');
+
+        $htmlRequest = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'text/html');
+
+        $exception = new HttpNotFoundException($xmlRequest);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($xmlRequest, $exception, false, false, false);
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
+
+        $handler->forceContentType(null);
+
+        $exception = new HttpNotFoundException($xmlRequest);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($xmlRequest, $exception, false, false, false);
+        $this->assertSame(['application/xml'], $response->getHeader('Content-Type'));
+
+        $exception = new HttpNotFoundException($htmlRequest);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($htmlRequest, $exception, false, false, false);
+        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
+    }
+
     public function testHalfValidContentType()
     {
         $request = $this

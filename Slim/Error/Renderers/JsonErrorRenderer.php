@@ -16,6 +16,7 @@ use Throwable;
 use function get_class;
 use function json_encode;
 
+use const JSON_INVALID_UTF8_SUBSTITUTE;
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_SLASHES;
 
@@ -35,7 +36,10 @@ class JsonErrorRenderer extends AbstractErrorRenderer
             } while ($exception = $exception->getPrevious());
         }
 
-        return (string) json_encode($error, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        return (string) json_encode(
+            $error,
+            JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        );
     }
 
     /**

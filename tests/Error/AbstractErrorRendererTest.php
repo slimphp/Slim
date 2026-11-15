@@ -237,6 +237,23 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertSame($output, json_encode(['message' => 'Slim Application Error']));
     }
 
+    public function testJSONErrorRendererSubstitutesInvalidUtf8()
+    {
+        $exception = new Exception("Invalid \xB1\x31 UTF-8 sequence");
+
+        $renderer = new JsonErrorRenderer();
+        $output = $renderer->__invoke($exception, true);
+
+        $this->assertNotSame('', $output);
+        $decoded = json_decode($output, true);
+        $this->assertIsArray($decoded);
+        $this->assertSame('Slim Application Error', $decoded['message']);
+        $this->assertSame(
+            "Invalid \u{FFFD}1 UTF-8 sequence",
+            $decoded['exception'][0]['message']
+        );
+    }
+
     public function testJSONErrorRendererDisplaysPreviousError()
     {
         $previousException = new Exception('Oh no!');
