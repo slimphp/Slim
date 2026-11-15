@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Escape error detail fields consistently in HtmlErrorRenderer (#3466)
+
 ### Added
 
 - Add support for PHP 8.6 (#3481)
