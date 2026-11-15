@@ -83,6 +83,47 @@ class UploadedFilesTest extends TestCase
         $this->assertEquals($input, $uploadedFile);
     }
 
+    public function testCreateFromEnvironmentParsesDeeplyNestedFilesWithoutExponentialSlowdown()
+    {
+        $depth = 22;
+        $_FILES = [
+            'files' => [
+                'tmp_name' => self::buildNestedUploadAttribute($depth, 'phpUxcOty'),
+                'name' => self::buildNestedUploadAttribute($depth, 'file.txt'),
+                'type' => self::buildNestedUploadAttribute($depth, 'text/plain'),
+                'error' => self::buildNestedUploadAttribute($depth, UPLOAD_ERR_OK),
+                'size' => self::buildNestedUploadAttribute($depth, 8),
+            ],
+        ];
+
+        $start = hrtime(true);
+        $uploadedFiles = UploadedFile::createFromEnvironment(Environment::mock());
+        $elapsedSeconds = (hrtime(true) - $start) / 1e9;
+
+        $this->assertLessThan(1, $elapsedSeconds);
+
+        $expectedFile = new UploadedFile('phpUxcOty', 'file.txt', 'text/plain', 8, UPLOAD_ERR_OK, true);
+        $node = $uploadedFiles['files'];
+        for ($level = 1; $level < $depth; $level++) {
+            $this->assertEquals($expectedFile, $node[1]);
+            $node = $node[0];
+        }
+        $this->assertEquals([$expectedFile, $expectedFile], $node);
+    }
+
+    /**
+     * Builds one attribute of a $_FILES entry in which each level holds a deeper branch at key 0 and a file at key 1.
+     */
+    private static function buildNestedUploadAttribute(int $depth, string|int $leaf): array
+    {
+        $value = [$leaf, $leaf];
+        for ($level = 1; $level < $depth; $level++) {
+            $value = [$value, $leaf];
+        }
+
+        return $value;
+    }
+
     public function testCreateFromEnvironmentWithoutFile()
     {
         unset($_FILES);
