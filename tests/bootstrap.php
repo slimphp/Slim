@@ -15,6 +15,14 @@ use Slim\Tests\Assets\HeaderStack;
 
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
+// adriansuter/php-autoload-override calls spl_object_hash() for each closure override, which is deprecated
+// as of PHP 8.6. This bootstrap runs before PHPUnit registers its error handler, so the deprecation message
+// would be printed and break the tests that run in a separate process. Silence only that deprecation while
+// the overrides are being registered.
+set_error_handler(static function (int $errno, string $errstr): bool {
+    return strpos($errstr, 'spl_object_hash()') !== false;
+}, E_DEPRECATED);
+
 Override::apply($classLoader, [
     ResponseEmitter::class => [
         'connection_status' => function (): int {
@@ -46,3 +54,5 @@ Override::apply($classLoader, [
         }
     ]
 ]);
+
+restore_error_handler();

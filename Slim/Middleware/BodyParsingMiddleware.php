@@ -27,6 +27,7 @@ use function libxml_disable_entity_loader;
 use function libxml_use_internal_errors;
 use function parse_str;
 use function simplexml_load_string;
+use function strstr;
 use function strtolower;
 use function trim;
 
@@ -109,6 +110,14 @@ class BodyParsingMiddleware implements MiddlewareInterface
 
         $this->registerBodyParser('application/x-www-form-urlencoded', static function ($input) {
             /** @var string $input */
+
+            // PHP < 8.6 stops parsing at the first NUL byte, PHP >= 8.6 throws a ValueError instead.
+            // Truncate the input at the first NUL byte to keep the same result on all PHP versions.
+            $beforeNulByte = strstr($input, "\0", true);
+            if ($beforeNulByte !== false) {
+                $input = $beforeNulByte;
+            }
+
             parse_str($input, $data);
 
             return $data;
@@ -178,9 +187,11 @@ class BodyParsingMiddleware implements MiddlewareInterface
     {
         $contentType = $request->getHeader('Content-Type')[0] ?? null;
 
-        if (is_string($contentType) && trim($contentType) !== '') {
+        // PHP 8.6 added the form feed character (\f) to the characters trim() strips by default.
+        // Pass the previous default character list explicitly to keep the same result on all PHP versions.
+        if (is_string($contentType) && trim($contentType, " \n\r\t\v\0") !== '') {
             $contentTypeParts = explode(';', $contentType);
-            return strtolower(trim($contentTypeParts[0]));
+            return strtolower(trim($contentTypeParts[0], " \n\r\t\v\0"));
         }
 
         return null;

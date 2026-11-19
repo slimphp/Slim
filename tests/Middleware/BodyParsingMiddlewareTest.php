@@ -72,6 +72,16 @@ class BodyParsingMiddlewareTest extends TestCase
                 'foo=bar',
                 ['foo' => 'bar'],
             ],
+            'form-with-nul-byte' => [
+                'application/x-www-form-urlencoded',
+                "foo=bar\0&baz=qux",
+                ['foo' => 'bar'],
+            ],
+            'form-starting-with-nul-byte' => [
+                'application/x-www-form-urlencoded',
+                "\0foo=bar",
+                [],
+            ],
             'json' => [
                 "application/json",
                 '{"foo":"bar"}',
@@ -158,6 +168,19 @@ class BodyParsingMiddlewareTest extends TestCase
         $middleware->process($request, $requestHandler);
 
         $this->assertEquals($expected, $requestHandler->request->getParsedBody());
+    }
+
+    public function testContentTypeWithFormFeedIsNotTrimmed()
+    {
+        // PSR-7 implementations reject a form feed in header values, so a test double is used instead.
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getParsedBody()->willReturn(null);
+        $requestProphecy->getHeader('Content-Type')->willReturn(["application/json\f"]);
+        $requestProphecy->getBody()->shouldNotBeCalled();
+        $requestProphecy->withParsedBody(null)->willReturn($requestProphecy->reveal())->shouldBeCalledOnce();
+
+        $middleware = new BodyParsingMiddleware();
+        $middleware->process($requestProphecy->reveal(), $this->createRequestHandler());
     }
 
     public function testParsingWithARegisteredParser()
