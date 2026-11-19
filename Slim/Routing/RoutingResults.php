@@ -12,8 +12,6 @@ namespace Slim\Routing;
 
 use Slim\Interfaces\DispatcherInterface;
 
-use function rawurldecode;
-
 /** @api */
 class RoutingResults
 {
@@ -87,20 +85,17 @@ class RoutingResults
     }
 
     /**
+     * @note Arguments are captured from a path that RouteResolver has already decoded,
+     * so we return them as-is with no URL decoding.
+     *
+     * @param bool $urlDecode Ignored. Retained for backwards compatibility.
      * @return array<string, string>
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public function getRouteArguments(bool $urlDecode = true): array
     {
-        if (!$urlDecode) {
-            return $this->routeArguments;
-        }
-
-        $routeArguments = [];
-        foreach ($this->routeArguments as $key => $value) {
-            $routeArguments[$key] = rawurldecode($value);
-        }
-
-        return $routeArguments;
+        return $this->routeArguments;
     }
 
     /**

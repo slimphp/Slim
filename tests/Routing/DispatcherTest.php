@@ -16,6 +16,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Routing\Dispatcher;
 use Slim\Routing\FastRouteDispatcher;
 use Slim\Routing\RouteCollector;
+use Slim\Routing\RouteResolver;
 use Slim\Routing\RoutingResults;
 use Slim\Tests\TestCase;
 
@@ -134,9 +135,30 @@ class DispatcherTest extends TestCase
         $this->assertSame('GET', $results->getMethod());
         $this->assertSame('/hello/Foo%20Bar', $results->getUri());
         $this->assertSame($route->getIdentifier(), $results->getRouteIdentifier());
-        $this->assertSame(['name' => 'Foo Bar'], $results->getRouteArguments());
+        $this->assertSame(['name' => 'Foo%20Bar'], $results->getRouteArguments());
         $this->assertSame(['name' => 'Foo%20Bar'], $results->getRouteArguments(false));
         $this->assertSame($methods, $results->getAllowedMethods());
         $this->assertSame($dispatcher, $results->getDispatcher());
+    }
+
+    public function testRouteArgumentsAreDecodedOnlyOnce()
+    {
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $callable = function () {
+        };
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->map(['GET'], '/download/{file}', $callable);
+
+        $routeResolver = new RouteResolver($routeCollector);
+
+        $results = $routeResolver->computeRoutingResults('/download/Foo%20Bar', 'GET');
+        $this->assertSame(RoutingResults::FOUND, $results->getRouteStatus());
+        $this->assertSame(['file' => 'Foo Bar'], $results->getRouteArguments());
+
+        $results = $routeResolver->computeRoutingResults('/download/%252e%252e%252fetc%252fpasswd', 'GET');
+        $this->assertSame(RoutingResults::FOUND, $results->getRouteStatus());
+        $this->assertSame(['file' => '%2e%2e%2fetc%2fpasswd'], $results->getRouteArguments());
     }
 }

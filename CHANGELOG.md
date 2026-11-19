@@ -4,11 +4,28 @@
 
 ### Fixed
 
+- Escape error detail fields consistently in HtmlErrorRenderer (#3466)
+
 ### Added
+
+- Add support for PHP 8.6 (#3481)
 
 ### Changed
 
-### Removed
+### Deleted
+
+## 4.15.3 - 2026-09-01
+
+### Fixed
+- Negotiate error handler content type on every request (#3464)
+- Substitute invalid UTF-8 in JSON error renderer output (#3465)
+- Cache only the last getAllowedMethods() lookup (#3468)
+- Stop decoding route arguments twice to prevent route constraint bypass ([GHSA-h377-p8x2-prf9](https://github.com/slimphp/Slim/security/advisories/GHSA-h377-p8x2-prf9))
+
+### Changed
+
+- The `$urlDecode` parameter of `RoutingResults::getRouteArguments()` is now ignored  ([GHSA-h377-p8x2-prf9](https://github.com/slimphp/Slim/security/advisories/GHSA-h377-p8x2-prf9))
+
 
 ## 4.15.2 - 2026-05-22
 
