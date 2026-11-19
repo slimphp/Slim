@@ -111,8 +111,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
         $this->registerBodyParser('application/x-www-form-urlencoded', static function ($input) {
             /** @var string $input */
 
-            // PHP < 8.6 stops parsing at the first NUL byte, PHP >= 8.6 throws a ValueError instead.
-            // Truncate the input at the first NUL byte to keep the same result on all PHP versions.
+            // Truncate at the first NUL byte, as parse_str() throws a ValueError on them since PHP 8.6
             $beforeNulByte = strstr($input, "\0", true);
             if ($beforeNulByte !== false) {
                 $input = $beforeNulByte;
@@ -187,8 +186,7 @@ class BodyParsingMiddleware implements MiddlewareInterface
     {
         $contentType = $request->getHeader('Content-Type')[0] ?? null;
 
-        // PHP 8.6 added the form feed character (\f) to the characters trim() strips by default.
-        // Pass the previous default character list explicitly to keep the same result on all PHP versions.
+        // Pre-PHP 8.6 trim() default characters (PHP 8.6 adds \f)
         if (is_string($contentType) && trim($contentType, " \n\r\t\v\0") !== '') {
             $contentTypeParts = explode(';', $contentType);
             return strtolower(trim($contentTypeParts[0], " \n\r\t\v\0"));

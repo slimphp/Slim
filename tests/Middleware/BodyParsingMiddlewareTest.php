@@ -172,7 +172,7 @@ class BodyParsingMiddlewareTest extends TestCase
 
     public function testContentTypeWithFormFeedIsNotTrimmed()
     {
-        // PSR-7 implementations reject a form feed in header values, so a test double is used instead.
+        // PSR-7 implementations reject \f in header values
         $requestProphecy = $this->prophesize(ServerRequestInterface::class);
         $requestProphecy->getParsedBody()->willReturn(null);
         $requestProphecy->getHeader('Content-Type')->willReturn(["application/json\f"]);
