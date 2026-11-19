@@ -16,14 +16,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ 8.2, 8.3, 8.4, 8.5 ]
+        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
         include:
-          - php: 8.4
+          - php: '8.4'
             analysis: true
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -50,8 +50,7 @@ jobs:
 
       - name: Upload coverage results to Coveralls
         if: matrix.analysis
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          composer global require php-coveralls/php-coveralls
-          php-coveralls --coverage_clover=build/coverage/clover.xml -v
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: php-${{ matrix.php }}
+          files: build/coverage/clover.xml
