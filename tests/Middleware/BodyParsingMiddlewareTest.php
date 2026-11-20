@@ -170,19 +170,6 @@ class BodyParsingMiddlewareTest extends TestCase
         $this->assertEquals($expected, $requestHandler->request->getParsedBody());
     }
 
-    public function testContentTypeWithFormFeedIsNotTrimmed()
-    {
-        // PSR-7 implementations reject \f in header values
-        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
-        $requestProphecy->getParsedBody()->willReturn(null);
-        $requestProphecy->getHeader('Content-Type')->willReturn(["application/json\f"]);
-        $requestProphecy->getBody()->shouldNotBeCalled();
-        $requestProphecy->withParsedBody(null)->willReturn($requestProphecy->reveal())->shouldBeCalledOnce();
-
-        $middleware = new BodyParsingMiddleware();
-        $middleware->process($requestProphecy->reveal(), $this->createRequestHandler());
-    }
-
     public function testParsingWithARegisteredParser()
     {
         $request = $this->createRequestWithBody('application/vnd.api+json', '{"foo":"bar"}');

@@ -186,10 +186,9 @@ class BodyParsingMiddleware implements MiddlewareInterface
     {
         $contentType = $request->getHeader('Content-Type')[0] ?? null;
 
-        // Pre-PHP 8.6 trim() default characters (PHP 8.6 adds \f)
-        if (is_string($contentType) && trim($contentType, " \n\r\t\v\0") !== '') {
+        if (is_string($contentType) && trim($contentType) !== '') {
             $contentTypeParts = explode(';', $contentType);
-            return strtolower(trim($contentTypeParts[0], " \n\r\t\v\0"));
+            return strtolower(trim($contentTypeParts[0]));
         }
 
         return null;
