@@ -5,6 +5,7 @@
 ### Fixed
 
 - Escape error detail fields consistently in HtmlErrorRenderer (#3466)
+- Truncate form-urlencoded bodies at the first NUL byte in BodyParsingMiddleware to avoid a ValueError on PHP 8.6 (#3488)
 
 ### Added
 
