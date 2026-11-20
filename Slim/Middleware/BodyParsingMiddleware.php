@@ -27,6 +27,7 @@ use function libxml_disable_entity_loader;
 use function libxml_use_internal_errors;
 use function parse_str;
 use function simplexml_load_string;
+use function strstr;
 use function strtolower;
 use function trim;
 
@@ -109,6 +110,13 @@ class BodyParsingMiddleware implements MiddlewareInterface
 
         $this->registerBodyParser('application/x-www-form-urlencoded', static function ($input) {
             /** @var string $input */
+
+            // Truncate at the first NUL byte, as parse_str() throws a ValueError on them since PHP 8.6
+            $beforeNulByte = strstr($input, "\0", true);
+            if ($beforeNulByte !== false) {
+                $input = $beforeNulByte;
+            }
+
             parse_str($input, $data);
 
             return $data;

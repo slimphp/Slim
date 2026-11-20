@@ -1856,7 +1856,7 @@ class AppTest extends TestCase
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy
-            ->createResponse(Argument::type('integer'))
+            ->createResponse(Argument::type('int'))
             ->will(function ($args) use ($responseProphecy) {
                 $responseProphecy->getStatusCode()->willReturn($args[0]);
                 return $responseProphecy->reveal();

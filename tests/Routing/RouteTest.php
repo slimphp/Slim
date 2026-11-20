@@ -86,7 +86,7 @@ class RouteTest extends TestCase
             ->willReturn($streamProphecy->reveal());
 
         $responseProphecy
-            ->withStatus(Argument::type('integer'))
+            ->withStatus(Argument::type('int'))
             ->will(function ($args) {
                 $this->getStatusCode()->willReturn($args[0]);
                 return $this->reveal();

@@ -15,6 +15,11 @@ use Slim\Tests\Assets\HeaderStack;
 
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
+// Silence php-autoload-override's spl_object_hash() deprecation (PHP 8.6), it breaks isolated tests
+set_error_handler(static function (int $errno, string $errstr): bool {
+    return strpos($errstr, 'spl_object_hash()') !== false;
+}, E_DEPRECATED);
+
 Override::apply($classLoader, [
     ResponseEmitter::class => [
         'connection_status' => function (): int {
@@ -46,3 +51,5 @@ Override::apply($classLoader, [
         }
     ]
 ]);
+
+restore_error_handler();

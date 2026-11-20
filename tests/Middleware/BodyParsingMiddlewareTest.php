@@ -72,6 +72,16 @@ class BodyParsingMiddlewareTest extends TestCase
                 'foo=bar',
                 ['foo' => 'bar'],
             ],
+            'form-with-nul-byte' => [
+                'application/x-www-form-urlencoded',
+                "foo=bar\0&baz=qux",
+                ['foo' => 'bar'],
+            ],
+            'form-starting-with-nul-byte' => [
+                'application/x-www-form-urlencoded',
+                "\0foo=bar",
+                [],
+            ],
             'json' => [
                 "application/json",
                 '{"foo":"bar"}',
