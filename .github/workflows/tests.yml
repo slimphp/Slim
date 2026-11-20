@@ -15,12 +15,10 @@ jobs:
       matrix:
         php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
         experimental: [false]
-        composer-options: ['']
         include:
-          - php: '8.2'
+          - php: '8.5'
             analysis: true
           - php: '8.6'
-            experimental: true
             composer-options: '--ignore-platform-req=php+'
           - php: nightly
             experimental: true
