@@ -17,6 +17,8 @@ use Psr\Http\Message\UriInterface;
 /**
  * @api
  * @template TContainerInterface of (ContainerInterface|null)
+ *
+ * @method RouteInterface query(string $pattern, callable|array{0: string, 1: string}|string $callable)
  */
 interface RouteCollectorProxyInterface
 {

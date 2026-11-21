@@ -241,6 +241,38 @@ class AppTest extends TestCase
         }
     }
 
+    public function testQueryRoute(): void
+    {
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('QUERY');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(RouteContext::ROUTING_RESULTS)->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $this->getAttribute($args[0])->willReturn($args[1]);
+            return $this;
+        });
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->query('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        });
+        $response = $app->handle($requestProphecy->reveal());
+
+        $this->assertSame('Hello World', (string) $response->getBody());
+    }
+
     /********************************************************************************
      * Route collector proxy methods
      *******************************************************************************/

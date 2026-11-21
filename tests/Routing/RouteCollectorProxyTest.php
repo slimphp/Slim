@@ -317,6 +317,39 @@ class RouteCollectorProxyTest extends TestCase
         $this->assertSame($pattern, $route->getPattern());
     }
 
+    public function testQuery()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $pattern = '/';
+        $callable = function () {
+        };
+
+        $routeProphecy = $this->prophesize(RouteInterface::class);
+        $routeProphecy
+            ->getPattern()
+            ->willReturn($pattern)
+            ->shouldBeCalledOnce();
+
+        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeCollectorProphecy
+            ->map(['QUERY'], $pattern, Argument::is($callable))
+            ->willReturn($routeProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $routeCollectorProxy = new RouteCollectorProxy(
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal(),
+            null,
+            $routeCollectorProphecy->reveal()
+        );
+
+        $route = $routeCollectorProxy->query($pattern, $callable);
+
+        $this->assertSame($pattern, $route->getPattern());
+    }
+
     public function testAny()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
